@@ -1,0 +1,97 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'keycloak']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin_password
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+    command: start-dev
+    ports:
+      - '8082:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - waggle
+
+  authservice:
+    build:
+      context: ../../
+      dockerfile: apps/authservice/Dockerfile
+    container_name: authservice
+    ports:
+      - '8081:8080'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=test-realm
+      - KEYCLOAK_CLIENT_ID=test-client
+      - KEYCLOAK_CLIENT_SECRET=95o8yS0vb5RXhAAaSnabVZwNL6pNhhUX
+    networks:
+      - waggle
+    restart: unless-stopped
+
+  userservice:
+    build:
+      context: ../../
+      dockerfile: apps/userservice/Dockerfile
+    container_name: userservice
+    ports:
+      - '8080:8080'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - waggle
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../../
+      dockerfile: apps/web/Dockerfile
+    container_name: web
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - ORIGIN=http://localhost:3000
+      - AUTH_SERVICE_BASE_URL=http://authservice:8080
+      - USER_SERVICE_BASE_URL=http://userservice:8080
+    depends_on:
+      - userservice
+      - authservice
+    networks:
+      - waggle
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  waggle:
+    external: true

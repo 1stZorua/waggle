@@ -1,0 +1,23 @@
+namespace: waggle-dev
+
+global:
+  imagePullPolicy: IfNotPresent
+  environment: Development
+
+authservice:
+  name: authservice
+  image: waggle-authservice:latest
+  host: authservice.localhost
+  port: 8080
+
+userservice:
+  name: userservice
+  image: waggle-userservice:latest
+  host: userservice.localhost
+  port: 8080
+
+web:
+  name: web
+  image: waggle-web:latest
+  host: web.localhost
+  port: 3000

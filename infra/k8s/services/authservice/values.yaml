@@ -1,0 +1,6 @@
+replicas: 1
+
+name: authservice
+image: waggle-authservice:latest
+port: 8080
+host: authservice.localhost
