@@ -1,14 +1,16 @@
 {
-  "name": "with-svelte",
+  "name": "waggle",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
+    "gen:types": "npm run generate --workspace=@waggle/api-client",
+    "build": "turbo run build --env-mode=loose",
+    "dev": "turbo run dev --parallel --env-mode=loose",
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "dotenv-cli": "^10.0.0",
     "prettier": "^3.6.0",
     "prettier-plugin-svelte": "^3.4.0",
     "turbo": "^2.5.6"
@@ -19,6 +21,7 @@
   "packageManager": "npm@11.6.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/typescript/*"
   ]
 }

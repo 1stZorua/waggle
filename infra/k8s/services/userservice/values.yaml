@@ -1,0 +1,6 @@
+replicas: 1
+
+name: userservice
+image: waggle-userservice:latest
+port: 8080
+host: userservice.localhost

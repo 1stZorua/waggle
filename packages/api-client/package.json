@@ -1,0 +1,39 @@
+{
+  "name": "@waggle/api-client",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/core.ts",
+      "default": "./src/core.ts"
+    },
+    "./auth": {
+      "types": "./src/auth/client.ts",
+      "default": "./src/auth/client.ts"
+    },
+    "./auth/model": {
+      "types": "./src/auth/generated/model/index.ts",
+      "default": "./src/auth/generated/model/index.ts"
+    },
+    "./user": {
+      "types": "./src/user/client.ts",
+      "default": "./src/user/client.ts"
+    },
+    "./user/model": {
+      "types": "./src/user/generated/model/index.ts",
+      "default": "./src/user/generated/model/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "generate": "dotenv -- orval",
+    "generate:wrappers": "node ./scripts/generate-wrappers.js",
+    "generate:auth": "orval --project authservice",
+    "generate:user": "orval --project userservice"
+  },
+  "devDependencies": {
+    "orval": "^7.13.2"
+  }
+}

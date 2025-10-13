@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-depl
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              value: "http://keycloak.keycloak.svc.cluster.local:80"
+            - name: KEYCLOAK_REALM
+              value: "test-realm"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "test-client"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: "r6RYJCGbdaIPpNzWWJ1qXfALBemV3Dfg"        
