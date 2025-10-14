@@ -28,8 +28,8 @@
     "src"
   ],
   "scripts": {
-    "generate": "dotenv -- orval",
-    "generate:wrappers": "node ./scripts/generate-wrappers.js",
+    "fetch-specs": "node ./scripts/fetch-specs.js",
+    "generate": "orval",
     "generate:auth": "orval --project authservice",
     "generate:user": "orval --project userservice"
   },

@@ -84,6 +84,9 @@ pnpm-debug.log*
 # *.nupkg
 # *.snupkg
 
+# Orval generated API clients
+src/**/generated
+
 # Kubernetes / Helm
 *.tgz
 **/requirements.lock

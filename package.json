@@ -2,7 +2,8 @@
   "name": "waggle",
   "private": true,
   "scripts": {
-    "gen:types": "npm run generate --workspace=@waggle/api-client",
+    "postinstall": "npm run generate:api",
+    "generate:api": "npm run generate --workspace=@waggle/api-client",
     "build": "turbo run build --env-mode=loose",
     "dev": "turbo run dev --parallel --env-mode=loose",
     "lint": "turbo run lint",

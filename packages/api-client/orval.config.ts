@@ -1,19 +1,9 @@
 import { defineConfig } from 'orval';
-import { execSync } from 'child_process';
 
-type RouteInfo = {
-  path: string;
-  verb: string;
-  operationId?: string;
-  tags?: string[];
-};
-
-const makeService = (name: string, port: number) =>
+const makeService = (name: string) =>
   ({
     input: {
-      target:
-        process.env[`${name.toUpperCase()}_SERVICE_SPEC`] ||
-        `http://localhost:${port}/swagger/v1/swagger.json`,
+      target: `./openapi/${name}.json`,
       override: {
         transformer: './scripts/remove-dto-transformer.js'
       }
@@ -35,6 +25,6 @@ const makeService = (name: string, port: number) =>
   }) as const;
 
 export default defineConfig({
-  authservice: makeService('auth', 8081),
-  userservice: makeService('user', 8080)
+  authservice: makeService('auth'),
+  userservice: makeService('user')
 });
