@@ -4,7 +4,14 @@
  * AuthService
  * OpenAPI spec version: 1.0
  */
-import type { LoginRequest, LoginResponse, LogoutRequest, RefreshTokenRequest } from './model';
+import type {
+  LoginRequest,
+  LoginResponse,
+  LogoutRequest,
+  RefreshTokenRequest,
+  RegisterRequest,
+  TokenResponse
+} from './model';
 
 import { apiFetch } from '../../../core';
 
@@ -34,8 +41,34 @@ export const postApiAuthLogin = async (
   });
 };
 
+export type postApiAuthRegisterResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type postApiAuthRegisterResponseSuccess = postApiAuthRegisterResponse200 & {
+  headers: Headers;
+};
+export type postApiAuthRegisterResponse = postApiAuthRegisterResponseSuccess;
+
+export const getPostApiAuthRegisterUrl = () => {
+  return `/api/auth/register`;
+};
+
+export const postApiAuthRegister = async (
+  registerRequest: RegisterRequest,
+  options?: RequestInit
+): Promise<postApiAuthRegisterResponse> => {
+  return apiFetch<postApiAuthRegisterResponse>(getPostApiAuthRegisterUrl(), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(registerRequest)
+  });
+};
+
 export type postApiAuthRefreshResponse200 = {
-  data: LoginResponse;
+  data: TokenResponse;
   status: 200;
 };
 

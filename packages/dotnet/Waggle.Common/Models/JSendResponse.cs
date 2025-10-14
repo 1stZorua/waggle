@@ -14,4 +14,9 @@
         public string? Message { get; set; }
         public string? Code { get; set; }
     }
+
+    public class JSendResponse<T> : JSendResponse
+    {
+        public new T? Data { get; set; }
+    }
 }

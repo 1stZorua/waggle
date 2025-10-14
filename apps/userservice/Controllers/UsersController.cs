@@ -14,6 +14,7 @@ namespace UserService.Controllers
         public UsersController(IUserService service) => _service = service;
 
         [HttpGet]
+        [ProducesResponseType(typeof(GetUsersResponseDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers()
         {
             var result = await _service.GetAllUsers();
@@ -21,6 +22,7 @@ namespace UserService.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(GetUserByIdResponseDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserById(int id)
         {
             var result = await _service.GetUserById(id);
@@ -28,6 +30,7 @@ namespace UserService.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(CreateUserResponseDto), StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateUser(UserCreateDto dto)
         {
             var result = await _service.CreateUser(dto);

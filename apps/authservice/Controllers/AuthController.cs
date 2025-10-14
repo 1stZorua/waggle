@@ -17,6 +17,7 @@ namespace AuthService.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
             var result = await _keycloakService.PasswordGrantAsync(request.Username, request.Password);
@@ -31,6 +32,7 @@ namespace AuthService.Controllers
         }
 
         [HttpPost("refresh")]
+        [ProducesResponseType(typeof(TokenResponseDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto request)
         {
             var result = await _keycloakService.RefreshTokenAsync(request.RefreshToken);

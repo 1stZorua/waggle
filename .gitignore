@@ -80,9 +80,9 @@ pnpm-debug.log*
 # .NET launch settings
 **/launchSettings.json
 
-# NuGet / Local packages
-*.nupkg
-*.snupkg
+# # NuGet / Local packages
+# *.nupkg
+# *.snupkg
 
 # Kubernetes / Helm
 *.tgz

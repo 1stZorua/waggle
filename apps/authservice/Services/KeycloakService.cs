@@ -56,7 +56,7 @@ namespace AuthService.Services
             return await SendKeycloakRequestAsync(req, "Failed to create user");
         }
 
-        public async Task<Result<TokenResponse>> PasswordGrantAsync(string username, string password)
+        public async Task<Result<TokenResponseDto>> PasswordGrantAsync(string username, string password)
         {
             var content = BuildForm(
                 ("grant_type", "password"),
@@ -69,7 +69,7 @@ namespace AuthService.Services
             return await PostTokenAsync(content);
         }
 
-        public async Task<Result<TokenResponse>> RefreshTokenAsync(string refreshToken)
+        public async Task<Result<TokenResponseDto>> RefreshTokenAsync(string refreshToken)
         {
             var content = BuildForm(
                 ("grant_type", "refresh_token"),
@@ -115,10 +115,19 @@ namespace AuthService.Services
         private static FormUrlEncodedContent BuildForm(params (string key, string value)[] pairs) =>
             new(pairs.ToDictionary(p => p.key, p => p.value));
 
-        private async Task<Result<TokenResponse>> PostTokenAsync(FormUrlEncodedContent content)
+        private async Task<Result<TokenResponseDto>> PostTokenAsync(FormUrlEncodedContent content)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, GetEndpoint("token")) { Content = content };
-            return await SendKeycloakRequestAsync<TokenResponse>(req, "Failed to parse token response");
+            var result = await SendKeycloakRequestAsync<TokenResponse>(req, "Failed to parse token response");
+
+            return result.Map(r => new TokenResponseDto
+            {
+                AccessToken = r.AccessToken,
+                RefreshToken = r.RefreshToken,
+                ExpiresIn = r.ExpiresIn,
+                RefreshExpiresIn = r.RefreshExpiresIn,
+                TokenType = r.TokenType
+            });
         }
 
         private async Task<Result<UserInfoDto>> GetUserInfoAsync(string? accessToken)

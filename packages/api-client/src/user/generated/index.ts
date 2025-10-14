@@ -4,12 +4,17 @@
  * UserService
  * OpenAPI spec version: 1.0
  */
-import type { UserCreate, UserRead } from './model';
+import type {
+  CreateUserResponse,
+  GetUserByIdResponse,
+  GetUsersResponse,
+  UserCreate
+} from './model';
 
 import { apiFetch } from '../../../core';
 
 export type getApiUsersResponse200 = {
-  data: UserRead[];
+  data: GetUsersResponse;
   status: 200;
 };
 
@@ -29,12 +34,12 @@ export const getApiUsers = async (options?: RequestInit): Promise<getApiUsersRes
   });
 };
 
-export type postApiUsersResponse200 = {
-  data: UserRead;
-  status: 200;
+export type postApiUsersResponse201 = {
+  data: CreateUserResponse;
+  status: 201;
 };
 
-export type postApiUsersResponseSuccess = postApiUsersResponse200 & {
+export type postApiUsersResponseSuccess = postApiUsersResponse201 & {
   headers: Headers;
 };
 export type postApiUsersResponse = postApiUsersResponseSuccess;
@@ -56,7 +61,7 @@ export const postApiUsers = async (
 };
 
 export type getApiUsersIdResponse200 = {
-  data: UserRead;
+  data: GetUserByIdResponse;
   status: 200;
 };
 

@@ -3,8 +3,8 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms/server';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { AuthClient } from '@waggle/api-client/auth';
-import { COOKIE_OPTIONS, MAX_AGE } from '$lib/config';
 import type { PageServerLoad } from './$types';
+import { setAuthCookies } from '$lib/server';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.auth) throw redirect(302, '/');
@@ -20,26 +20,17 @@ export const actions: Actions = {
 		if (!form.valid) return fail(400, { form });
 
 		try {
-			const { data } = await AuthClient.login({
+			const { status, data, message } = await AuthClient.login({
 				username: form.data.username,
 				password: form.data.password
-			});
+			}).then((res) => res.data);
 
-			if (!data.accessToken || !data.refreshToken)
-				return fail(401, { form, message: 'Invalid response from server' });
+			if (status !== 'Success' || !data?.accessToken || !data?.refreshToken)
+				return fail(401, { form, message: message ?? 'Invalid login credentials' });
 
-			cookies.set('access_token', data.accessToken, {
-				...COOKIE_OPTIONS,
-				maxAge: data.expiresIn
-			});
-
-			cookies.set('refresh_token', data.refreshToken, {
-				...COOKIE_OPTIONS,
-				maxAge: MAX_AGE
-			});
+			setAuthCookies(cookies, data.accessToken, data.refreshToken, data.expiresIn);
 		} catch (err) {
-			console.error('Login error:', err);
-
+			console.error(err);
 			return fail(500, { form, message: 'Login failed' });
 		}
 

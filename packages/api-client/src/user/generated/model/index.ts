@@ -5,5 +5,9 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from './createUserResponse';
+export * from './getUserByIdResponse';
+export * from './getUsersResponse';
+export * from './jSendStatus';
 export * from './userCreate';
 export * from './userRead';

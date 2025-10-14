@@ -53,6 +53,8 @@ services:
       - KEYCLOAK_REALM=test-realm
       - KEYCLOAK_CLIENT_ID=test-client
       - KEYCLOAK_CLIENT_SECRET=95o8yS0vb5RXhAAaSnabVZwNL6pNhhUX
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=q3CY4ClJwdT0Io9Kd3fXP4AppB3XgnEa
     networks:
       - waggle
     restart: unless-stopped

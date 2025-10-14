@@ -5,7 +5,10 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from './jSendStatus';
 export * from './loginRequest';
 export * from './loginResponse';
 export * from './logoutRequest';
 export * from './refreshTokenRequest';
+export * from './registerRequest';
+export * from './tokenResponse';
