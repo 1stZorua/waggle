@@ -19,4 +19,14 @@ spec:
           image: {{ .Values.image }}
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: {{ .Values.port }}
+            - name: http
+              containerPort: {{ .Values.httpPort }}
+            - name: grpc
+              containerPort: {{ .Values.grpcPort }}
+          env:
+            - name: Kestrel__Endpoints__webApi__Url
+              value: "http://+:8080"
+            - name: Kestrel__Endpoints__Grpc__Url
+              value: "http://+:8081"
+            - name: GrpcAuth
+              value: "http://authservice-svc:8081"

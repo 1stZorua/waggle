@@ -31,7 +31,6 @@ out/
 # C# / .NET
 bin/
 obj/
-*.user
 *.suo
 *.userosscache
 *.sln.docstates
@@ -85,7 +84,7 @@ pnpm-debug.log*
 # *.snupkg
 
 # Orval generated API clients
-src/**/generated
+src/**/generated/
 
 # Kubernetes / Helm
 *.tgz

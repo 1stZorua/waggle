@@ -1,8 +1,8 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.4",
   "info": {
-    "title": "UserService",
-    "version": "1.0"
+    "title": "User Service",
+    "version": "v1"
   },
   "paths": {
     "/api/users": {
@@ -16,17 +16,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponseDto"
+                  "$ref": "#/components/schemas/UserDtoIEnumerableApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponseDto"
+                  "$ref": "#/components/schemas/UserDtoIEnumerableApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponseDto"
+                  "$ref": "#/components/schemas/UserDtoIEnumerableApiResponse"
                 }
               }
             }
@@ -62,17 +62,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateUserResponseDto"
+                  "$ref": "#/components/schemas/UserDtoApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateUserResponseDto"
+                  "$ref": "#/components/schemas/UserDtoApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateUserResponseDto"
+                  "$ref": "#/components/schemas/UserDtoApiResponse"
                 }
               }
             }
@@ -91,8 +91,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -102,17 +102,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserByIdResponseDto"
+                  "$ref": "#/components/schemas/UserDtoApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserByIdResponseDto"
+                  "$ref": "#/components/schemas/UserDtoApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserByIdResponseDto"
+                  "$ref": "#/components/schemas/UserDtoApiResponse"
                 }
               }
             }
@@ -123,17 +123,98 @@
   },
   "components": {
     "schemas": {
-      "CreateUserResponseDto": {
+      "ApiStatus": {
+        "enum": [
+          "success",
+          "fail",
+          "error"
+        ],
+        "type": "string"
+      },
+      "UserCreateDto": {
+        "required": [
+          "email",
+          "firstName",
+          "id",
+          "lastName",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "maxLength": 30,
+            "minLength": 3,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "lastName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDto": {
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDtoApiResponse": {
         "required": [
           "status"
         ],
         "type": "object",
         "properties": {
           "status": {
-            "$ref": "#/components/schemas/JSendStatus"
+            "$ref": "#/components/schemas/ApiStatus"
           },
           "data": {
-            "$ref": "#/components/schemas/UserReadDto"
+            "$ref": "#/components/schemas/UserDto"
           },
           "message": {
             "type": "string",
@@ -146,42 +227,19 @@
         },
         "additionalProperties": false
       },
-      "GetUserByIdResponseDto": {
+      "UserDtoIEnumerableApiResponse": {
         "required": [
           "status"
         ],
         "type": "object",
         "properties": {
           "status": {
-            "$ref": "#/components/schemas/JSendStatus"
-          },
-          "data": {
-            "$ref": "#/components/schemas/UserReadDto"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "GetUsersResponseDto": {
-        "required": [
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/JSendStatus"
+            "$ref": "#/components/schemas/ApiStatus"
           },
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UserReadDto"
+              "$ref": "#/components/schemas/UserDto"
             },
             "nullable": true
           },
@@ -190,54 +248,6 @@
             "nullable": true
           },
           "code": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "JSendStatus": {
-        "enum": [
-          "Success",
-          "Fail",
-          "Error"
-        ],
-        "type": "string"
-      },
-      "UserCreateDto": {
-        "required": [
-          "name",
-          "username"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "username": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserReadDto": {
-        "required": [
-          "name",
-          "username"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "username": {
             "type": "string",
             "nullable": true
           }

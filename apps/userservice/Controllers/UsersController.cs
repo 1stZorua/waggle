@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UserService.Dtos;
 using UserService.Services;
+using Waggle.Common.Constants;
 using Waggle.Common.Models;
+using Waggle.Common.Results;
 
 namespace UserService.Controllers
 {
@@ -14,26 +17,26 @@ namespace UserService.Controllers
         public UsersController(IUserService service) => _service = service;
 
         [HttpGet]
-        [ProducesResponseType(typeof(GetUsersResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<UserDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers()
         {
-            var result = await _service.GetAllUsers();
+            var result = await _service.GetAllUsersAsync();
             return result.ToActionResult();
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(GetUserByIdResponseDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUserById(int id)
+        [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUserById(Guid id)
         {
-            var result = await _service.GetUserById(id);
+            var result = await _service.GetUserByIdAsync(id);
             return result.ToActionResult();
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(CreateUserResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateUser(UserCreateDto dto)
         {
-            var result = await _service.CreateUser(dto);
+            var result = await _service.CreateUserAsync(dto);
             return result.ToCreatedResult($"/api/users/{result.Data?.Id}");
         }
     }

@@ -17,8 +17,10 @@ namespace UserService.Data
             context.Users.AddRange(
                 new User()
                 {
-                    Name = "John Doe",
-                    Username = "John"
+                    Username = "John",
+                    Email = "john@gmail.com",
+                    FirstName = "John",
+                    LastName = "Doe"
                 }
             );
 

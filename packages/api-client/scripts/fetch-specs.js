@@ -4,7 +4,7 @@ import path from 'path';
 
 const services = [
   { name: 'auth', port: 8081 },
-  { name: 'user', port: 8080 }
+  { name: 'user', port: 8083 }
 ];
 
 const outputDir = path.resolve('./openapi');

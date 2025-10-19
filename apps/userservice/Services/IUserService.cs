@@ -1,12 +1,12 @@
 ﻿using UserService.Dtos;
-using Waggle.Common.Models;
+using Waggle.Common.Results;
 
 namespace UserService.Services
 {
     public interface IUserService
     {
-        Task<Result<IEnumerable<UserReadDto>>> GetAllUsers();
-        Task<Result<UserReadDto>> GetUserById(int id);
-        Task<Result<UserReadDto>> CreateUser(UserCreateDto dto);
+        Task<Result<IEnumerable<UserDto>>> GetAllUsersAsync();
+        Task<Result<UserDto>> GetUserByIdAsync(Guid id);
+        Task<Result<UserDto>> CreateUserAsync(UserCreateDto dto);
     }
 }

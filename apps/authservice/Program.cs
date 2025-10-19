@@ -1,59 +1,52 @@
+using AuthService.Health;
 using AuthService.Models;
 using AuthService.Services;
-using System.Text.Json.Serialization;
+using AuthService.SyncDataServices.Grpc;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using UserService.Grpc;
+using Waggle.Common.Extensions;
+using Waggle.Common.Helpers;
+using Waggle.Contracts.User.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
     DotNetEnv.Env.Load();
 
-static string GetEnv(string key) => Environment.GetEnvironmentVariable(key)
-    ?? throw new InvalidOperationException($"{key} environment variable is not set");
-
 builder.Services.Configure<KeycloakSettings>(opt =>
 {
-    opt.AuthServerUrl = GetEnv("KEYCLOAK_AUTH_SERVER_URL");
-    opt.Realm = GetEnv("KEYCLOAK_REALM");
-    opt.ClientId = GetEnv("KEYCLOAK_CLIENT_ID");
-    opt.ClientSecret = GetEnv("KEYCLOAK_CLIENT_SECRET");
-    opt.AdminClientId = GetEnv("KEYCLOAK_ADMIN_CLIENT_ID");
-    opt.AdminClientSecret = GetEnv("KEYCLOAK_ADMIN_CLIENT_SECRET");
+    opt.AuthServerUrl = Env.GetRequired("KEYCLOAK_AUTH_SERVER_URL");
+    opt.Realm = Env.GetRequired("KEYCLOAK_REALM");
+    opt.ClientId = Env.GetRequired("KEYCLOAK_CLIENT_ID");
+    opt.ClientSecret = Env.GetRequired("KEYCLOAK_CLIENT_SECRET");
+    opt.AdminClientId = Env.GetRequired("KEYCLOAK_ADMIN_CLIENT_ID");
+    opt.AdminClientSecret = Env.GetRequired("KEYCLOAK_ADMIN_CLIENT_SECRET");
 });
 
-builder.Services.AddHttpClient<KeycloakService>();
+builder.Services.AddCommonAutoMapper();
+builder.Services.AddCommonGrpc();
 
-builder.Services.AddScoped<IKeycloakService, KeycloakService>();
-
-builder.Services.AddControllers()
-    .AddJsonOptions(o => {
-        o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-
-builder.Services.AddRouting(opt =>
+builder.Services.AddGrpcClient<GrpcUser.GrpcUserClient>(opt =>
 {
-    opt.LowercaseUrls = true;
-    opt.LowercaseQueryStrings = true;
+    opt.Address = new Uri(builder.Configuration["GrpcUser"]!);
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient<IAuthService, AuthService.Services.AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService.Services.AuthService>();
+builder.Services.AddScoped<IUserDataClient, UserDataClient>();
+
+builder.Services.AddCommonApiConfiguration("Auth Service");
+
+builder.Services.AddHealthChecks()
+    .AddCheck<KeycloakHealthCheck>("keycloak", HealthStatus.Unhealthy);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCommonPipeline();
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
+app.MapCommonHealthChecks();
+app.MapCommonGrpcReflection();
+app.MapGrpcService<GrpcAuthService>();
 app.MapControllers();
 
 app.Run();

@@ -11,6 +11,9 @@ spec:
       kind: Rule
       services:
         - name: {{ .Values.name }}-svc
-          port: {{ .Values.port }}
+          port: {{ .Values.httpPort }}
+      middlewares:
+        - name: auth-forward
+          namespace: traefik
   tls:
     secretName: {{ .Values.name }}-local-tls

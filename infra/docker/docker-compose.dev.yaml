@@ -1,0 +1,15 @@
+services:
+  authservice:
+    build:
+      context: ../../
+      dockerfile: apps/authservice/Dockerfile
+
+  userservice:
+    build:
+      context: ../../
+      dockerfile: apps/userservice/Dockerfile
+
+  web:
+    build:
+      context: ../../
+      dockerfile: apps/web/Dockerfile

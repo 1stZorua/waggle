@@ -25,7 +25,7 @@ export const actions: Actions = {
 				password: form.data.password
 			}).then((res) => res.data);
 
-			if (status !== 'Success' || !data?.accessToken || !data?.refreshToken)
+			if (status !== 'success' || !data?.accessToken || !data?.refreshToken)
 				return fail(401, { form, message: message ?? 'Invalid login credentials' });
 
 			setAuthCookies(cookies, data.accessToken, data.refreshToken, data.expiresIn);

@@ -19,8 +19,13 @@ spec:
           image: {{ .Values.image }}
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: {{ .Values.port }}
+            - name: http
+              containerPort: {{ .Values.httpPort }}
+            - name: grpc
+              containerPort: {{ .Values.grpcPort }}
           env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
             - name: KEYCLOAK_AUTH_SERVER_URL
               value: "http://keycloak.keycloak.svc.cluster.local:80"
             - name: KEYCLOAK_REALM
@@ -29,3 +34,13 @@ spec:
               value: "test-client"
             - name: KEYCLOAK_CLIENT_SECRET
               value: "r6RYJCGbdaIPpNzWWJ1qXfALBemV3Dfg"        
+            - name: KEYCLOAK_ADMIN_CLIENT_ID
+              value: "admin-cli"
+            - name: KEYCLOAK_ADMIN_CLIENT_SECRET
+              value: "TQ7ytUL4f3POIheMA6eSQOumwyIRGR1J"
+            - name: Kestrel__Endpoints__webApi__Url
+              value: "http://+:8080"
+            - name: Kestrel__Endpoints__Grpc__Url
+              value: "http://+:8081"
+            - name: GrpcUser
+              value: "http://userservice-svc:8081"

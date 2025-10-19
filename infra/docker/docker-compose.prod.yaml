@@ -1,0 +1,9 @@
+services:
+  authservice:
+    image: 1stzorua/waggle-authservice:latest
+
+  userservice:
+    image: 1stzorua/waggle-userservice:latest
+
+  web:
+    image: 1stzorua/waggle-web:latest
