@@ -1,0 +1,4 @@
+namespace: identity
+
+keycloak:
+  replicaCount: 1

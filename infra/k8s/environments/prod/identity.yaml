@@ -1,0 +1,10 @@
+keycloak:
+  keycloak:
+    replicaCount: 2
+    auth:
+      adminUser: admin
+      adminPassword: admin
+    extraEnvVars:
+      - name: KC_HOSTNAME
+        value: 'keycloak.localhost'
+    host: keycloak.localhost

@@ -26,7 +26,7 @@ namespace Waggle.Common.Grpc
         /// <summary>
         /// Creates RpcException for gRPC servers from error code and message.
         /// </summary>
-        public static RpcException CreateRpcException(string? errorCode, string message)
+        public static RpcException CreateRpcException(string message, string? errorCode)
         {
             var statusCode = GrpcStatusMapper.MapFromErrorCode(errorCode);
             return new RpcException(new Status(statusCode, message));

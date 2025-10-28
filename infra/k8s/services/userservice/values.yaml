@@ -1,7 +1,0 @@
-replicas: 1
-
-name: userservice
-image: waggle-userservice:latest
-httpPort: 8080
-grpcPort: 8081
-host: userservice.localhost

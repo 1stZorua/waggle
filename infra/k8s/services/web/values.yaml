@@ -1,6 +1,0 @@
-replicas: 1
-
-name: web
-image: waggle-web:latest
-port: 3000
-host: web.localhost

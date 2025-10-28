@@ -1,0 +1,9 @@
+apiVersion: v2
+name: identity
+description: Umbrella chart for identity
+version: 0.1.0
+
+dependencies:
+  - name: keycloak
+    version: 0.1.0
+    repository: 'file://charts/keycloak'

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using AuthService.Constants;
+using AuthService.Logging;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Waggle.Common.Helpers;
 
 namespace AuthService.Health
@@ -6,10 +8,12 @@ namespace AuthService.Health
     internal sealed class KeycloakHealthCheck : IHealthCheck
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<KeycloakHealthCheck> _logger;
 
-        public KeycloakHealthCheck(HttpClient httpClient)
+        public KeycloakHealthCheck(HttpClient httpClient, ILogger<KeycloakHealthCheck> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(
@@ -25,13 +29,16 @@ namespace AuthService.Health
             {
                 var response = await _httpClient.GetAsync(healthUrl, cancellationToken);
 
-                return response.IsSuccessStatusCode 
-                    ? HealthCheckResult.Healthy()
-                    : HealthCheckResult.Unhealthy($"Keycloak returned status {response.StatusCode}.");
+                if (response.IsSuccessStatusCode)
+                    return HealthCheckResult.Healthy();
+
+                _logger.LogKeycloakHealthCheckFailed(response.StatusCode, healthUrl);
+                return HealthCheckResult.Unhealthy(AuthErrors.Service.Unavailable);
             }
             catch (Exception ex)
             {
-                return HealthCheckResult.Unhealthy($"Keycloak check failed: {ex.Message}");
+                _logger.LogKeycloakHealthCheckException(ex, healthUrl);
+                return HealthCheckResult.Unhealthy(AuthErrors.Service.Unavailable);
             }
         }
     }

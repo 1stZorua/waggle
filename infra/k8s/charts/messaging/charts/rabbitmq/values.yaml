@@ -1,0 +1,32 @@
+rabbitmq:
+  image:
+    repository: bitnamilegacy/rabbitmq
+
+  auth:
+    username: admin
+    password: admin
+    erlangCookie: wagglecookie
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  service:
+    type: ClusterIP
+    port: 5672
+    managementPort: 15672
+
+  ingress:
+    enabled: false
+
+  ingressRoute:
+    enabled: true
+    host: rabbitmq.localhost
+
+  global:
+    security:
+      allowInsecureImages: true

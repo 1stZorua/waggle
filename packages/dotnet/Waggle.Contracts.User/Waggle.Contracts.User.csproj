@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="../../../apps/userservice/Protos/user.proto" Link="Protos/user.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos/user.proto" GrpcServices="both" />
 	</ItemGroup>
 
 </Project>

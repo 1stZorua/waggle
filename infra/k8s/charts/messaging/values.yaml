@@ -1,0 +1,4 @@
+namespace: messaging
+
+rabbitmq:
+  replicaCount: 1

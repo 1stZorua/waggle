@@ -1,0 +1,9 @@
+apiVersion: v2
+name: gateway
+description: Umbrella chart for gateway
+version: 0.1.0
+
+dependencies:
+  - name: gateway-traefik
+    version: 0.1.0
+    repository: 'file://charts/gateway-traefik'

@@ -1,9 +1,9 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using UserService.Grpc;
 using Waggle.Common.Results;
 using Waggle.Contracts.User.Interfaces;
 using Waggle.Common.Grpc;
+using Waggle.Contracts.User.Grpc;
 
 namespace AuthService.SyncDataServices.Grpc
 {

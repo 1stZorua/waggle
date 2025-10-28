@@ -1,0 +1,10 @@
+name: web
+replicaCount: 1
+image: waggle-web:latest
+
+ports:
+  http: 3000
+
+ingress:
+  enabled: true
+  host: web.localhost

@@ -1,0 +1,9 @@
+gateway-traefik:
+  traefik:
+    replicaCount: 1
+    ingressRoute:
+      dashboard:
+        matchRule: Host(`dashboard.localhost`)
+    api:
+      dashboard: true
+      insecure: true

@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="../../../apps/authservice/Protos/auth.proto" Link="Protos/auth.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos/auth.proto" GrpcServices="both" />
 	</ItemGroup>
 
 	<ItemGroup>

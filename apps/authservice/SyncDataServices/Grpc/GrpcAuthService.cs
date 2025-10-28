@@ -1,10 +1,11 @@
-﻿using AuthService.Dtos;
-using AuthService.Grpc;
+﻿using AuthService.Constants;
+using AuthService.Dtos;
 using AuthService.Services;
 using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Waggle.Common.Grpc;
+using Waggle.Contracts.Auth.Grpc;
 
 namespace AuthService.SyncDataServices.Grpc
 {
@@ -25,7 +26,7 @@ namespace AuthService.SyncDataServices.Grpc
             var result = await _service.PasswordGrantAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Login failed");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
 
             return _mapper.Map<LoginResponse>(result.Data);
         }
@@ -36,7 +37,7 @@ namespace AuthService.SyncDataServices.Grpc
             var result = await _service.CreateUserAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Registration failed");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.User.CreationFailed, result.ErrorCode);
 
             return _mapper.Map<RegisterResponse>(result.Data);
         }
@@ -47,7 +48,7 @@ namespace AuthService.SyncDataServices.Grpc
             var result = await _service.RefreshTokenAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Token refresh failed");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
 
             return _mapper.Map<RefreshTokenResponse>(result.Data);
         }
@@ -58,7 +59,7 @@ namespace AuthService.SyncDataServices.Grpc
             var result = await _service.LogoutAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Logout failed");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Session.EndFailed, result.ErrorCode);
 
             return new Empty();
         }
@@ -69,7 +70,7 @@ namespace AuthService.SyncDataServices.Grpc
             var result = await _service.ValidateAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Token validation failed");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.InvalidFormat, result.ErrorCode);
 
             return _mapper.Map<ValidateTokenResponse>(result.Data);
         }

@@ -1,0 +1,12 @@
+dependencies:
+- name: prometheus
+  repository: file://charts/prometheus
+  version: 0.1.0
+- name: loki
+  repository: file://charts/loki
+  version: 0.1.0
+- name: promtail
+  repository: file://charts/promtail
+  version: 0.1.0
+digest: sha256:06d1b352d82708a51f9f2ff9c2278865d53188235beb0fbf1637fa33ef7edf13
+generated: "2025-10-28T13:48:37.5266796+01:00"

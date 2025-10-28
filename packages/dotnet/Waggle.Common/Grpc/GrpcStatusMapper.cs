@@ -16,7 +16,7 @@ namespace Waggle.Common.Grpc
                 StatusCode.AlreadyExists => ErrorCodes.AlreadyExists,
                 StatusCode.Unavailable => ErrorCodes.ServiceUnavailable,
                 StatusCode.Internal => ErrorCodes.ServiceFailed,
-                StatusCode.DeadlineExceeded => ErrorCodes.ServiceUnavailable,
+                StatusCode.DeadlineExceeded => ErrorCodes.Timeout,
                 StatusCode.Cancelled => ErrorCodes.ServiceFailed,
                 StatusCode.Aborted => ErrorCodes.ServiceFailed,
                 _ => ErrorCodes.ServiceFailed
@@ -30,10 +30,13 @@ namespace Waggle.Common.Grpc
                 ErrorCodes.InvalidInput => StatusCode.InvalidArgument,
                 ErrorCodes.ValidationFailed => StatusCode.InvalidArgument,
                 ErrorCodes.Unauthorized => StatusCode.Unauthenticated,
+                ErrorCodes.TokenExpired => StatusCode.Unauthenticated,
+                ErrorCodes.InvalidCredentials => StatusCode.Unauthenticated,
                 ErrorCodes.Forbidden => StatusCode.PermissionDenied,
                 ErrorCodes.NotFound => StatusCode.NotFound,
                 ErrorCodes.AlreadyExists => StatusCode.AlreadyExists,
                 ErrorCodes.ServiceUnavailable => StatusCode.Unavailable,
+                ErrorCodes.Timeout => StatusCode.DeadlineExceeded,
                 ErrorCodes.ServiceFailed => StatusCode.Internal,
                 _ => StatusCode.Unknown
             };

@@ -1,0 +1,35 @@
+promtail:
+  config:
+    clients:
+      - url: http://monitoring-loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push
+
+    snippets:
+      pipelineStages:
+        - cri: {}
+        - json:
+            expressions:
+              level: level
+              message: message
+        - labels:
+            timestamp:
+            level:
+            message:
+            trace_id:
+            span_id:
+            user_id:
+            request_id:
+            source:
+            action_name:
+            path:
+            status_code:
+
+  daemonset:
+    enabled: true
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi

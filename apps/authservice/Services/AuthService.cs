@@ -1,13 +1,15 @@
-﻿using AuthService.Dtos;
+﻿using AuthService.Constants;
+using AuthService.Dtos;
+using AuthService.Logging;
 using AuthService.Models;
 using AutoMapper;
+using MassTransit;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using UserService.Grpc;
 using Waggle.Common.Constants;
 using Waggle.Common.Results;
-using Waggle.Contracts.User.Interfaces;
+using Waggle.Contracts.Auth.Events;
 
 namespace AuthService.Services
 {
@@ -16,18 +18,20 @@ namespace AuthService.Services
         private readonly IMapper _mapper;
         private readonly HttpClient _http;
         private readonly KeycloakSettings _settings;
-        private readonly IUserDataClient _userClient;
+        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ILogger<AuthService> _logger;
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
         };
 
-        public AuthService(HttpClient http, IOptions<KeycloakSettings> opts, IMapper mapper, IUserDataClient userClient)
+        public AuthService(HttpClient http, IOptions<KeycloakSettings> opts, IMapper mapper, IPublishEndpoint publishEndpoint, ILogger<AuthService> logger)
         {
             _http = http;
             _settings = opts.Value;
             _mapper = mapper;
-            _userClient = userClient;
+            _publishEndpoint = publishEndpoint;
+            _logger = logger;
         }
 
         public async Task<Result<RegisterResponseDto>> CreateUserAsync(RegisterRequestDto request)
@@ -39,7 +43,10 @@ namespace AuthService.Services
             ));
 
             if (!tokenResult.Success)
-                return Result<RegisterResponseDto>.Fail(tokenResult.Message ?? "Failed to get admin token");
+            {
+                _logger.LogAdminTokenFailed(request.Username, tokenResult.Message);
+                return Result<RegisterResponseDto>.Fail(tokenResult.Message ?? AuthErrors.Token.AdminAccessFailed);
+            }
 
             var token = tokenResult.Data!;
 
@@ -67,37 +74,34 @@ namespace AuthService.Services
 
             var keycloakResult = await SendKeycloakRequestWithLocationAsync(
                 req,
-                "Failed to create user",
+                AuthErrors.User.CreationFailed,
                 location => location.Split('/').Last()
             );
 
             if (!keycloakResult.Success)
-                return Result<RegisterResponseDto>.Fail(keycloakResult.Message ?? "Failed to create user", keycloakResult.ErrorCode);
+            {
+                _logger.LogKeycloakUserCreationFailed(request.Username, keycloakResult.Message, keycloakResult.ErrorCode);
+                return Result<RegisterResponseDto>.Fail(keycloakResult.Message ?? AuthErrors.User.CreationFailed, keycloakResult.ErrorCode);
+            }
 
             var keycloakUserId = Guid.Parse(keycloakResult.Data!);
 
-            // 3. Create user in UserService
-            var userCreateRequest = new CreateUserRequest
-            {
-                Id = keycloakUserId.ToString(),
-                Username = request.Username,
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName
-            };
+            var registeredEvent = _mapper.Map<RegisteredEvent>(request);
+            registeredEvent.UserId = keycloakUserId;
 
-            var userServiceResult = await _userClient.CreateUserAsync(userCreateRequest);
-
-            if (!userServiceResult.Success)
+            try
             {
-                // Compensating transaction: Delete user from Keycloak
+                await _publishEndpoint.Publish(registeredEvent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogRegisteredEventPublishFailed(ex, request.Username, keycloakUserId);
                 await DeleteKeycloakUserAsync(token.AccessToken, keycloakUserId.ToString());
-                return Result<RegisterResponseDto>.Fail(
-                    userServiceResult.Message ?? "Failed to create user record",
-                    userServiceResult.ErrorCode);
+                return Result<RegisterResponseDto>.Fail(AuthErrors.User.ProfileInitFailed, ErrorCodes.ServiceFailed);
             }
 
-            // 4. Return success with user ID
+            _logger.LogUserRegistered(request.Username, keycloakUserId);
+
             return Result<RegisterResponseDto>.Ok(new()
             {
                 UserId = keycloakUserId.ToString()
@@ -142,14 +146,17 @@ namespace AuthService.Services
             {
                 Content = content
             };
-            return await SendKeycloakRequestAsync(req, "Failed to logout");
+            return await SendKeycloakRequestAsync(req, AuthErrors.Session.EndFailed);
         }
 
         public async Task<Result<UserInfoDto>> ValidateAsync(ValidateTokenRequestDto request)
         {
             var bearerToken = request.BearerToken;
             if (string.IsNullOrWhiteSpace(bearerToken) || !bearerToken.StartsWith("Bearer "))
-                return Result<UserInfoDto>.Fail("Missing or invalid token", ErrorCodes.InvalidInput);
+            {
+                _logger.LogInvalidBearerTokenFormat();
+                return Result<UserInfoDto>.Fail(AuthErrors.Token.InvalidFormat, ErrorCodes.InvalidInput);
+            }
 
             var token = bearerToken["Bearer ".Length..].Trim();
             return await GetUserInfoAsync(token);
@@ -164,10 +171,13 @@ namespace AuthService.Services
         private async Task<Result<TokenResponseDto>> PostTokenAsync(FormUrlEncodedContent content)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, GetEndpoint("token")) { Content = content };
-            var result = await SendKeycloakRequestAsync<TokenResponse>(req, "Failed to parse token response");
+            var result = await SendKeycloakRequestAsync<TokenResponse>(req, AuthErrors.Token.RetrievalFailed);
 
             if (!result.Success)
-                return Result<TokenResponseDto>.Fail(result.Message ?? "Failed to get token", result.ErrorCode);
+            {
+                _logger.LogTokenRetrievalFailed(result.Message);
+                return Result<TokenResponseDto>.Fail(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
+            }
 
             var dto = _mapper.Map<TokenResponseDto>(result.Data!);
             return Result<TokenResponseDto>.Ok(dto);
@@ -176,14 +186,17 @@ namespace AuthService.Services
         private async Task<Result<UserInfoDto>> GetUserInfoAsync(string? accessToken)
         {
             if (string.IsNullOrWhiteSpace(accessToken))
-                return Result<UserInfoDto>.Fail("Access token is null", ErrorCodes.InvalidInput);
+            {
+                _logger.LogMissingAccessToken();
+                return Result<UserInfoDto>.Fail(AuthErrors.Token.Missing, ErrorCodes.InvalidInput);
+            }
 
             var req = new HttpRequestMessage(HttpMethod.Get, GetEndpoint("userinfo"))
             {
                 Headers = { Authorization = new AuthenticationHeaderValue("Bearer", accessToken) }
             };
 
-            return await SendKeycloakRequestAsync<UserInfoDto>(req, "Failed to parse user info");
+            return await SendKeycloakRequestAsync<UserInfoDto>(req, AuthErrors.User.InfoRetrievalFailed);
         }
 
         private async Task<Result> DeleteKeycloakUserAsync(string adminToken, string userId)
@@ -195,7 +208,7 @@ namespace AuthService.Services
                 Headers = { Authorization = new AuthenticationHeaderValue("Bearer", adminToken) }
             };
 
-            return await SendKeycloakRequestAsync(req, "Failed to delete user from Keycloak");
+            return await SendKeycloakRequestAsync(req, AuthErrors.User.DeletionFailed);
         }
 
 
@@ -209,25 +222,25 @@ namespace AuthService.Services
                 if (!res.IsSuccessStatusCode)
                     return Result<T>.FromHttpStatus(res.StatusCode, failureMessage);
 
-                try
-                {
-                    var data = JsonSerializer.Deserialize<T?>(json, _jsonOptions)
-                        ?? throw new JsonException("Response body is null");
+                var data = JsonSerializer.Deserialize<T?>(json, _jsonOptions)
+                    ?? throw new JsonException();
 
-                    return Result<T>.Ok(data);
-                }
-                catch (JsonException)
-                {
-                    return Result<T>.Fail(failureMessage, ErrorCodes.ServiceFailed);
-                }
+                return Result<T>.Ok(data);
             }
-            catch (HttpRequestException)
+            catch (JsonException ex)
             {
-                return Result<T>.Fail("Cannot connect to Keycloak", ErrorCodes.ServiceUnavailable);
+                _logger.LogJsonParseError(ex, request.RequestUri?.ToString());
+                return Result<T>.Fail(AuthErrors.Response.ParseFailed, ErrorCodes.ServiceFailed);
             }
-            catch (Exception)
+            catch (HttpRequestException ex)
             {
-                return Result<T>.Fail(failureMessage, ErrorCodes.ServiceFailed);
+                _logger.LogKeycloakRequestException(ex, request.RequestUri?.ToString());
+                return Result<T>.Fail(AuthErrors.Service.Unavailable, ErrorCodes.ServiceUnavailable);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogKeycloakRequestFailed(ex, request.RequestUri?.ToString());
+                return Result<T>.Fail(AuthErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
@@ -242,13 +255,15 @@ namespace AuthService.Services
 
                 return Result.Ok();
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
-                return Result.Fail("Cannot connect to Keycloak", ErrorCodes.ServiceUnavailable);
+                _logger.LogKeycloakRequestException(ex, request.RequestUri?.ToString());
+                return Result.Fail(AuthErrors.Service.Unavailable, ErrorCodes.ServiceUnavailable);
             }
-            catch
+            catch (Exception ex)
             {
-                return Result.Fail(failureMessage, ErrorCodes.ServiceFailed);
+                _logger.LogKeycloakRequestFailed(ex, request.RequestUri?.ToString());
+                return Result.Fail(AuthErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
         private async Task<Result<T>> SendKeycloakRequestWithLocationAsync<T>(
@@ -264,18 +279,23 @@ namespace AuthService.Services
 
                 var location = res.Headers.Location?.ToString();
                 if (string.IsNullOrEmpty(location))
-                    return Result<T>.Fail("Resource created but location not returned");
+                {
+                    _logger.LogMissingLocationHeader(request.RequestUri?.ToString());
+                    return Result<T>.Fail(AuthErrors.Response.MissingLocation, ErrorCodes.ServiceFailed);
+                }
 
                 var result = mapLocationToResult(location);
                 return Result<T>.Ok(result);
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
-                return Result<T>.Fail("Cannot connect to Keycloak", ErrorCodes.ServiceUnavailable);
+                _logger.LogKeycloakRequestException(ex, request.RequestUri?.ToString());
+                return Result<T>.Fail(AuthErrors.Service.Unavailable, ErrorCodes.ServiceUnavailable);
             }
-            catch
+            catch (Exception ex)
             {
-                return Result<T>.Fail(failureMessage, ErrorCodes.ServiceFailed);
+                _logger.LogKeycloakRequestFailed(ex, request.RequestUri?.ToString());
+                return Result<T>.Fail(AuthErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
     }

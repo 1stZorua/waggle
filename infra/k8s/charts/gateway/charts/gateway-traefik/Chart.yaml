@@ -1,0 +1,10 @@
+apiVersion: v2
+name: gateway-traefik
+description: Cluster gateway
+version: 0.1.0
+type: application
+
+dependencies:
+  - name: traefik
+    version: 37.2.0
+    repository: https://traefik.github.io/charts

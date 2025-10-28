@@ -5,6 +5,8 @@
         // Authentication & Authorization
         public const string Unauthorized = "UNAUTHORIZED";
         public const string Forbidden = "FORBIDDEN";
+        public const string TokenExpired = "TOKEN_EXPIRED";
+        public const string InvalidCredentials = "INVALID_CREDENTIALS";
 
         // Validation
         public const string ValidationFailed = "VALIDATION_FAILED";
@@ -17,5 +19,6 @@
         // Services
         public const string ServiceFailed = "SERVICE_FAILED";
         public const string ServiceUnavailable = "SERVICE_UNAVAILABLE";
+        public const string Timeout = "TIMEOUT";
     }
 }

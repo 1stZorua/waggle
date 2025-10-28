@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using UserService.Constants;
 using UserService.Dtos;
-using UserService.Grpc;
 using UserService.Services;
 using Waggle.Common.Constants;
 using Waggle.Common.Grpc;
+using Waggle.Contracts.User.Grpc;
 
 namespace UserService.SyncDataServices.Grpc
 {
@@ -25,7 +26,7 @@ namespace UserService.SyncDataServices.Grpc
             var result = await _service.GetAllUsersAsync();
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Failed to fetch users");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.Service.Failed, result.ErrorCode);
 
             return new GetAllUsersResponse
             {
@@ -36,11 +37,11 @@ namespace UserService.SyncDataServices.Grpc
         public override async Task<GetUserByIdResponse> GetUserById(GetUserByIdRequest request, ServerCallContext context)
         {
             if (!Guid.TryParse(request.Id, out var userId))
-                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, "Invalid user ID format");
+                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, UserErrors.User.InvalidId);
 
             var result = await _service.GetUserByIdAsync(userId);
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Failed to fetch user");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.RetrievalFailed, result.ErrorCode);
 
             return new GetUserByIdResponse
             {
@@ -54,7 +55,7 @@ namespace UserService.SyncDataServices.Grpc
             var result = await _service.CreateUserAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.ErrorCode, result.Message ?? "Failed to create user");
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.CreationFailed, result.ErrorCode);
 
             return new CreateUserResponse
             {

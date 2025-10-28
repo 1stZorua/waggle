@@ -46,6 +46,25 @@ services:
     networks:
       - waggle
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - '${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}'
+      - '${RABBITMQ_MESSAGING_PORT}:${RABBITMQ_MESSAGING_PORT}'
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - waggle
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   authservice:
     container_name: authservice
     ports:
@@ -53,17 +72,27 @@ services:
       - '${AUTH_SERVICE_GRPC_PORT}:8081'
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
       - KEYCLOAK_AUTH_SERVER_URL=${KEYCLOAK_AUTH_SERVER_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
       - KEYCLOAK_ADMIN_CLIENT_ID=${KEYCLOAK_ADMIN_CLIENT_ID}
       - KEYCLOAK_ADMIN_CLIENT_SECRET=${KEYCLOAK_ADMIN_CLIENT_SECRET}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcUser=${GrpcUser}
     depends_on:
       keycloak:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     healthcheck:
       test:
@@ -86,9 +115,19 @@ services:
       - '${USER_SERVICE_GRPC_PORT}:8081'
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcUser=${GrpcAuth}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
       test:
         [
@@ -135,6 +174,7 @@ services:
 
 volumes:
   postgres_data:
+  rabbitmq_data:
 
 networks:
   waggle:

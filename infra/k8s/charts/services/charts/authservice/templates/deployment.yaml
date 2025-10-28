@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-depl
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+        metrics: "true"
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.http }}
+            - name: grpc
+              containerPort: {{ .Values.ports.grpc }}
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              value: "http://identity-keycloak.identity.svc.cluster.local:80"
+            - name: KEYCLOAK_REALM
+              value: "test-realm"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "test-client"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: "6PQzdOqxnPxqwZfp0m3eUXgUHflBH1hQ"        
+            - name: KEYCLOAK_ADMIN_CLIENT_ID
+              value: "admin-cli"
+            - name: KEYCLOAK_ADMIN_CLIENT_SECRET
+              value: "JwbEC1auVhnIxqLjKQrKTyOwbYPa160p"
+            - name: RabbitMQ__Host
+              value: "messaging-rabbitmq.messaging.svc.cluster.local"
+            - name: RabbitMQ__Port
+              value: "5672"
+            - name: RabbitMQ__Username
+              value: "admin"
+            - name: RabbitMQ__Password
+              value: "admin"
+            - name: RabbitMQ__VirtualHost
+              value: "/"
+            - name: Kestrel__Endpoints__webApi__Url
+              value: "http://+:8080"
+            - name: Kestrel__Endpoints__Grpc__Url
+              value: "http://+:8081"
+            - name: GrpcUser
+              value: "http://userservice-svc.app.svc.cluster.local:8081"

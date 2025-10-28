@@ -1,0 +1,25 @@
+kube-prometheus-stack:
+  grafana:
+    adminUser: admin
+    adminPassword: adminpassword
+
+    service:
+      port: 3000
+
+    ingress:
+      enabled: true
+      host: grafana.localhost
+
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        url: http://monitoring-loki-gateway.monitoring.svc.cluster.local
+        access: proxy
+
+  prometheus:
+    service:
+      port: 9090
+
+    ingress:
+      enabled: true
+      host: prometheus.localhost

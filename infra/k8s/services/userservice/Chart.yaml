@@ -1,4 +1,0 @@
-apiVersion: v1
-name: userservice
-version: 0.1.0
-description: Helm chart for the userservice service

@@ -26,11 +26,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
 	<ProjectReference Include="..\..\packages\dotnet\Waggle.Common\Waggle.Common.csproj" />
+	<ProjectReference Include="..\..\packages\dotnet\Waggle.Contracts.Auth\Waggle.Contracts.Auth.csproj" />
 	<ProjectReference Include="..\..\packages\dotnet\Waggle.Contracts.User\Waggle.Contracts.User.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-    <Protobuf Include="Protos\*.proto" GrpcServices="Server" />
   </ItemGroup>
 </Project>

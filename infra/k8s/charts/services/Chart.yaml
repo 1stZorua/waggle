@@ -1,0 +1,16 @@
+apiVersion: v2
+name: waggle
+description: Umbrella chart for Waggle microservices
+version: 0.1.0
+type: application
+
+dependencies:
+  - name: authservice
+    version: 0.1.0
+    repository: 'file://charts/authservice'
+  - name: userservice
+    version: 0.1.0
+    repository: 'file://charts/userservice'
+  - name: web
+    version: 0.1.0
+    repository: 'file://charts/web'

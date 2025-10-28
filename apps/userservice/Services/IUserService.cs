@@ -8,5 +8,6 @@ namespace UserService.Services
         Task<Result<IEnumerable<UserDto>>> GetAllUsersAsync();
         Task<Result<UserDto>> GetUserByIdAsync(Guid id);
         Task<Result<UserDto>> CreateUserAsync(UserCreateDto dto);
+        Task<Result<UserDto>> CreateUserFromEventAsync(UserCreateDto dto);
     }
 }

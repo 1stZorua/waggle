@@ -1,0 +1,24 @@
+{{- if .Values.rabbitmq.ingressRoute.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-ingressroute
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.rabbitmq.ingressRoute.host }}`)
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-rabbitmq
+          port: {{ .Values.rabbitmq.service.managementPort }}
+      middlewares:
+        - name: internal-whitelist
+          namespace: gateway
+        - name: rate-limit-admin
+          namespace: gateway
+  tls:
+    secretName: {{ .Release.Name }}-local-tls
+{{- end}}

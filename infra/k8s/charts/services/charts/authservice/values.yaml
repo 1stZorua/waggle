@@ -1,0 +1,11 @@
+name: authservice
+replicaCount: 1
+image: waggle-authservice:latest
+
+ports:
+  http: 8080
+  grpc: 8081
+
+ingress:
+  enabled: true
+  host: authservice.localhost

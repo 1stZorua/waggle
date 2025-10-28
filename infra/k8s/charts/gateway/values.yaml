@@ -1,0 +1,5 @@
+namespace: gateway
+
+gateway-traefik:
+  traefik:
+    replicaCount: 1

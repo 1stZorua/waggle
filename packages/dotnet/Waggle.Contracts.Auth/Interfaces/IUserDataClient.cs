@@ -1,6 +1,6 @@
-﻿using AuthService.Grpc;
-using Google.Protobuf.WellKnownTypes;
+﻿using Google.Protobuf.WellKnownTypes;
 using Waggle.Common.Results;
+using Waggle.Contracts.Auth.Grpc;
 
 namespace Waggle.Contracts.Auth.Interfaces
 {

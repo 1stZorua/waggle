@@ -1,0 +1,49 @@
+{{- if index .Values "kube-prometheus-stack" "grafana" "ingress" "enabled" }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-grafana-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`{{ index .Values "kube-prometheus-stack" "grafana" "ingress" "host" }}`)
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-grafana
+          port: {{ index .Values "kube-prometheus-stack" "grafana" "service" "port" }}
+      middlewares:
+        - name: internal-whitelist
+          namespace: gateway
+        - name: rate-limit-internal
+          namespace: gateway
+  tls:
+    secretName: {{ .Release.Name }}-grafana-local-tls
+{{- end }}
+---
+{{- if index .Values "kube-prometheus-stack" "prometheus" "ingress" "enabled" }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-prometheus-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`{{ index .Values "kube-prometheus-stack" "prometheus" "ingress" "host" }}`)
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-kube-prometheus-prometheus
+          port: {{ index .Values "kube-prometheus-stack" "prometheus" "service" "port" }}
+      middlewares:
+        - name: internal-whitelist
+          namespace: gateway
+        - name: rate-limit-internal
+          namespace: gateway
+  tls:
+    secretName: {{ .Release.Name }}-prometheus-local-tls
+{{- end }}

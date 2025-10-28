@@ -1,0 +1,15 @@
+apiVersion: v2
+name: messaging
+description: Umbrella chart for monitoring
+version: 0.1.0
+
+dependencies:
+  - name: prometheus
+    version: 0.1.0
+    repository: 'file://charts/prometheus'
+  - name: loki
+    version: 0.1.0
+    repository: 'file://charts/loki'
+  - name: promtail
+    version: 0.1.0
+    repository: 'file://charts/promtail'

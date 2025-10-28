@@ -1,0 +1,10 @@
+namespace: monitoring
+
+prometheus:
+  replicaCount: 1
+
+loki:
+  replicaCount: 1
+
+promtail:
+  replicaCount: 1

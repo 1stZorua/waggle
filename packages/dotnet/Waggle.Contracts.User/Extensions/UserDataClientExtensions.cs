@@ -1,5 +1,5 @@
-﻿using UserService.Grpc;
-using Waggle.Common.Results;
+﻿using Waggle.Common.Results;
+using Waggle.Contracts.User.Grpc;
 using Waggle.Contracts.User.Interfaces;
 
 namespace Waggle.Contracts.User.Extensions

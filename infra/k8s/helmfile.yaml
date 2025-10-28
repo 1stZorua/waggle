@@ -1,0 +1,50 @@
+repositories:
+  - name: traefik
+    url: https://traefik.github.io/charts
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+---
+environments:
+  dev:
+    values:
+      - environments/dev/*.yaml
+  prod:
+    values:
+      - environments/prod/*.yaml
+---
+releases:
+  - name: gateway
+    namespace: gateway
+    createNamespace: true
+    chart: ./charts/gateway
+    installed: true
+
+  - name: identity
+    namespace: identity
+    createNamespace: true
+    chart: ./charts/identity
+    installed: true
+
+  - name: messaging
+    namespace: messaging
+    createNamespace: true
+    chart: ./charts/messaging
+    installed: true
+
+  - name: monitoring
+    namespace: monitoring
+    createNamespace: true
+    chart: ./charts/monitoring
+    installed: true
+
+  - name: services
+    namespace: app
+    createNamespace: true
+    chart: ./charts/services
+    installed: true
