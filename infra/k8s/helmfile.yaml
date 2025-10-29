@@ -22,29 +22,29 @@ releases:
   - name: gateway
     namespace: gateway
     createNamespace: true
-    chart: ./charts/gateway
+    chart: ./umbrella/gateway
     installed: true
 
   - name: identity
     namespace: identity
     createNamespace: true
-    chart: ./charts/identity
+    chart: ./umbrella/identity
     installed: true
 
   - name: messaging
     namespace: messaging
     createNamespace: true
-    chart: ./charts/messaging
+    chart: ./umbrella/messaging
     installed: true
 
   - name: monitoring
     namespace: monitoring
     createNamespace: true
-    chart: ./charts/monitoring
+    chart: ./umbrella/monitoring
     installed: true
 
   - name: services
     namespace: app
     createNamespace: true
-    chart: ./charts/services
+    chart: ./umbrella/services
     installed: true

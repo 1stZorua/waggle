@@ -1,6 +1,0 @@
-dependencies:
-- name: rabbitmq
-  repository: file://charts/rabbitmq
-  version: 0.1.0
-digest: sha256:32d25ffca81257c7778fab7dd092c8aacc77c564040e13bda8c8f4733cc59ef6
-generated: "2025-10-28T13:48:27.5716542+01:00"

@@ -1,6 +1,0 @@
-dependencies:
-- name: gateway-traefik
-  repository: file://charts/gateway-traefik
-  version: 0.1.0
-digest: sha256:44dd22a6c578be5469bc5618f8b37fe21a0704eabe327ab1991774e5375480ee
-generated: "2025-10-28T19:00:49.0382876+01:00"
