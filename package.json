@@ -22,6 +22,7 @@
   "packageManager": "npm@11.6.0",
   "workspaces": [
     "apps/*",
+    "apps/*/*",
     "packages/*",
     "packages/typescript/*"
   ]
