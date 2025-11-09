@@ -1,0 +1,50 @@
+name: Common CI/CD
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/dotnet/common/**'
+      - '.github/workflows/common.yaml'
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'packages/dotnet/common/**'
+      - '.github/workflows/common.yaml'
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: packages/dotnet/common/
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: common-library-publish
+          path: packages/dotnet/common/Common/bin/Release/net9.0
