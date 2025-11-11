@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Waggle.Common.Constants;
 using Waggle.Common.Grpc;
@@ -70,6 +71,18 @@ namespace Waggle.UserService.Grpc
             {
                 User = _mapper.Map<User>(result.Data)
             };
+        }
+
+        public override async Task<Empty> DeleteUser(DeleteUserRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.Id, out var userId))
+                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, UserErrors.User.InvalidId);
+
+            var result = await _service.DeleteUserAsync(userId);
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.DeletionFailed, result.ErrorCode);
+
+            return new Empty();
         }
     }
 }

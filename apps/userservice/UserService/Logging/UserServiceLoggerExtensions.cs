@@ -91,10 +91,37 @@
             Exception exception,
             Guid userId);
 
-        // Event-Based User Creation Events
+        // User Deletion Events
 
         [LoggerMessage(
             EventId = 3001,
+            Level = LogLevel.Information,
+            Message = "User deleted: {UserId}")]
+        public static partial void LogUserDeleted(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 3002,
+            Level = LogLevel.Warning,
+            Message = "User not found for deletion: {UserId}")]
+        public static partial void LogUserDeleteNotFound(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 3003,
+            Level = LogLevel.Error,
+            Message = "User deletion failed: {UserId}")]
+        public static partial void LogUserDeletionFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid userId);
+
+        // Event-Based User Creation Events
+
+        [LoggerMessage(
+            EventId = 4001,
             Level = LogLevel.Information,
             Message = "User created from event: {Username} ({UserId})")]
         public static partial void LogUserCreatedFromEvent(
@@ -103,7 +130,7 @@
             Guid userId);
 
         [LoggerMessage(
-            EventId = 3002,
+            EventId = 4002,
             Level = LogLevel.Information,
             Message = "User already exists from event, returning existing: {UserId}")]
         public static partial void LogUserExistsFromEvent(
@@ -111,7 +138,7 @@
             Guid userId);
 
         [LoggerMessage(
-            EventId = 3003,
+            EventId = 4003,
             Level = LogLevel.Error,
             Message = "Duplicate key error creating user from event: {UserId}")]
         public static partial void LogDuplicateKeyErrorFromEvent(
@@ -120,7 +147,7 @@
             Guid userId);
 
         [LoggerMessage(
-            EventId = 3004,
+            EventId = 4004,
             Level = LogLevel.Error,
             Message = "Database update failed creating user from event: {UserId}")]
         public static partial void LogDatabaseUpdateFailedFromEvent(
@@ -129,10 +156,37 @@
             Guid userId);
 
         [LoggerMessage(
-            EventId = 3005,
+            EventId = 4005,
             Level = LogLevel.Error,
             Message = "User creation from event failed: {UserId}")]
         public static partial void LogUserCreationFromEventFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid userId);
+
+        // Event-Based User Deletion Events
+
+        [LoggerMessage(
+            EventId = 5001,
+            Level = LogLevel.Information,
+            Message = "User deleted from event: {UserId}")]
+        public static partial void LogUserDeletedFromEvent(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 5002,
+            Level = LogLevel.Information,
+            Message = "User not found for deletion from event: {UserId}")]
+        public static partial void LogUserDeleteNotFoundFromEvent(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 5003,
+            Level = LogLevel.Error,
+            Message = "User deletion from event failed: {UserId}")]
+        public static partial void LogUserDeletionFromEventFailed(
             this ILogger logger,
             Exception exception,
             Guid userId);

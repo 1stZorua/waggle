@@ -1,6 +1,7 @@
 ﻿syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 option csharp_namespace = "Waggle.Contracts.User.Grpc";
 
@@ -10,6 +11,7 @@ service GrpcUser {
 	rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
 	rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
 	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+	rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
 enum PaginationDirection {
@@ -63,4 +65,8 @@ message User {
 	string first_name = 4;
 	string last_name = 5;
 	google.protobuf.Timestamp created_at = 6;
+}
+
+message DeleteUserRequest {
+	string id = 1;
 }

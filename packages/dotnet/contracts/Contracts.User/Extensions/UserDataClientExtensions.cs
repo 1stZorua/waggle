@@ -12,5 +12,12 @@ namespace Waggle.Contracts.User.Extensions
         {
             return await client.GetUserByIdAsync(new GetUserByIdRequest { Id = id.ToString() });
         }
+
+        public static async Task<Result> DeleteUserAsync(
+            this IUserDataClient client,
+            Guid id)
+        {
+            return await client.DeleteUserAsync(new DeleteUserRequest { Id = id.ToString() });
+        }
     }
 }

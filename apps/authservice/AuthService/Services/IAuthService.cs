@@ -10,5 +10,6 @@ namespace Waggle.AuthService.Services
         Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request);
         Task<Result> LogoutAsync(LogoutRequestDto request);
         Task<Result<UserInfoDto>> ValidateAsync(ValidateTokenRequestDto request);
+        Task<Result> DeleteUserAsync(Guid id);
     }
 }

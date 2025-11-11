@@ -7,7 +7,7 @@
         public DateTime CreatedAt {  get; init; } = DateTime.UtcNow;
 
         // Payload
-        public Guid UserId { get; set; }
+        public Guid Id { get; set; }
         public string UserName { get; init; } = string.Empty;
     }
 }

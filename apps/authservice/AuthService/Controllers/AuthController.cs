@@ -68,5 +68,12 @@ namespace Waggle.AuthService.Controllers
             var isGateway = Request.Headers.ContainsKey("X-ForwardAuth");
             return isGateway ? Ok() : result.ToActionResult();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var result = await _authService.DeleteUserAsync(id);
+            return result.ToActionResult();
+        }
     }
 }

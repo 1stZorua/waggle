@@ -9,7 +9,7 @@ namespace Waggle.UserService.Profiles
         public UsersEventProfile()
         {
             CreateMap<RegisteredEvent, UserCreateDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId)); ;
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); ;
         }
     }
 }

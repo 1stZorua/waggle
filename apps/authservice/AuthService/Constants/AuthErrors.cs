@@ -22,6 +22,7 @@ namespace Waggle.AuthService.Constants
             public const string DeletionFailed = "Failed to remove user from authentication system";
             public const string InfoRetrievalFailed = "Unable to retrieve user information";
             public const string AlreadyExists = "An account with this email already exists";
+            public const string InvalidId = "Invalid user identifier";
         }
 
         public static class Service

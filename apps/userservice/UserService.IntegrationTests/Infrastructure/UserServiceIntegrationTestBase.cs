@@ -82,6 +82,12 @@ namespace Waggle.UserService.IntegrationTests.Infrastructure
         protected Task<ApiResponse<UserDto>> CreateUserExpectingFailureAsync(UserCreateDto dto)
             => PostAsync<UserDto, UserCreateDto>("users", dto, expectSuccess: false);
 
+        protected Task<ApiResponse<string>> DeleteUserAsync(Guid id)
+            => SendRequestAsync<string>(new(HttpMethod.Delete, GetEndpoint($"users/{id}")));
+
+        protected Task<ApiResponse<string>> DeleteUserExpectingFailureAsync(Guid id)
+            => SendRequestAsync<string>(new(HttpMethod.Delete, GetEndpoint($"users/{id}")), expectSuccess: false);
+
         #endregion
 
         #region Test Data Builders

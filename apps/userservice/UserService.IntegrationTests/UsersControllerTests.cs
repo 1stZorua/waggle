@@ -170,5 +170,58 @@ namespace Waggle.UserService.IntegrationTests
         }
 
         #endregion
+
+        #region DeleteUser Tests
+
+        [Fact]
+        public async Task DeleteUser_ExistingUser_ShouldSucceed()
+        {
+            // Arrange
+            var user = await SeedUserAsync(CreateUser());
+
+            // Act
+            var result = await DeleteUserAsync(user.Id);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Status.Should().Be(ApiStatus.Success);
+
+            var deletedUser = await GetUserFromDatabaseAsync(user.Id);
+            deletedUser.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task DeleteUser_NonExistentUser_ShouldReturnFail()
+        {
+            // Arrange
+            var nonExistentId = Guid.NewGuid();
+
+            // Act
+            var result = await DeleteUserExpectingFailureAsync(nonExistentId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Status.Should().Be(ApiStatus.Fail);
+        }
+
+        [Fact]
+        public async Task DeleteUser_WithSeededUsers_ShouldReduceCount()
+        {
+            // Arrange
+            var users = await SeedUsersAsync(3);
+            var userToDelete = users[1];
+
+            // Act
+            var deleteResult = await DeleteUserAsync(userToDelete.Id);
+            var allUsersAfterDelete = await GetAllUsersAsync(new PaginationRequest { PageSize = 10 });
+
+            // Assert
+            deleteResult.Status.Should().Be(ApiStatus.Success);
+            allUsersAfterDelete.Data.Should().NotBeNull();
+            allUsersAfterDelete.Data.Items.Should().HaveCount(2);
+            allUsersAfterDelete.Data.Items.Should().NotContain(u => u.Id == userToDelete.Id);
+        }
+
+        #endregion
     }
 }

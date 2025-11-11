@@ -4,11 +4,11 @@ using Waggle.UserService.Dtos;
 
 namespace Waggle.UserService.Services
 {
-    public interface IUserService
+    public interface IUserService : IUserEventHandler
     {
         Task<Result<PagedResult<UserDto>>> GetAllUsersAsync(PaginationRequest request);
         Task<Result<UserDto>> GetUserByIdAsync(Guid id);
         Task<Result<UserDto>> CreateUserAsync(UserCreateDto dto);
-        Task<Result<UserDto>> CreateUserFromEventAsync(UserCreateDto dto);
+        Task<Result> DeleteUserAsync(Guid id);
     }
 }

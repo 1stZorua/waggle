@@ -38,5 +38,13 @@ namespace Waggle.UserService.Controllers
             var result = await _service.CreateUserAsync(dto);
             return result.ToCreatedResult($"/api/users/{result.Data?.Id}");
         }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var result = await _service.DeleteUserAsync(id);
+            return result.ToActionResult();
+        }
     }
 }

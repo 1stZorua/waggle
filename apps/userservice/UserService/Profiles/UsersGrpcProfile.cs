@@ -12,6 +12,7 @@ namespace Waggle.UserService.Profiles
 
             CreateMap<CreateUserRequest, UserCreateDto>();
             CreateMap<GetUserByIdRequest, Guid>();
+            CreateMap<DeleteUserRequest, Guid>();
 
             CreateMap<UserDto, User>();
             CreateMap<User, UserDto>();

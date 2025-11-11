@@ -2,18 +2,23 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Moq;
 using Waggle.AuthService.Models;
+using Waggle.Contracts.User.Interfaces;
 using WireMock.Server;
 
 namespace Waggle.AuthService.IntegrationTests.Infrastructure
 {
     public sealed class CustomWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
-        public WireMockServer WireMockServer { get; private set; } = null!;
+        public WireMockServer WireMockServer { get; private set; }
+        public Mock<IUserDataClient> UserDataClientMock { get; private set; }
 
         public CustomWebAppFactory()
         {
             WireMockServer = WireMockServer.Start();
+            UserDataClientMock = new Mock<IUserDataClient>();
             SetTestEnvironmentVariables();
         }
 
@@ -22,6 +27,9 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
             builder.UseEnvironment("Testing");
             builder.ConfigureServices(services =>
             {
+                services.RemoveAll<IUserDataClient>();
+                services.AddSingleton(UserDataClientMock.Object);
+
                 services.PostConfigure<KeycloakSettings>(opt =>
                 {
                     opt.AuthServerUrl = WireMockServer.Urls.First();
@@ -44,6 +52,7 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
         public Task InitializeAsync()
         {
             WireMockServer.Reset();
+            UserDataClientMock.Reset();
             return Task.CompletedTask;
         }
 

@@ -11,6 +11,8 @@ namespace Waggle.AuthService.Profiles
         public AuthProfile()
         {
             CreateMap<TokenResponse, TokenResponseDto>();
+            CreateMap<RegisterRequestDto, RegisterResponseDto>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<RegisterRequestDto, KeycloakUserRequest>()
                 .ConstructUsing((r, ctx) => new(
                     r.Username,

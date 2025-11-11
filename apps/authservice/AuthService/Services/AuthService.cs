@@ -6,6 +6,8 @@ using Waggle.Common.Results.Core;
 using Waggle.Contracts.Auth.Events;
 using MassTransit;
 using AutoMapper;
+using Waggle.Contracts.User.Interfaces;
+using Waggle.Contracts.User.Extensions;
 
 namespace Waggle.AuthService.Services
 {
@@ -14,13 +16,15 @@ namespace Waggle.AuthService.Services
         private readonly IKeycloakClient _keycloakClient;
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IUserDataClient _userDataClient;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IKeycloakClient keycloakClient, IMapper mapper, IPublishEndpoint publishEndpoint, ILogger<AuthService> logger)
+        public AuthService(IKeycloakClient keycloakClient, IMapper mapper, IPublishEndpoint publishEndpoint, IUserDataClient userDataClient, ILogger<AuthService> logger)
         {
             _keycloakClient = keycloakClient;
             _mapper = mapper;
             _publishEndpoint = publishEndpoint;
+            _userDataClient = userDataClient;
             _logger = logger;
         }
 
@@ -52,7 +56,7 @@ namespace Waggle.AuthService.Services
             var userId = createResult.Data;
 
             var registeredEvent = _mapper.Map<RegisteredEvent>(request);
-            registeredEvent.UserId = userId;
+            registeredEvent.Id = userId;
 
             try
             {
@@ -67,10 +71,10 @@ namespace Waggle.AuthService.Services
 
             _logger.LogUserRegistered(request.Username, userId);
 
-            return Result<RegisterResponseDto>.Ok(new()
-            {
-                UserId = userId.ToString()
-            });
+            var registeredUser = _mapper.Map<RegisterResponseDto>(request);
+            registeredUser.Id = userId.ToString();
+
+            return registeredUser;
         }
 
         public async Task<Result<TokenResponseDto>> PasswordGrantAsync(LoginRequestDto request)
@@ -115,6 +119,35 @@ namespace Waggle.AuthService.Services
 
             var token = bearerToken["Bearer ".Length..].Trim();
             return await _keycloakClient.GetUserInfoAsync(token);
+        }
+
+        public async Task<Result> DeleteUserAsync(Guid id)
+        {
+            var tokenResult = await _keycloakClient.GetAdminTokenAsync();
+
+            if (!tokenResult.Success)
+            {
+                _logger.LogAdminTokenFailed(id.ToString(), tokenResult.Message);
+                return Result.Fail(tokenResult.Message ?? AuthErrors.Token.AdminAccessFailed, tokenResult.ErrorCode);
+            }
+
+            var adminToken = tokenResult.Data!;
+
+            var keycloakResult = await _keycloakClient.DeleteUserAsync(id, adminToken);
+            if (!keycloakResult.Success)
+            {
+                _logger.LogKeycloakUserDeletionFailed(id, keycloakResult.Message, keycloakResult.ErrorCode);
+                return keycloakResult;
+            }
+
+            var userServiceResult = await _userDataClient.DeleteUserAsync(id);
+            if (!userServiceResult.Success)
+            {
+                _logger.LogUserServiceDeletionFailed(id, userServiceResult.Message, userServiceResult.ErrorCode);
+                return userServiceResult;
+            }
+
+            return Result.Ok();
         }
     }
 }

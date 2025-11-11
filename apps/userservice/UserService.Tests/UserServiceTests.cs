@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Waggle.Common.Constants;
 using Waggle.Common.Pagination.Models;
+using Waggle.Contracts.Auth.Events;
 using Waggle.UserService.Constants;
 using Waggle.UserService.Data;
 using Waggle.UserService.Dtos;
@@ -33,6 +34,9 @@ namespace Waggle.UserService.Tests
 
         private void SetupDefaultMapperMocks()
         {
+            _mockMapper.Setup(m => m.Map<UserCreateDto>(It.IsAny<RegisteredEvent>()))
+                .Returns<RegisteredEvent>(e => DummyUser.CreateRequest(id: e.Id));
+
             _mockMapper.Setup(m => m.Map<User>(It.IsAny<UserCreateDto>()))
                 .Returns<UserCreateDto>(dto => DummyUser.CreateEntity(id: dto.Id));
 
@@ -63,7 +67,7 @@ namespace Waggle.UserService.Tests
 
             var paginationRequest = new PaginationRequest { PageSize = 10 };
 
-            _mockRepo.Setup(r => r.GetAllUsers(It.IsAny<PaginationRequest>()))
+            _mockRepo.Setup(r => r.GetAllUsersAsync(It.IsAny<PaginationRequest>()))
                      .ReturnsAsync(pagedResult);
 
             // Act
@@ -75,7 +79,7 @@ namespace Waggle.UserService.Tests
             result.Data.Items.Should().HaveCount(2);
             result.Data.PageInfo.HasNextPage.Should().BeFalse();
             result.Data.PageInfo.HasPreviousPage.Should().BeFalse();
-            _mockRepo.Verify(r => r.GetAllUsers(It.IsAny<PaginationRequest>()), Times.Once);
+            _mockRepo.Verify(r => r.GetAllUsersAsync(It.IsAny<PaginationRequest>()), Times.Once);
         }
 
         [Fact]
@@ -90,7 +94,7 @@ namespace Waggle.UserService.Tests
 
             var paginationRequest = new PaginationRequest { PageSize = 10 };
 
-            _mockRepo.Setup(r => r.GetAllUsers(It.IsAny<PaginationRequest>()))
+            _mockRepo.Setup(r => r.GetAllUsersAsync(It.IsAny<PaginationRequest>()))
                      .ReturnsAsync(pagedResult);
 
             // Act
@@ -109,7 +113,7 @@ namespace Waggle.UserService.Tests
         {
             // Arrange
             var paginationRequest = new PaginationRequest { PageSize = 10 };
-            _mockRepo.Setup(r => r.GetAllUsers(It.IsAny<PaginationRequest>()))
+            _mockRepo.Setup(r => r.GetAllUsersAsync(It.IsAny<PaginationRequest>()))
                      .ThrowsAsync(new Exception());
 
             // Act
@@ -139,7 +143,7 @@ namespace Waggle.UserService.Tests
 
             var paginationRequest = new PaginationRequest { PageSize = 2 };
 
-            _mockRepo.Setup(r => r.GetAllUsers(It.IsAny<PaginationRequest>()))
+            _mockRepo.Setup(r => r.GetAllUsersAsync(It.IsAny<PaginationRequest>()))
                      .ReturnsAsync(pagedResult);
 
             // Act
@@ -164,7 +168,7 @@ namespace Waggle.UserService.Tests
             var userId = Guid.NewGuid();
             var user = DummyUser.CreateEntity(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync(user);
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(user);
 
             // Act
             var result = await _service.GetUserByIdAsync(userId);
@@ -180,7 +184,7 @@ namespace Waggle.UserService.Tests
         {
             // Arrange
             var userId = Guid.NewGuid();
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync((User)null!);
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
 
             // Act
             var result = await _service.GetUserByIdAsync(userId);
@@ -196,7 +200,7 @@ namespace Waggle.UserService.Tests
         {
             // Arrange
             var userId = Guid.NewGuid();
-            _mockRepo.Setup(r => r.GetUserById(userId)).ThrowsAsync(new Exception());
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ThrowsAsync(new Exception());
 
             // Act
             var result = await _service.GetUserByIdAsync(userId);
@@ -217,8 +221,8 @@ namespace Waggle.UserService.Tests
             // Arrange
             var userId = Guid.NewGuid();
             var createDto = DummyUser.CreateRequest(id: userId);
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync((User)null!);
-            _mockRepo.Setup(r => r.AddUser(It.IsAny<User>())).Returns(Task.CompletedTask);
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+            _mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
 
             // Act
             var result = await _service.CreateUserAsync(createDto);
@@ -226,7 +230,7 @@ namespace Waggle.UserService.Tests
             // Assert
             result.Success.Should().BeTrue();
             result.Data!.Id.Should().Be(userId);
-            _mockRepo.Verify(r => r.AddUser(It.Is<User>(u =>
+            _mockRepo.Verify(r => r.AddUserAsync(It.Is<User>(u =>
                 u.Id == createDto.Id &&
                 u.Username == createDto.Username &&
                 u.Email == createDto.Email &&
@@ -244,7 +248,7 @@ namespace Waggle.UserService.Tests
             var createDto = DummyUser.CreateRequest(id: userId);
             var existingUser = DummyUser.CreateEntity(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync(existingUser);
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(existingUser);
 
             // Act
             var result = await _service.CreateUserAsync(createDto);
@@ -253,7 +257,7 @@ namespace Waggle.UserService.Tests
             result.Success.Should().BeFalse();
             result.Message.Should().Be(UserErrors.User.AlreadyExists);
             result.ErrorCode.Should().Be(ErrorCodes.AlreadyExists);
-            _mockRepo.Verify(r => r.AddUser(It.IsAny<User>()), Times.Never);
+            _mockRepo.Verify(r => r.AddUserAsync(It.IsAny<User>()), Times.Never);
         }
 
         [Fact]
@@ -265,8 +269,8 @@ namespace Waggle.UserService.Tests
             var user = DummyUser.CreateEntity(id: userId);
             var dbUpdateException = new DbUpdateException("Error", new Exception("duplicate key value violates unique constraint"));
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync((User)null!);
-            _mockRepo.Setup(r => r.AddUser(It.IsAny<User>())).ThrowsAsync(dbUpdateException);
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+            _mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).ThrowsAsync(dbUpdateException);
 
             // Act
             var result = await _service.CreateUserAsync(createDto);
@@ -285,8 +289,8 @@ namespace Waggle.UserService.Tests
             var createDto = DummyUser.CreateRequest(id: userId);
             var user = DummyUser.CreateEntity(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync((User)null!);
-            _mockRepo.Setup(r => r.AddUser(It.IsAny<User>())).ThrowsAsync(new DbUpdateException());
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+            _mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).ThrowsAsync(new DbUpdateException());
 
             // Act
             var result = await _service.CreateUserAsync(createDto);
@@ -304,7 +308,7 @@ namespace Waggle.UserService.Tests
             var userId = Guid.NewGuid();
             var createDto = DummyUser.CreateRequest(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ThrowsAsync(new Exception());
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ThrowsAsync(new Exception());
 
             // Act
             var result = await _service.CreateUserAsync(createDto);
@@ -317,57 +321,132 @@ namespace Waggle.UserService.Tests
 
         #endregion
 
-        #region CreateUserFromEventAsync Tests
+        #region DeleteUserAsync Tests
 
         [Fact]
-        public async Task CreateUserFromEventAsync_ReturnsOkResult_WhenUserCreatedSuccessfully()
+        public async Task DeleteUserAsync_ReturnsOk_WhenUserDeletedSuccessfully()
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var createDto = DummyUser.CreateRequest(id: userId);
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync((User)null!);
-            _mockRepo.Setup(r => r.AddUser(It.IsAny<User>())).Returns(Task.CompletedTask);
+            var user = DummyUser.CreateEntity(id: userId);
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(user);
+            _mockRepo.Setup(r => r.DeleteUserAsync(user)).Returns(Task.CompletedTask);
 
             // Act
-            var result = await _service.CreateUserFromEventAsync(createDto);
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            _mockRepo.Verify(r => r.DeleteUserAsync(It.Is<User>(u => u.Id == userId)), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_ReturnsFail_WhenUserNotFound()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(UserErrors.User.NotFound);
+            result.ErrorCode.Should().Be(ErrorCodes.NotFound);
+            _mockRepo.Verify(r => r.DeleteUserAsync(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_ReturnsFail_WhenDbUpdateExceptionOccurs()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var user = DummyUser.CreateEntity(id: userId);
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(user);
+            _mockRepo.Setup(r => r.DeleteUserAsync(user)).ThrowsAsync(new DbUpdateException());
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(UserErrors.User.DeletionFailed);
+            result.ErrorCode.Should().Be(ErrorCodes.ServiceFailed);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_ReturnsFail_WhenGeneralExceptionOccurs()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(UserErrors.Service.Failed);
+            result.ErrorCode.Should().Be(ErrorCodes.ServiceFailed);
+        }
+
+        #endregion
+
+        #region HandleUserRegisteredAsync Tests
+
+        [Fact]
+        public async Task HandleUserRegisteredAsync_ReturnsOkResult_WhenUserCreatedSuccessfully()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var registeredEvent = DummyUser.CreateRegisteredEvent(id: userId);
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+            _mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _service.HandleUserRegisteredAsync(registeredEvent);
 
             // Assert
             result.Success.Should().BeTrue();
             result.Data!.Id.Should().Be(userId);
+            _mockRepo.Verify(r => r.AddUserAsync(It.Is<User>(u => u.Id == registeredEvent.Id)), Times.Once);
         }
 
         [Fact]
-        public async Task CreateUserFromEventAsync_ReturnsFailResult_WhenUserAlreadyExists()
+        public async Task HandleUserRegisteredAsync_ReturnsOkResult_WhenUserAlreadyExists()
         {
             // Arrange
             var userId = Guid.NewGuid();
             var existingUser = DummyUser.CreateEntity(id: userId);
-            var createDto = DummyUser.CreateRequest(id: userId);
+            var registeredEvent = DummyUser.CreateRegisteredEvent(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync(existingUser);
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(existingUser);
 
             // Act
-            var result = await _service.CreateUserFromEventAsync(createDto);
+            var result = await _service.HandleUserRegisteredAsync(registeredEvent);
 
             // Assert
             result.Success.Should().BeTrue();
             result.Data!.Id.Should().Be(userId);
-            _mockRepo.Verify(r => r.AddUser(It.IsAny<User>()), Times.Never);
+            _mockRepo.Verify(r => r.AddUserAsync(It.IsAny<User>()), Times.Never);
         }
 
         [Fact]
-        public async Task CreateUserFromEventAsync_ReturnsFailResult_WhenDbUpdateExceptionOccurs()
+        public async Task HandleUserRegisteredAsync_ReturnsFailResult_WhenDbUpdateExceptionOccurs()
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var createDto = DummyUser.CreateRequest(id: userId);
-            var user = DummyUser.CreateEntity(id: userId);
+            var registeredEvent = DummyUser.CreateRegisteredEvent(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ReturnsAsync((User)null!);
-            _mockRepo.Setup(r => r.AddUser(It.IsAny<User>())).ThrowsAsync(new DbUpdateException());
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+            _mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).ThrowsAsync(new DbUpdateException());
 
             // Act
-            var result = await _service.CreateUserFromEventAsync(createDto);
+            var result = await _service.HandleUserRegisteredAsync(registeredEvent);
 
             // Assert
             result.Success.Should().BeFalse();
@@ -376,16 +455,94 @@ namespace Waggle.UserService.Tests
         }
 
         [Fact]
-        public async Task CreateUserFromEventAsync_ReturnsFailResult_WhenGeneralExceptionOccurs()
+        public async Task HandleUserRegisteredAsync_ReturnsFailResult_WhenGeneralExceptionOccurs()
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var createDto = DummyUser.CreateRequest(id: userId);
+            var registeredEvent = DummyUser.CreateRegisteredEvent(id: userId);
 
-            _mockRepo.Setup(r => r.GetUserById(userId)).ThrowsAsync(new Exception());
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ThrowsAsync(new Exception());
 
             // Act
-            var result = await _service.CreateUserFromEventAsync(createDto);
+            var result = await _service.HandleUserRegisteredAsync(registeredEvent);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(UserErrors.Service.Failed);
+            result.ErrorCode.Should().Be(ErrorCodes.ServiceFailed);
+        }
+
+        #endregion
+
+        #region HandleUserDeletedAsync Tests
+
+        [Fact]
+        public async Task HandleUserDeletedAsync_ReturnsOk_WhenUserDeletedSuccessfully()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var deletedEvent = new DeletedEvent { Id = userId, CreatedAt = DateTime.UtcNow, EventType = "DeletedEvent" };
+            var user = DummyUser.CreateEntity(id: userId);
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(user);
+            _mockRepo.Setup(r => r.DeleteUserAsync(user)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _service.HandleUserDeletedAsync(deletedEvent);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            _mockRepo.Verify(r => r.DeleteUserAsync(It.Is<User>(u => u.Id == userId)), Times.Once);
+        }
+
+        [Fact]
+        public async Task HandleUserDeletedAsync_ReturnsOk_WhenUserNotFound()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var deletedEvent = new DeletedEvent { Id = userId, CreatedAt = DateTime.UtcNow, EventType = "DeletedEvent" };
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync((User)null!);
+
+            // Act
+            var result = await _service.HandleUserDeletedAsync(deletedEvent);
+
+            // Assert
+            result.Success.Should().BeTrue(); // idempotent behavior
+            _mockRepo.Verify(r => r.DeleteUserAsync(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task HandleUserDeletedAsync_ReturnsFail_WhenDbUpdateExceptionOccurs()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var deletedEvent = new DeletedEvent { Id = userId, CreatedAt = DateTime.UtcNow, EventType = "DeletedEvent" };
+            var user = DummyUser.CreateEntity(id: userId);
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ReturnsAsync(user);
+            _mockRepo.Setup(r => r.DeleteUserAsync(user)).ThrowsAsync(new DbUpdateException());
+
+            // Act
+            var result = await _service.HandleUserDeletedAsync(deletedEvent);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(UserErrors.User.DeletionFailed);
+            result.ErrorCode.Should().Be(ErrorCodes.ServiceFailed);
+        }
+
+        [Fact]
+        public async Task HandleUserDeletedAsync_ReturnsFail_WhenGeneralExceptionOccurs()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var deletedEvent = new DeletedEvent { Id = userId, CreatedAt = DateTime.UtcNow, EventType = "DeletedEvent" };
+
+            _mockRepo.Setup(r => r.GetUserByIdAsync(userId)).ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _service.HandleUserDeletedAsync(deletedEvent);
 
             // Assert
             result.Success.Should().BeFalse();

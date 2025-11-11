@@ -24,6 +24,22 @@ namespace Waggle.Common.Grpc
         }
 
         /// <summary>
+        /// Handles RpcException from gRPC clients and converts to non-generic Result pattern.
+        /// </summary>
+        public static Result HandleRpcException(RpcException ex)
+        {
+            var errorCode = GrpcStatusMapper.MapToErrorCode(ex.StatusCode);
+            var message = ex.StatusCode switch
+            {
+                StatusCode.Unavailable => "Service temporarily unavailable",
+                StatusCode.DeadlineExceeded => "Request timed out",
+                StatusCode.Cancelled => "Request was cancelled",
+                _ => ex.Status.Detail
+            };
+            return Result.Fail(message, errorCode);
+        }
+
+        /// <summary>
         /// Creates RpcException for gRPC servers from error code and message.
         /// </summary>
         public static RpcException CreateRpcException(string message, string? errorCode)

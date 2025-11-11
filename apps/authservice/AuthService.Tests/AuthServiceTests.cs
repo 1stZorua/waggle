@@ -1,14 +1,17 @@
-﻿using Waggle.AuthService.Dtos;
+﻿using AutoMapper;
+using MassTransit;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Waggle.AuthService.Constants;
+using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Models;
 using Waggle.AuthService.Services;
 using Waggle.AuthService.Tests.TestUtils;
 using Waggle.Common.Constants;
 using Waggle.Common.Results.Core;
 using Waggle.Contracts.Auth.Events;
-using Microsoft.Extensions.Logging;
-using AutoMapper;
-using MassTransit;
-using Moq;
+using Waggle.Contracts.User.Grpc;
+using Waggle.Contracts.User.Interfaces;
 
 namespace Waggle.AuthService.Tests
 {
@@ -17,6 +20,7 @@ namespace Waggle.AuthService.Tests
         private readonly Mock<IKeycloakClient> _keycloakClientMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<IPublishEndpoint> _publishEndpointMock;
+        private readonly Mock<IUserDataClient> _userDataClientMock;
         private readonly Mock<ILogger<Services.AuthService>> _loggerMock;
         private readonly IAuthService _service;
 
@@ -25,12 +29,14 @@ namespace Waggle.AuthService.Tests
             _keycloakClientMock = new Mock<IKeycloakClient>();
             _mapperMock = new Mock<IMapper>();
             _publishEndpointMock = new Mock<IPublishEndpoint>();
+            _userDataClientMock = new Mock<IUserDataClient>();
             _loggerMock = new Mock<ILogger<Services.AuthService>>();
 
             _service = new Services.AuthService(
                 _keycloakClientMock.Object,
                 _mapperMock.Object,
                 _publishEndpointMock.Object,
+                _userDataClientMock.Object,
                 _loggerMock.Object
             );
 
@@ -62,8 +68,18 @@ namespace Waggle.AuthService.Tests
             var adminToken = "admin-token";
             var userId = Guid.NewGuid();
 
+            _mapperMock.Setup(m => m.Map<RegisterResponseDto>(It.IsAny<RegisterRequestDto>()))
+                .Returns<RegisterRequestDto>(r => new RegisterResponseDto
+                {
+                    Id = userId.ToString(),
+                    Username = r.Username,
+                    Email = r.Email,
+                    FirstName = r.FirstName,
+                    LastName = r.LastName
+                });
+
             _mapperMock.Setup(m => m.Map<RegisteredEvent>(It.IsAny<RegisterRequestDto>()))
-                .Returns(new RegisteredEvent { UserId = userId });
+                .Returns(new RegisteredEvent { Id = userId });
 
             _keycloakClientMock.Setup(c => c.GetAdminTokenAsync())
                 .ReturnsAsync(Result<string>.Ok(adminToken));
@@ -77,15 +93,18 @@ namespace Waggle.AuthService.Tests
             // Assert
             result.Success.Should().BeTrue();
             result.Data.Should().NotBeNull();
-            result.Data!.UserId.Should().Be(userId.ToString());
+            result.Data.Id.Should().Be(userId.ToString());
+            result.Data.Username.Should().Be(request.Username);
+            result.Data.Email.Should().Be(request.Email);
+            result.Data.FirstName.Should().Be(request.FirstName);
+            result.Data.LastName.Should().Be(request.LastName);
 
             _keycloakClientMock.Verify(c => c.CreateUserAsync(
                 It.IsAny<KeycloakUserRequest>(),
-                It.IsAny<string>()
-            ), Times.Once);
+                It.IsAny<string>()), Times.Once);
 
             _publishEndpointMock.Verify(p => p.Publish(
-                It.Is<RegisteredEvent>(e => e.UserId == userId),
+                It.Is<RegisteredEvent>(e => e.Id == userId),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -121,7 +140,7 @@ namespace Waggle.AuthService.Tests
                 .ReturnsAsync(Result<string>.Ok(adminToken));
 
             _keycloakClientMock.Setup(c => c.CreateUserAsync(It.IsAny<KeycloakUserRequest>(), adminToken))
-                .ReturnsAsync(Result<Guid>.Fail("User exists", ErrorCodes.AlreadyExists));
+                .ReturnsAsync(Result<Guid>.Fail(AuthErrors.User.AlreadyExists, ErrorCodes.AlreadyExists));
 
             // Act
             var result = await _service.CreateUserAsync(request);
@@ -209,7 +228,7 @@ namespace Waggle.AuthService.Tests
             };
 
             _keycloakClientMock.Setup(c => c.GetPasswordTokenAsync(request.Username, request.Password))
-                .ReturnsAsync(Result<TokenResponse>.Fail("invalid", ErrorCodes.Unauthorized));
+                .ReturnsAsync(Result<TokenResponse>.Fail(ErrorCodes.InvalidInput, ErrorCodes.Unauthorized));
 
             // Act
             var result = await _service.PasswordGrantAsync(request);
@@ -355,6 +374,99 @@ namespace Waggle.AuthService.Tests
             // Assert
             result.Success.Should().BeFalse();
             result.ErrorCode.Should().Be(ErrorCodes.InvalidInput);
+        }
+
+        #endregion
+
+        #region DeleteUserAsync Tests
+
+        [Fact]
+        public async Task DeleteUserAsync_WhenSuccessful_ReturnsSuccess()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var adminToken = "admin-token";
+
+            _keycloakClientMock.Setup(c => c.GetAdminTokenAsync())
+                .ReturnsAsync(Result<string>.Ok(adminToken));
+
+            _keycloakClientMock.Setup(c => c.DeleteUserAsync(userId, adminToken))
+                .ReturnsAsync(Result.Ok());
+
+            _userDataClientMock
+                .Setup(c => c.DeleteUserAsync(It.IsAny<DeleteUserRequest>()))
+                .ReturnsAsync(Result.Ok());
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_WhenAdminTokenFails_ReturnsFailureWithAuthError()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            _keycloakClientMock.Setup(c => c.GetAdminTokenAsync())
+                .ReturnsAsync(Result<string>.Fail(AuthErrors.Token.AdminAccessFailed, ErrorCodes.Unauthorized));
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(AuthErrors.Token.AdminAccessFailed);
+            result.ErrorCode.Should().Be(ErrorCodes.Unauthorized);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_WhenKeycloakDeletionFails_ReturnsFailureWithAuthError()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var adminToken = "admin-token";
+
+            _keycloakClientMock.Setup(c => c.GetAdminTokenAsync())
+                .ReturnsAsync(Result<string>.Ok(adminToken));
+
+            _keycloakClientMock.Setup(c => c.DeleteUserAsync(userId, adminToken))
+                .ReturnsAsync(Result.Fail(AuthErrors.User.DeletionFailed, ErrorCodes.ServiceFailed));
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be(AuthErrors.User.DeletionFailed);
+            result.ErrorCode.Should().Be(ErrorCodes.ServiceFailed);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_WhenUserDataClientDeletionFails_ReturnsFailureWithServiceError()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var adminToken = "admin-token";
+
+            _keycloakClientMock.Setup(c => c.GetAdminTokenAsync())
+                .ReturnsAsync(Result<string>.Ok(adminToken));
+
+            _keycloakClientMock.Setup(c => c.DeleteUserAsync(userId, adminToken))
+                .ReturnsAsync(Result.Ok());
+
+            _userDataClientMock
+                .Setup(c => c.DeleteUserAsync(It.Is<DeleteUserRequest>(r => r.Id == userId.ToString())))
+                .ReturnsAsync(Result.Fail(AuthErrors.User.DeletionFailed, ErrorCodes.ServiceFailed));
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.ErrorCode.Should().Be(ErrorCodes.ServiceFailed);
         }
 
         #endregion

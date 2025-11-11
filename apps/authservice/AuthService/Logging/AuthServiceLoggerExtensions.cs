@@ -42,6 +42,26 @@
             string username,
             Guid userId);
 
+        [LoggerMessage(
+            EventId = 1005,
+            Level = LogLevel.Error,
+            Message = "Keycloak user deletion failed: {UserId} - {ErrorMessage} ({ErrorCode})")]
+                public static partial void LogKeycloakUserDeletionFailed(
+            this ILogger logger,
+            Guid userId,
+            string? errorMessage,
+            string? errorCode);
+
+        [LoggerMessage(
+            EventId = 1006,
+            Level = LogLevel.Error,
+            Message = "User service deletion failed: {UserId} - {ErrorMessage} ({ErrorCode})")]
+                public static partial void LogUserServiceDeletionFailed(
+            this ILogger logger,
+            Guid userId,
+            string? errorMessage,
+            string? errorCode);
+
         // Token Events
 
         [LoggerMessage(

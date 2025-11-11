@@ -12,6 +12,7 @@ service GrpcAuth {
 	rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
 	rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
 	rpc Validate(ValidateTokenRequest) returns (ValidateTokenResponse);
+	rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
 message LoginRequest {
@@ -29,11 +30,17 @@ message LoginResponse {
 message RegisterRequest {
 	string username = 1;
 	string email = 2;
-	string password = 3;
+	string first_name = 3;
+	string last_name = 4;
+	string password = 5;
 }
 
 message RegisterResponse {
-	string user_id = 1;
+	string id = 1;
+	string username = 2;
+	string email = 3;
+	string first_name = 4;
+	string last_name = 5;
 }
 
 message RefreshTokenRequest {
@@ -51,6 +58,7 @@ message LogoutRequest {
 	string refresh_token = 1;
 }
 
+
 message ValidateTokenRequest {
 	string bearer_token = 1;
 }
@@ -61,4 +69,8 @@ message ValidateTokenResponse {
 	string email = 3;
 	string name = 4;
 	repeated string roles = 5;
+}
+
+message DeleteUserRequest {
+	string user_id = 1;
 }

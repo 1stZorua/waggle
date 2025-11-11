@@ -1,8 +1,12 @@
 ﻿using MassTransit.Testing;
+using Moq;
+using Sprache;
 using System.Net;
 using System.Net.Http.Headers;
+using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
 using Waggle.Common.Models;
+using Waggle.Contracts.User.Extensions;
 using Waggle.Testing.Infrastructure.Base;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -229,6 +233,55 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                     }"));
         }
 
+        protected void SetupSuccessfulUserDeletion(Guid userId)
+        {
+            SetupAdminToken();
+
+            Factory.WireMockServer
+                .Given(Request.Create()
+                    .WithPath($"/admin/realms/test-realm/users/{userId}")
+                    .UsingDelete())
+                .RespondWith(Response.Create()
+                    .WithStatusCode(204));
+        }
+
+        protected void SetupFailedUserDeletion(Guid userId)
+        {
+            SetupAdminToken();
+
+            Factory.WireMockServer
+                .Given(Request.Create()
+                    .WithPath($"/admin/realms/test-realm/users/{userId}")
+                    .UsingDelete())
+                .RespondWith(Response.Create()
+                    .WithStatusCode(500)
+                    .WithHeader("Content-Type", "application/json")
+                    .WithBody(@"{ 
+                        ""error"": ""Internal server error"" 
+                    }"));
+        }
+
+        #endregion
+
+        #region gRPC Mock Setup Methods
+
+        protected void SetupUserDataDeletion(Guid userId, bool success = true)
+        {
+            var result = success
+                ? Common.Results.Core.Result.Ok()
+                : Common.Results.Core.Result.Fail(AuthErrors.User.DeletionFailed);
+
+            Factory.UserDataClientMock
+                .Setup(x => x.DeleteUserAsync(new() { Id = userId.ToString() }))
+                .Returns(Task.FromResult(result));
+        }
+
+        protected void VerifyUserDataDeletionCalled(Guid userId, Times? times = null)
+        {
+            Factory.UserDataClientMock
+                .Verify(x => x.DeleteUserAsync(new() { Id = userId.ToString() }), times ?? Times.Once());
+        }
+
         #endregion
 
         #region Register Helper Methods
@@ -315,6 +368,22 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
             }
 
             return headers;
+        }
+
+        #endregion
+
+        #region Delete User Helper Methods
+
+        protected Task<ApiResponse> DeleteUserAsync(Guid userId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, GetEndpoint($"{userId}"));
+            return SendRequestAsync(request);
+        }
+
+        protected Task<ApiResponse> DeleteUserExpectingFailureAsync(Guid userId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, GetEndpoint($"{userId}"));
+            return SendRequestAsync(request, expectSuccess: false);
         }
 
         #endregion

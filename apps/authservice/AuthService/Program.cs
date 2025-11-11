@@ -34,12 +34,14 @@ builder.Services.AddCommonApi("Auth Service");
 builder.Services.AddCommonObservability("Auth Service");
 
 if (!builder.Environment.IsEnvironment("Testing"))
+{
     builder.Services.AddMessaging(builder.Configuration);
 
-builder.Services.AddGrpcClient<GrpcUser.GrpcUserClient>(opt =>
-{
-    opt.Address = new Uri(builder.Configuration["GrpcUser"]!);
-});
+    builder.Services.AddGrpcClient<GrpcUser.GrpcUserClient>(opt =>
+    {
+        opt.Address = new Uri(builder.Configuration["GrpcUser"]!);
+    });
+}
 
 builder.Services.AddHttpClient<IKeycloakClient, KeycloakClient>();
 

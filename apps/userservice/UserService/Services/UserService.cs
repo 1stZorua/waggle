@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Waggle.Common.Constants;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
+using Waggle.Contracts.Auth.Events;
 using Waggle.UserService.Constants;
 using Waggle.UserService.Data;
 using Waggle.UserService.Dtos;
@@ -28,7 +30,7 @@ namespace Waggle.UserService.Services
         {
             try
             {
-                var users = await _repo.GetAllUsers(request);
+                var users = await _repo.GetAllUsersAsync(request);
 
                 var pagedResult = new PagedResult<UserDto>
                 {
@@ -51,7 +53,7 @@ namespace Waggle.UserService.Services
         {
             try
             {
-                var user = await _repo.GetUserById(id);
+                var user = await _repo.GetUserByIdAsync(id);
                 if (user == null)
                 {
                     _logger.LogUserNotFound(id);
@@ -74,7 +76,7 @@ namespace Waggle.UserService.Services
         {
             try
             {
-                var existing = await _repo.GetUserById(dto.Id);
+                var existing = await _repo.GetUserByIdAsync(dto.Id);
                 if (existing != null)
                 {
                     _logger.LogUserAlreadyExists(dto.Id);
@@ -85,7 +87,7 @@ namespace Waggle.UserService.Services
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                await _repo.AddUser(user);
+                await _repo.AddUserAsync(user);
 
                 _logger.LogUserCreated(dto.Username, dto.Id);
 
@@ -109,33 +111,63 @@ namespace Waggle.UserService.Services
             }
         }
 
-        public async Task<Result<UserDto>> CreateUserFromEventAsync(UserCreateDto dto)
+        public async Task<Result> DeleteUserAsync(Guid id)
         {
             try
             {
-                var existing = await _repo.GetUserById(dto.Id);
+                var existing = await _repo.GetUserByIdAsync(id);
+                if (existing == null)
+                {
+                    _logger.LogUserDeleteNotFound(id);
+                    return Result.Fail(UserErrors.User.NotFound, ErrorCodes.NotFound);
+                }
+
+                await _repo.DeleteUserAsync(existing);
+
+                _logger.LogUserDeleted(id);
+                return Result.Ok();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogUserDeletionFailed(ex, id);
+                return Result.Fail(UserErrors.User.DeletionFailed, ErrorCodes.ServiceFailed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUserDeletionFailed(ex, id);
+                return Result.Fail(UserErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result<UserDto>> HandleUserRegisteredAsync(RegisteredEvent @event)
+        {
+            try
+            {
+                var existing = await _repo.GetUserByIdAsync(@event.Id);
                 if (existing != null)
                 {
-                    _logger.LogUserExistsFromEvent(dto.Id);
+                    _logger.LogUserExistsFromEvent(@event.Id);
                     return Result<UserDto>.Ok(_mapper.Map<UserDto>(existing));
                 }
 
-                var user = _mapper.Map<User>(dto);
+                var createDto = _mapper.Map<UserCreateDto>(@event);
+                
+                var user = _mapper.Map<User>(createDto);
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                await _repo.AddUser(user);
+                await _repo.AddUserAsync(user);
 
-                _logger.LogUserCreatedFromEvent(dto.Username, dto.Id);
+                _logger.LogUserCreatedFromEvent(user.Username, user.Id);
 
                 var result = _mapper.Map<UserDto>(user);
                 return Result<UserDto>.Ok(result);
-            } 
+            }
             catch (DbUpdateException ex) when (IsDuplicateKeyError(ex))
             {
-                _logger.LogDuplicateKeyErrorFromEvent(ex, dto.Id);
+                _logger.LogDuplicateKeyErrorFromEvent(ex, @event.Id);
 
-                var existing = await _repo.GetUserById(dto.Id);
+                var existing = await _repo.GetUserByIdAsync(@event.Id);
                 if (existing != null)
                     return Result<UserDto>.Ok(_mapper.Map<UserDto>(existing));
 
@@ -145,13 +177,41 @@ namespace Waggle.UserService.Services
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogDatabaseUpdateFailedFromEvent(ex, dto.Id);
+                _logger.LogDatabaseUpdateFailedFromEvent(ex, @event.Id);
                 return Result<UserDto>.Fail(UserErrors.User.CreationFailed, ErrorCodes.ServiceFailed);
             }
             catch (Exception ex)
             {
-                _logger.LogUserCreationFromEventFailed(ex, dto.Id);
+                _logger.LogUserCreationFromEventFailed(ex, @event.Id);
                 return Result<UserDto>.Fail(UserErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandleUserDeletedAsync(DeletedEvent @event)
+        {
+            try
+            {
+                var existing = await _repo.GetUserByIdAsync(@event.Id);
+                if (existing == null)
+                {
+                    _logger.LogUserDeleteNotFoundFromEvent(@event.Id);
+                    return Result.Ok();
+                }
+
+                await _repo.DeleteUserAsync(existing);
+
+                _logger.LogUserDeletedFromEvent(@event.Id);
+                return Result.Ok();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogUserDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(UserErrors.User.DeletionFailed, ErrorCodes.ServiceFailed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUserDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(UserErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 

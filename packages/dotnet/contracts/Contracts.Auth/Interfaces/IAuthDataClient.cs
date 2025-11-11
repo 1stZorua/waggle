@@ -11,5 +11,6 @@ namespace Waggle.Contracts.Auth.Interfaces
         Task<Result<RefreshTokenResponse>> RefreshTokenAsync(RefreshTokenRequest request);
         Task<Result<Empty>> LogoutAsync(LogoutRequest request);
         Task<Result<ValidateTokenResponse>> ValidateAsync(ValidateTokenRequest request);
+        Task<Result<Empty>> DeleteUserAsync(DeleteUserRequest request);
     }
 }

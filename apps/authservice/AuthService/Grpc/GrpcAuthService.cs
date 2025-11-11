@@ -1,9 +1,10 @@
-﻿using Waggle.AuthService.Constants;
-using Waggle.AuthService.Dtos;
-using Waggle.AuthService.Services;
-using AutoMapper;
+﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using Waggle.AuthService.Constants;
+using Waggle.AuthService.Dtos;
+using Waggle.AuthService.Services;
+using Waggle.Common.Constants;
 using Waggle.Common.Grpc;
 using Waggle.Contracts.Auth.Grpc;
 
@@ -73,6 +74,18 @@ namespace Waggle.AuthService.Grpc
                 throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.InvalidFormat, result.ErrorCode);
 
             return _mapper.Map<ValidateTokenResponse>(result.Data);
+        }
+
+        public override async Task<Empty> DeleteUser(DeleteUserRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.UserId, out var userId))
+                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, AuthErrors.User.InvalidId);
+
+            var result = await _service.DeleteUserAsync(userId);
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.User.DeletionFailed, result.ErrorCode);
+
+            return new Empty();
         }
     }
 }

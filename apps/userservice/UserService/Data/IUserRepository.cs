@@ -5,8 +5,9 @@ namespace Waggle.UserService.Data
 {
     public interface IUserRepository
     {
-        Task<PagedResult<User>> GetAllUsers(PaginationRequest request);
-        Task<User?> GetUserById(Guid id);
-        Task AddUser(User user);
+        Task<PagedResult<User>> GetAllUsersAsync(PaginationRequest request);
+        Task<User?> GetUserByIdAsync(Guid id);
+        Task AddUserAsync(User user);
+        Task DeleteUserAsync(User user);
     }   
 }

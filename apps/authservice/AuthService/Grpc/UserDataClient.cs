@@ -1,5 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Waggle.Common.Results.Core;
 using Waggle.Contracts.User.Interfaces;
 using Waggle.Common.Grpc;
@@ -52,6 +51,19 @@ namespace Waggle.AuthService.Grpc
             catch (RpcException ex)
             {
                 return GrpcExceptionHelper.HandleRpcException<GetAllUsersResponse>(ex);
+            }
+        }
+
+        public async Task<Result> DeleteUserAsync(DeleteUserRequest request)
+        {
+            try
+            {
+                await _client.DeleteUserAsync(request);
+                return Result.Ok();
+            }
+            catch (RpcException ex)
+            {
+                return GrpcExceptionHelper.HandleRpcException(ex);
             }
         }
     }

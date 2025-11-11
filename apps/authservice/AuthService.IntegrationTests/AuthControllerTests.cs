@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using MassTransit.Testing;
 using System.Net;
+using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.IntegrationTests.Infrastructure;
 using Waggle.Common.Constants;
@@ -31,17 +32,23 @@ namespace Waggle.AuthService.IntegrationTests
             result.Should().NotBeNull();
             result.Status.Should().Be(ApiStatus.Success);
             result.Data.Should().NotBeNull();
-            result.Data!.UserId.Should().NotBeNullOrEmpty();
+            result.Data.Id.Should().NotBeNullOrEmpty();
+            result.Data.Username.Should().Be(request.Username);
+            result.Data.Email.Should().Be(request.Email);
+            result.Data.FirstName.Should().Be(request.FirstName);
+            result.Data.LastName.Should().Be(request.LastName);
 
             var publishedEvent = TestHarness.Published
                 .Select<RegisteredEvent>()
-                .Where(x => x.Context.Message.UserName == request.Username)
+                .Where(x => x.Context.Message.Username == request.Username)
                 .FirstOrDefault()?.Context.Message;
 
             publishedEvent.Should().NotBeNull();
-            publishedEvent!.UserId.ToString().Should().Be(result.Data.UserId);
+            publishedEvent.Id.ToString().Should().Be(result.Data.Id);
             publishedEvent.Email.Should().Be(request.Email);
-            publishedEvent.UserName.Should().Be(request.Username);
+            publishedEvent.Username.Should().Be(request.Username);
+            publishedEvent.FirstName.Should().Be(request.FirstName);
+            publishedEvent.LastName.Should().Be(request.LastName);
         }
 
         [Fact]
@@ -267,6 +274,63 @@ namespace Waggle.AuthService.IntegrationTests
 
             if (headers.TryGetValue("X-User-Roles", out string? value))
                 value.Should().NotBeNull();
+        }
+
+        #endregion
+
+        #region Delete User Tests
+
+        [Fact]
+        public async Task DeleteUser_ShouldSucceed()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            SetupSuccessfulUserDeletion(userId);
+            SetupUserDataDeletion(userId, success: true);
+
+            // Act
+            var result = await DeleteUserAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Status.Should().Be(ApiStatus.Success);
+            VerifyUserDataDeletionCalled(userId);
+        }
+
+        [Fact]
+        public async Task DeleteUser_WhenKeycloakFails_ShouldReturnError()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            SetupFailedUserDeletion(userId);
+
+            // Act
+            var result = await DeleteUserExpectingFailureAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Status.Should().Be(ApiStatus.Error);
+            result.Code.Should().Be(ErrorCodes.ServiceFailed);
+
+            VerifyUserDataDeletionCalled(userId, Moq.Times.Never());
+        }
+
+        [Fact]
+        public async Task DeleteUser_WhenUserDataDeletionFails_ShouldReturnError()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            SetupSuccessfulUserDeletion(userId);
+            SetupUserDataDeletion(userId, success: false);
+
+            // Act
+            var result = await DeleteUserExpectingFailureAsync(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Status.Should().Be(ApiStatus.Error);
+            result.Message.Should().Be(AuthErrors.User.DeletionFailed);
+            VerifyUserDataDeletionCalled(userId);
         }
 
         #endregion

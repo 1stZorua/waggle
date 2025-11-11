@@ -13,6 +13,7 @@ namespace Waggle.AuthService.Profiles
             CreateMap<RefreshTokenRequest, RefreshTokenRequestDto>();
             CreateMap<LogoutRequest, LogoutRequestDto>();
             CreateMap<ValidateTokenRequest, ValidateTokenRequestDto>();
+            CreateMap<DeleteUserRequest, Guid>();
         }
     }
 }
