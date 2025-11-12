@@ -10,6 +10,7 @@ namespace Waggle.AuthService.Constants
             public const string RetrievalFailed = "Failed to retrieve authentication token";
             public const string InvalidFormat = "Authorization header must use Bearer token format";
             public const string Missing = "Authentication token is required";
+            public const string InvalidCredentials = "Invalid username or password";
 
             public const string Invalid = ErrorMessages.Authentication.InvalidToken;
             public const string Expired = ErrorMessages.Authentication.TokenExpired;

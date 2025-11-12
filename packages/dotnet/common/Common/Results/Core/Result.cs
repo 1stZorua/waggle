@@ -12,14 +12,14 @@ namespace Waggle.Common.Results.Core
     {
         public bool Success { get; init; }
         public T? Data { get; init; }
-        public string? Message { get; init; }
+        public string Message { get; init; } = string.Empty;
         public string? ErrorCode { get; init; }
         public Dictionary<string, string[]>? ValidationErrors { get; init; }
 
         private Result(
             bool success,
             T? data = default,
-            string? message = null,
+            string message = "",
             string? errorCode = null,
             Dictionary<string, string[]>? validationErrors = null)
         {
@@ -34,7 +34,7 @@ namespace Waggle.Common.Results.Core
         public static Result<T> Ok(T data) => new(true, data);
 
         /// <summary>Creates a successful result with a message and data.</summary>
-        public static Result<T> Ok(string? message, T data) => new(true, data, message);
+        public static Result<T> Ok(T data, string message) => new(true, data, message);
 
         /// <summary>Creates a failed result with an error message and optional error code.</summary>
         public static Result<T> Fail(string message, string? errorCode = null)
@@ -52,13 +52,13 @@ namespace Waggle.Common.Results.Core
         public TResult Match<TResult>(Func<T, TResult> onSuccess, Func<string, TResult> onFailure)
             => Success && Data is not null
                 ? onSuccess(Data)
-                : onFailure(Message ?? "Unknown error");
+                : onFailure(Message);
 
         /// <summary>Transforms the data if successful.</summary>
         public Result<TNew> Map<TNew>(Func<T, TNew> mapper)
         {
             if (!Success || Data is null)
-                return Result<TNew>.Fail(Message ?? "Unknown error", ErrorCode);
+                return Result<TNew>.Fail(Message, ErrorCode);
 
             try
             {
@@ -74,7 +74,7 @@ namespace Waggle.Common.Results.Core
         public async Task<Result<TNew>> MapAsync<TNew>(Func<T, Task<TNew>> mapper)
         {
             if (!Success || Data is null)
-                return Result<TNew>.Fail(Message ?? "Unknown error", ErrorCode);
+                return Result<TNew>.Fail(Message, ErrorCode);
 
             try
             {
@@ -106,13 +106,13 @@ namespace Waggle.Common.Results.Core
     public class Result
     {
         public bool Success { get; init; }
-        public string? Message { get; init; }
+        public string Message { get; init; } = string.Empty;
         public string? ErrorCode { get; init; }
         public Dictionary<string, string[]>? ValidationErrors { get; init; }
 
         private Result(
             bool success,
-            string? message = null,
+            string message = "",
             string? errorCode = null,
             Dictionary<string, string[]>? validationErrors = null)
         {
@@ -123,7 +123,7 @@ namespace Waggle.Common.Results.Core
         }
 
         /// <summary>Creates a successful result with optional message.</summary>
-        public static Result Ok(string? message = null) => new(true, message);
+        public static Result Ok(string message = "") => new(true, message);
 
         /// <summary>Creates a failed result with an error message and optional error code.</summary>
         public static Result Fail(string message, string? errorCode = null)
@@ -139,11 +139,11 @@ namespace Waggle.Common.Results.Core
 
         /// <summary>Executes one of two functions based on success or failure.</summary>
         public TResult Match<TResult>(Func<TResult> onSuccess, Func<string, TResult> onFailure)
-            => Success ? onSuccess() : onFailure(Message ?? "Unknown error");
+            => Success ? onSuccess() : onFailure(Message);
 
         /// <summary>Converts this result into a typed result with data.</summary>
         public Result<T> ToResult<T>(T data)
-            => Success ? Result<T>.Ok(Message, data) : Result<T>.Fail(Message ?? "Unknown error", ErrorCode);
+            => Success ? Result<T>.Ok(data, Message) : Result<T>.Fail(Message, ErrorCode);
 
         public static implicit operator bool(Result result) => result.Success;
     }

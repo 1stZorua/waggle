@@ -10,6 +10,9 @@ namespace Waggle.AuthService.Profiles
         {
             CreateMap<RegisterRequestDto, RegisteredEvent>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<Guid, DeletedEvent>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
         }
     }
 }

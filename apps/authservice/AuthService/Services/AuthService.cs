@@ -35,7 +35,7 @@ namespace Waggle.AuthService.Services
             if (!tokenResult.Success)
             {
                 _logger.LogAdminTokenFailed(request.Username, tokenResult.Message);
-                return Result<RegisterResponseDto>.Fail(tokenResult.Message ?? AuthErrors.Token.AdminAccessFailed, tokenResult.ErrorCode);
+                return Result<RegisterResponseDto>.Fail(tokenResult.Message, tokenResult.ErrorCode);
             }
 
             var adminToken = tokenResult.Data!;
@@ -50,16 +50,15 @@ namespace Waggle.AuthService.Services
             if (!createResult.Success)
             {
                 _logger.LogKeycloakUserCreationFailed(request.Username, createResult.Message, createResult.ErrorCode);
-                return Result<RegisterResponseDto>.Fail(createResult.Message ?? AuthErrors.User.CreationFailed, createResult.ErrorCode);
+                return Result<RegisterResponseDto>.Fail(createResult.Message, createResult.ErrorCode);
             }
 
             var userId = createResult.Data;
 
-            var registeredEvent = _mapper.Map<RegisteredEvent>(request);
-            registeredEvent.Id = userId;
-
             try
             {
+                var registeredEvent = _mapper.Map<RegisteredEvent>(request);
+                registeredEvent.Id = userId;
                 await _publishEndpoint.Publish(registeredEvent);
             }
             catch (Exception ex)
@@ -79,15 +78,32 @@ namespace Waggle.AuthService.Services
 
         public async Task<Result<TokenResponseDto>> PasswordGrantAsync(LoginRequestDto request)
         {
-            var result = await _keycloakClient.GetPasswordTokenAsync(request.Username, request.Password);
+            var tokenResult = await _keycloakClient.GetPasswordTokenAsync(request.Username, request.Password);
             
-            if (!result.Success)
+            if (!tokenResult.Success)
             {
-                _logger.LogTokenRetrievalFailed(result.Message);
-                return Result<TokenResponseDto>.Fail(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
+                _logger.LogTokenRetrievalFailed(tokenResult.Message);
+                return Result<TokenResponseDto>.Fail(tokenResult.Message, tokenResult.ErrorCode);
             }
 
-            return _mapper.Map<TokenResponseDto>(result.Data);
+            var userInfoResult = await _keycloakClient.GetUserInfoAsync(tokenResult.Data!.AccessToken);
+
+            if (!userInfoResult.Success)
+            {
+                _logger.LogUserInfoRetrievalFailed(request.Username, userInfoResult.ErrorCode);
+                return Result<TokenResponseDto>.Fail(userInfoResult.Message, userInfoResult.ErrorCode);
+            }
+
+            var userId = Guid.Parse(userInfoResult.Data!.Sub);
+            var userExistsResult = await _userDataClient.GetUserByIdAsync(userId);
+
+            if (!userExistsResult.Success)
+            {
+                _logger.LogUserNotFoundInUserService(userId);
+                return Result<TokenResponseDto>.Fail(userExistsResult.Message, userExistsResult.ErrorCode);
+            }
+
+            return _mapper.Map<TokenResponseDto>(tokenResult.Data);
         }
 
         public async Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request)
@@ -97,7 +113,7 @@ namespace Waggle.AuthService.Services
             if (!result.Success)
             {
                 _logger.LogTokenRetrievalFailed(result.Message);
-                return Result<TokenResponseDto>.Fail(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
+                return Result<TokenResponseDto>.Fail(result.Message, result.ErrorCode);
             }
 
             return _mapper.Map<TokenResponseDto>(result.Data);
@@ -128,7 +144,7 @@ namespace Waggle.AuthService.Services
             if (!tokenResult.Success)
             {
                 _logger.LogAdminTokenFailed(id.ToString(), tokenResult.Message);
-                return Result.Fail(tokenResult.Message ?? AuthErrors.Token.AdminAccessFailed, tokenResult.ErrorCode);
+                return Result.Fail(tokenResult.Message, tokenResult.ErrorCode);
             }
 
             var adminToken = tokenResult.Data!;
@@ -140,11 +156,15 @@ namespace Waggle.AuthService.Services
                 return keycloakResult;
             }
 
-            var userServiceResult = await _userDataClient.DeleteUserAsync(id);
-            if (!userServiceResult.Success)
+            try
             {
-                _logger.LogUserServiceDeletionFailed(id, userServiceResult.Message, userServiceResult.ErrorCode);
-                return userServiceResult;
+                var deletedEvent = _mapper.Map<DeletedEvent>(id);
+                await _publishEndpoint.Publish(deletedEvent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDeletedEventPublishFailed(ex, id);
+                //return Result.Fail(AuthErrors.User.DeletionFailed, ErrorCodes.ServiceFailed);
             }
 
             return Result.Ok();

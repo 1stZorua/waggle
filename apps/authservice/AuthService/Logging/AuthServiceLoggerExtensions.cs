@@ -16,7 +16,7 @@
         [LoggerMessage(
             EventId = 1002,
             Level = LogLevel.Error,
-            Message = "Admin token acquisition failed: {Username} - {ErrorMessage}")]
+            Message = "Admin token acquisition failed for user: {Username} - {ErrorMessage}")]
         public static partial void LogAdminTokenFailed(
             this ILogger logger,
             string username,
@@ -25,7 +25,7 @@
         [LoggerMessage(
             EventId = 1003,
             Level = LogLevel.Error,
-            Message = "User creation failed: {Username} - {ErrorMessage} ({ErrorCode})")]
+            Message = "Keycloak user creation failed: {Username} - {ErrorMessage} ({ErrorCode})")]
         public static partial void LogKeycloakUserCreationFailed(
             this ILogger logger,
             string username,
@@ -35,7 +35,7 @@
         [LoggerMessage(
             EventId = 1004,
             Level = LogLevel.Error,
-            Message = "Event publication failed: {Username} ({UserId})")]
+            Message = "Registered event publication failed: {Username} ({UserId})")]
         public static partial void LogRegisteredEventPublishFailed(
             this ILogger logger,
             Exception exception,
@@ -45,22 +45,38 @@
         [LoggerMessage(
             EventId = 1005,
             Level = LogLevel.Error,
+            Message = "User info retrieval failed: {Username} ({ErrorCode})")]
+        public static partial void LogUserInfoRetrievalFailed(
+            this ILogger logger,
+            string username,
+            string? errorCode);
+
+        [LoggerMessage(
+            EventId = 1006,
+            Level = LogLevel.Warning,
+            Message = "User authenticated with Keycloak but not found in UserService: {UserId}")]
+        public static partial void LogUserNotFoundInUserService(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 1007,
+            Level = LogLevel.Error,
             Message = "Keycloak user deletion failed: {UserId} - {ErrorMessage} ({ErrorCode})")]
-                public static partial void LogKeycloakUserDeletionFailed(
+        public static partial void LogKeycloakUserDeletionFailed(
             this ILogger logger,
             Guid userId,
             string? errorMessage,
             string? errorCode);
 
         [LoggerMessage(
-            EventId = 1006,
+            EventId = 1008,
             Level = LogLevel.Error,
-            Message = "User service deletion failed: {UserId} - {ErrorMessage} ({ErrorCode})")]
-                public static partial void LogUserServiceDeletionFailed(
+            Message = "Deleted event publication failed: {UserId}")]
+        public static partial void LogDeletedEventPublishFailed(
             this ILogger logger,
-            Guid userId,
-            string? errorMessage,
-            string? errorCode);
+            Exception exception,
+            Guid userId);
 
         // Token Events
 

@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using MassTransit.Testing;
 using System.Net;
-using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.IntegrationTests.Infrastructure;
 using Waggle.Common.Constants;
@@ -82,13 +81,15 @@ namespace Waggle.AuthService.IntegrationTests
         public async Task Login_ValidCredentials_ShouldReturnTokens()
         {
             // Arrange
+            var userId = Guid.NewGuid();
             var request = new LoginRequestDto
             {
                 Username = "testuser",
                 Password = "Password123!"
             };
 
-            SetupSuccessfulLogin();
+            SetupSuccessfulLogin(userId);
+            SetupUserDataClientGetUser(userId, success: true);
 
             // Act
             var result = await LoginAsync(request);
@@ -99,6 +100,8 @@ namespace Waggle.AuthService.IntegrationTests
             result.Data.Should().NotBeNull();
             result.Data!.AccessToken.Should().NotBeNullOrEmpty();
             result.Data.RefreshToken.Should().NotBeNullOrEmpty();
+
+            VerifyUserDataClientGetUserCalled(userId);
         }
 
         [Fact]
@@ -120,6 +123,31 @@ namespace Waggle.AuthService.IntegrationTests
             result.Should().NotBeNull();
             result.Status.Should().Be(ApiStatus.Fail);
             result.Code.Should().Be(ErrorCodes.Unauthorized);
+        }
+
+        [Fact]
+        public async Task Login_WhenUserNotFoundInUserService_ShouldReturnNotFound()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var request = new LoginRequestDto
+            {
+                Username = "testuser",
+                Password = "Password123!"
+            };
+
+            SetupSuccessfulLogin(userId);
+            SetupUserDataClientGetUser(userId, success: false);
+
+            // Act
+            var result = await LoginExpectingFailureAsync(request);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Status.Should().Be(ApiStatus.Fail);
+            result.Code.Should().Be(ErrorCodes.NotFound);
+
+            VerifyUserDataClientGetUserCalled(userId);
         }
 
         #endregion
@@ -281,12 +309,11 @@ namespace Waggle.AuthService.IntegrationTests
         #region Delete User Tests
 
         [Fact]
-        public async Task DeleteUser_ShouldSucceed()
+        public async Task DeleteUser_ShouldSucceed_AndPublishEvent()
         {
             // Arrange
             var userId = Guid.NewGuid();
             SetupSuccessfulUserDeletion(userId);
-            SetupUserDataDeletion(userId, success: true);
 
             // Act
             var result = await DeleteUserAsync(userId);
@@ -294,7 +321,14 @@ namespace Waggle.AuthService.IntegrationTests
             // Assert
             result.Should().NotBeNull();
             result.Status.Should().Be(ApiStatus.Success);
-            VerifyUserDataDeletionCalled(userId);
+
+            var publishedEvent = TestHarness.Published
+                .Select<DeletedEvent>()
+                .Where(x => x.Context.Message.Id == userId)
+                .FirstOrDefault()?.Context.Message;
+
+            publishedEvent.Should().NotBeNull();
+            publishedEvent.Id.Should().Be(userId);
         }
 
         [Fact]
@@ -312,25 +346,12 @@ namespace Waggle.AuthService.IntegrationTests
             result.Status.Should().Be(ApiStatus.Error);
             result.Code.Should().Be(ErrorCodes.ServiceFailed);
 
-            VerifyUserDataDeletionCalled(userId, Moq.Times.Never());
-        }
+            var publishedEvent = TestHarness.Published
+                .Select<DeletedEvent>()
+                .Where(x => x.Context.Message.Id == userId)
+                .FirstOrDefault();
 
-        [Fact]
-        public async Task DeleteUser_WhenUserDataDeletionFails_ShouldReturnError()
-        {
-            // Arrange
-            var userId = Guid.NewGuid();
-            SetupSuccessfulUserDeletion(userId);
-            SetupUserDataDeletion(userId, success: false);
-
-            // Act
-            var result = await DeleteUserExpectingFailureAsync(userId);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.Status.Should().Be(ApiStatus.Error);
-            result.Message.Should().Be(AuthErrors.User.DeletionFailed);
-            VerifyUserDataDeletionCalled(userId);
+            publishedEvent.Should().BeNull();
         }
 
         #endregion

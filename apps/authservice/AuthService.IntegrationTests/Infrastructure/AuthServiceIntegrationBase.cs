@@ -1,12 +1,12 @@
 ﻿using MassTransit.Testing;
 using Moq;
-using Sprache;
 using System.Net;
 using System.Net.Http.Headers;
-using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
+using Waggle.Common.Constants;
 using Waggle.Common.Models;
-using Waggle.Contracts.User.Extensions;
+using Waggle.Common.Results.Core;
+using Waggle.Contracts.User.Grpc;
 using Waggle.Testing.Infrastructure.Base;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -32,6 +32,7 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
         public override async Task InitializeAsync()
         {
             Factory.WireMockServer.Reset();
+            Factory.UserDataClientMock.Reset();
             await base.InitializeAsync();
         }
 
@@ -107,8 +108,10 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                     }"));
         }
 
-        protected void SetupSuccessfulLogin()
+        protected void SetupSuccessfulLogin(Guid? userId = null)
         {
+            var actualUserId = userId ?? Guid.NewGuid();
+
             Factory.WireMockServer
                 .Given(Request.Create()
                     .WithPath("/realms/test-realm/protocol/openid-connect/token")
@@ -124,6 +127,21 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                         ""refresh_expires_in"":7200,
                         ""token_type"":""Bearer""
                     }"));
+
+            Factory.WireMockServer
+                .Given(Request.Create()
+                    .WithPath("/realms/test-realm/protocol/openid-connect/userinfo")
+                    .WithHeader("Authorization", "Bearer access-token-123")
+                    .UsingGet())
+                .RespondWith(Response.Create()
+                    .WithStatusCode(200)
+                    .WithHeader("Content-Type", "application/json")
+                    .WithBody($@"{{
+                        ""sub"":""{actualUserId}"",
+                        ""preferred_username"":""testuser"",
+                        ""email"":""test@example.com"",
+                        ""name"":""Test User""
+                    }}"));
         }
 
         protected void SetupFailedLogin()
@@ -265,21 +283,33 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
 
         #region gRPC Mock Setup Methods
 
-        protected void SetupUserDataDeletion(Guid userId, bool success = true)
+        protected void SetupUserDataClientGetUser(Guid userId, bool success = true)
         {
             var result = success
-                ? Common.Results.Core.Result.Ok()
-                : Common.Results.Core.Result.Fail(AuthErrors.User.DeletionFailed);
+                ? Result<GetUserByIdResponse>.Ok(new GetUserByIdResponse
+                {
+                    User = new User
+                    {
+                        Id = userId.ToString(),
+                        Username = "testuser",
+                        Email = "test@example.com",
+                        FirstName = "Test",
+                        LastName = "User",
+                        CreatedAt = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow)
+                    }
+                })
+                : Result<GetUserByIdResponse>.Fail("User not found", ErrorCodes.NotFound);
 
             Factory.UserDataClientMock
-                .Setup(x => x.DeleteUserAsync(new() { Id = userId.ToString() }))
-                .Returns(Task.FromResult(result));
+                .Setup(x => x.GetUserByIdAsync(It.Is<GetUserByIdRequest>(r => r.Id == userId.ToString())))
+                .ReturnsAsync(result);
         }
 
-        protected void VerifyUserDataDeletionCalled(Guid userId, Times? times = null)
+        protected void VerifyUserDataClientGetUserCalled(Guid userId, Times? times = null)
         {
             Factory.UserDataClientMock
-                .Verify(x => x.DeleteUserAsync(new() { Id = userId.ToString() }), times ?? Times.Once());
+                .Verify(x => x.GetUserByIdAsync(It.Is<GetUserByIdRequest>(r => r.Id == userId.ToString())),
+                    times ?? Times.Once());
         }
 
         #endregion

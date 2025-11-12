@@ -37,8 +37,8 @@ namespace Waggle.AuthService.Services
 
             var result = await PostTokenAsync(content);
             return result.Match(
-                onSuccess: data => Result<string>.Ok(data.AccessToken), 
-                onFailure: _ => Result<string>.Fail(result.Message ?? AuthErrors.Token.AdminAccessFailed, result.ErrorCode)
+                onSuccess: data => Result<string>.Ok(data.AccessToken),
+                onFailure: _ => Result<string>.Fail(result.Message, result.ErrorCode)
             );
         }
 

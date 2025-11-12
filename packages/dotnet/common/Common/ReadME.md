@@ -3,7 +3,6 @@
 A lightweight shared library for consistent patterns and utilities across Waggle services, including type-safe error handling with the Result pattern.
 
 ## Installation
-
 ```bash
 dotnet add package Waggle.Common
 ```
@@ -17,7 +16,7 @@ var result = Result<User>.Ok(user);
 
 **Success with message:**
 ```csharp
-var result = Result<User>.Ok("User created successfully", user);
+var result = Result<User>.Ok(user, "User created successfully");
 ```
 
 **Failure:**
@@ -123,7 +122,7 @@ All responses use JSend format:
 {
   "status": "fail",
   "message": "User not found",
-  "code": "ERR_NOT_FOUND"
+  "code": "NOT_FOUND"
 }
 ```
 
@@ -131,17 +130,16 @@ All responses use JSend format:
 
 | Code | HTTP Status | Description |
 |------|-------------|-------------|
-| `ERR_UNAUTHORIZED` | 401 | Authentication required |
-| `ERR_FORBIDDEN` | 403 | Insufficient permissions |
-| `ERR_VALIDATION_FAILED` | 400 | Validation errors |
-| `ERR_INVALID_INPUT` | 400 | Invalid request data |
-| `ERR_NOT_FOUND` | 404 | Resource not found |
-| `ERR_ALREADY_EXISTS` | 409 | Resource conflict |
-| `ERR_SERVICE_FAILED` | 502 | External service error |
-| `ERR_SERVICE_UNAVAILABLE` | 503 | Service unavailable |
+| `UNAUTHORIZED` | 401 | Authentication required |
+| `FORBIDDEN` | 403 | Insufficient permissions |
+| `VALIDATION_FAILED` | 400 | Validation errors |
+| `INVALID_INPUT` | 400 | Invalid request data |
+| `NOT_FOUND` | 404 | Resource not found |
+| `ALREADY_EXISTS` | 409 | Resource conflict |
+| `SERVICE_FAILED` | 502 | External service error |
+| `SERVICE_UNAVAILABLE` | 503 | Service unavailable |
 
 ## Example Service
-
 ```csharp
 public class UserService
 {
@@ -159,13 +157,12 @@ public class UserService
         var user = new User { Email = dto.Email, Name = dto.Name };
         await _repository.AddAsync(user);
         
-        return Result<User>.Ok("User created", user);
+        return Result<User>.Ok(user, "User created");
     }
 }
 ```
 
 ## Chaining Example
-
 ```csharp
 public async Task<Result<Order>> PlaceOrderAsync(CreateOrderDto dto)
 {

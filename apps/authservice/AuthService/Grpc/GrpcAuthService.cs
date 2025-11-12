@@ -27,7 +27,7 @@ namespace Waggle.AuthService.Grpc
             var result = await _service.PasswordGrantAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<LoginResponse>(result.Data);
         }
@@ -38,7 +38,7 @@ namespace Waggle.AuthService.Grpc
             var result = await _service.CreateUserAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.User.CreationFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<RegisterResponse>(result.Data);
         }
@@ -49,7 +49,7 @@ namespace Waggle.AuthService.Grpc
             var result = await _service.RefreshTokenAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.RetrievalFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<RefreshTokenResponse>(result.Data);
         }
@@ -60,7 +60,7 @@ namespace Waggle.AuthService.Grpc
             var result = await _service.LogoutAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Session.EndFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return new Empty();
         }
@@ -71,7 +71,7 @@ namespace Waggle.AuthService.Grpc
             var result = await _service.ValidateAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.Token.InvalidFormat, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<ValidateTokenResponse>(result.Data);
         }
@@ -83,7 +83,7 @@ namespace Waggle.AuthService.Grpc
 
             var result = await _service.DeleteUserAsync(userId);
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? AuthErrors.User.DeletionFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return new Empty();
         }
