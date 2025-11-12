@@ -13,17 +13,17 @@ WORKDIR /src
 COPY . .
 
 # Navigate to the API project and restore
-WORKDIR /src/apps/authservice
-RUN dotnet restore "AuthService.csproj"
+WORKDIR /src/apps/authservice/AuthService
+RUN dotnet restore "Waggle.AuthService.csproj"
 
 # Build from the API directory
-RUN dotnet build "AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Waggle.AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src/apps/authservice
-RUN dotnet publish "AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+WORKDIR /src/apps/authservice/AuthService
+RUN dotnet publish "Waggle.AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production
 FROM base AS final
@@ -34,4 +34,4 @@ COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 ENV ASPNETCORE_ENVIRONMENT=Development
 
-ENTRYPOINT ["dotnet", "AuthService.dll"]
+ENTRYPOINT ["dotnet", "Waggle.AuthService.dll"]

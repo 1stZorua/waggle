@@ -2,12 +2,12 @@ services:
   authservice:
     build:
       context: ../../
-      dockerfile: apps/authservice/Dockerfile
+      dockerfile: apps/authservice/AuthService/Dockerfile
 
   userservice:
     build:
       context: ../../
-      dockerfile: apps/userservice/Dockerfile
+      dockerfile: apps/userservice/UserService/Dockerfile
 
   web:
     build:

@@ -22,6 +22,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
     builder.Services.AddMessaging(builder.Configuration, opt =>
     {
         opt.AddConsumer<RegisteredEventConsumer>();
+        opt.AddConsumer<DeletedEventConsumer>();
     });
 
     builder.Services.AddDbContext<UserDbContext>(opt => opt.UseInMemoryDatabase("Users"));
