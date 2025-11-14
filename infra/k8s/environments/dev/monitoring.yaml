@@ -7,4 +7,4 @@ loki:
 kube-prometheus-stack:
   grafana:
     persistence:
-      enabled: fals
+      enabled: false
