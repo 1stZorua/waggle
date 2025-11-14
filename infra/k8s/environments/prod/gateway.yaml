@@ -1,9 +1,19 @@
 gateway-traefik:
   traefik:
-    replicaCount: 2
-    ingressRoute:
-      dashboard:
-        enabled: false
+    replicaCount: 3
+
     api:
       dashboard: false
       insecure: false
+
+    ingressRoute:
+      dashboard:
+        enabled: false
+
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+      requests:
+        cpu: 500m
+        memory: 256Mi

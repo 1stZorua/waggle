@@ -1,0 +1,60 @@
+loki:
+  singleBinary:
+    replicas: 3
+
+    persistence:
+      enabled: true
+      size: 50Gi
+
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4096Mi
+      requests:
+        cpu: 1000m
+        memory: 2048Mi
+
+kube-prometheus-stack:
+  grafana:
+    adminPassword: adminpassword
+
+    persistence:
+      enabled: true
+      size: 10Gi
+
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+  prometheus:
+    prometheusSpec:
+      retention: 30d
+
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ['ReadWriteOnce']
+            resources:
+              requests:
+                storage: 50Gi
+
+      resources:
+        limits:
+          cpu: 2000m
+          memory: 4096Mi
+        requests:
+          cpu: 1000m
+          memory: 2048Mi
+
+promtail:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 128Mi

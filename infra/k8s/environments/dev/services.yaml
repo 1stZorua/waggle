@@ -1,0 +1,8 @@
+authservice:
+  replicaCount: 1
+
+userservice:
+  replicaCount: 1
+
+web:
+  replicaCount: 1

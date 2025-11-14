@@ -1,0 +1,23 @@
+rabbitmq:
+  rabbitmq:
+    replicaCount: 3
+
+    auth:
+      username: admin
+      password: admin
+      erlangCookie: wagglecookie
+
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 2048Mi
+      requests:
+        cpu: 1000m
+        memory: 1024Mi
+
+    persistence:
+      enabled: true
+      size: 20Gi
+
+    clustering:
+      enabled: true

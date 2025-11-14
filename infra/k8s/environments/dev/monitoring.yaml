@@ -1,0 +1,10 @@
+loki:
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: false
+
+kube-prometheus-stack:
+  grafana:
+    persistence:
+      enabled: fals
