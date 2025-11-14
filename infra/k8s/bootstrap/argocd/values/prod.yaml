@@ -1,0 +1,19 @@
+argo-cd:
+  server:
+    replicas: 3
+
+  repoServer:
+    replicas: 3
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+  controller:
+    replicas: 2
+
+  redis-ha:
+    enabled: true

@@ -1,0 +1,28 @@
+# Override values for the argo-cd subchart
+argo-cd:
+  global:
+    domain: argocd.school.internal
+
+  configs:
+    params:
+      server.insecure: true
+      application.instanceLabelKey: argocd.argoproj.io/instance
+
+    cm:
+      application.resourceTrackingMethod: annotation
+      timeout.reconciliation: 300s
+
+  server:
+    replicas: 2
+
+    ingress:
+      enabled: false # Use port-forward for school network
+
+  repoServer:
+    replicas: 2
+
+  controller:
+    replicas: 1
+
+  redis:
+    enabled: true

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: services
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:1stzorua/waggle.git
+    targetRevision: main
+    path: infra/k8s/umbrella/services
+    helm:
+      valueFiles:
+        - ../../environments/dev/services.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
