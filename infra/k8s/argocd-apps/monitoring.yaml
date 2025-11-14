@@ -11,7 +11,7 @@ spec:
     path: infra/k8s/umbrella/monitoring
     helm:
       valueFiles:
-        - ../../environments/dev/gmonitoringateway.yaml
+        - ../../environments/dev/monitoring.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
