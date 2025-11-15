@@ -10,4 +10,5 @@ keycloak:
       - name: KC_HOSTNAME
         value: 'keycloak.waggle.local'
 
-    host: keycloak.waggle.local
+    ingressRoute:
+      host: keycloak.waggle.local
