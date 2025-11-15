@@ -34,11 +34,11 @@ spec:
             - name: KEYCLOAK_CLIENT_ID
               value: "test-client"
             - name: KEYCLOAK_CLIENT_SECRET
-              value: "6PQzdOqxnPxqwZfp0m3eUXgUHflBH1hQ"        
+              value: "0cWultdK0NnAAGXyUS1gCQDAkuwuV89o"        
             - name: KEYCLOAK_ADMIN_CLIENT_ID
               value: "admin-cli"
             - name: KEYCLOAK_ADMIN_CLIENT_SECRET
-              value: "JwbEC1auVhnIxqLjKQrKTyOwbYPa160p"
+              value: "MEwxnBWh7cberaZiDQVYvuUO0Cn35feT"
             - name: RabbitMQ__Host
               value: "messaging-rabbitmq.messaging.svc.cluster.local"
             - name: RabbitMQ__Port
