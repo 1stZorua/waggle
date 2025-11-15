@@ -1,0 +1,12 @@
+dependencies:
+- name: authservice
+  repository: file://charts/authservice
+  version: 0.1.0
+- name: userservice
+  repository: file://charts/userservice
+  version: 0.1.0
+- name: web
+  repository: file://charts/web
+  version: 0.1.0
+digest: sha256:321f5562a58763c6a4074a139480dd6da2c3d4365694ffda43ccd146fe01cf8b
+generated: "2025-10-28T13:49:10.3117854+01:00"
