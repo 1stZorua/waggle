@@ -41,7 +41,7 @@ spec:
               value: "http://+:8080"
             - name: Kestrel__Endpoints__Grpc__Url
               value: "http://+:8081"
-            - name: Kestrel__Endpoints__Grpc_Protocols
+            - name: Kestrel__Endpoints__Grpc__Protocols
               value: "Http2"
             - name: GrpcAuth
               value: "http://authservice-svc.app.svc.cluster.local:8081"
