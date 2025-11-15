@@ -8,3 +8,12 @@ kube-prometheus-stack:
   grafana:
     persistence:
       enabled: false
+
+    ingress:
+      enabled: true
+      host: grafana.waggle.local
+
+  prometheus:
+    ingress:
+      enabled: true
+      host: prometheus.waggle.local

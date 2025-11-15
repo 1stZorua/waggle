@@ -5,3 +5,7 @@ rabbitmq:
     auth:
       username: admin
       password: admin
+
+    ingressRoute:
+      enabled: true
+      host: rabbitmq.waggle.local

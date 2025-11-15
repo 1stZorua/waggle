@@ -8,6 +8,6 @@ keycloak:
 
     extraEnvVars:
       - name: KC_HOSTNAME
-        value: 'keycloak.localhost'
+        value: 'keycloak.waggle.local'
 
-    host: keycloak.localhost
+    host: keycloak.waggle.local
