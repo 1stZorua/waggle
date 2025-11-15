@@ -1,5 +1,6 @@
 authservice:
   replicaCount: 3
+  image: 1stzorua/waggle-authservice:latest
 
   ingress:
     host: authservice.waggle.local
@@ -23,6 +24,7 @@ userservice:
 
   ingress:
     host: userservice.waggle.local
+    image: 1stzorua/waggle-userservice:latest
 
   resources:
     limits:
@@ -43,6 +45,7 @@ web:
 
   ingress:
     host: web.waggle.local
+    image: 1stzorua/waggle-web:latest
 
   resources:
     limits:
