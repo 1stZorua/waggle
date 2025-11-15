@@ -1,8 +1,11 @@
 authservice:
   replicaCount: 1
+  image: 1stzorua/waggle-authservice
 
 userservice:
   replicaCount: 1
+  image: 1stzorua/waggle-userservice
 
 web:
   replicaCount: 1
+  image: 1stzorua/waggle-web
