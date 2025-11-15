@@ -17,16 +17,10 @@ keycloak:
         value: 'edge'
       - name: KC_PROXY_HEADERS
         value: 'xforwarded'
-      - name: KC_HTTP_ENABLED
-        value: 'true'
       - name: KC_HOSTNAME_STRICT
-        value: 'false'
+        value: 'true'
       - name: KC_HOSTNAME_STRICT_HTTPS
-        value: 'false'
-
-    extraEnvVars:
-      - name: KC_HOSTNAME
-        value: 'keycloak.waggle.local'
+        value: 'true'
 
     ingressRoute:
       host: keycloak.waggle.local
