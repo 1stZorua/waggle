@@ -9,6 +9,18 @@ keycloak:
     extraEnvVars:
       - name: KC_HOSTNAME
         value: 'keycloak.waggle.local'
+      - name: KC_HOSTNAME_STRICT
+        value: 'false'
+      - name: KC_PROXY
+        value: 'edge'
+      - name: KC_HTTP_ENABLED
+        value: 'true'
+      - name: KC_HOSTNAME_STRICT_HTTPS
+        value: 'false'
+
+    extraEnvVars:
+      - name: KC_HOSTNAME
+        value: 'keycloak.waggle.local'
 
     ingressRoute:
       host: keycloak.waggle.local
