@@ -30,7 +30,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/authservice
+        working-directory: apps/authservice/AuthService
 
     steps:
       - name: Checkout
@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: authservice-publish
-          path: apps/authservice/bin/Release/net9.0
+          path: apps/authservice/AuthService/bin/Release/net9.0
 
   publish_docker:
     name: Build & Push Docker Image
@@ -101,7 +101,7 @@ jobs:
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
-          file: ./apps/authservice/Dockerfile
+          file: ./apps/authservice/AuthService/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
