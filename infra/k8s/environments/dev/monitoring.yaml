@@ -1,9 +1,8 @@
 loki:
-  loki:
-    singleBinary:
-      replicas: 1
-      persistence:
-        enabled: false
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: false
 
 prometheus:
   kube-prometheus-stack:
