@@ -7,17 +7,31 @@ global:
 authservice:
   name: authservice
   image: waggle-authservice:latest
-  host: authservice.localhost
-  port: 8080
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: authservice.localhost
 
 userservice:
   name: userservice
   image: waggle-userservice:latest
-  host: userservice.localhost
-  port: 8080
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: userservice.localhost
 
 web:
   name: web
   image: waggle-web:latest
-  host: web.localhost
-  port: 3000
+
+  ports:
+    http: 3000
+
+  ingress:
+    host: web.localhost
