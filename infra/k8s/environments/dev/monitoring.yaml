@@ -1,19 +1,21 @@
 loki:
-  singleBinary:
-    replicas: 1
-    persistence:
-      enabled: false
+  loki:
+    singleBinary:
+      replicas: 1
+      persistence:
+        enabled: false
 
-kube-prometheus-stack:
-  grafana:
-    persistence:
-      enabled: false
+prometheus:
+  kube-prometheus-stack:
+    grafana:
+      persistence:
+        enabled: false
 
-    ingress:
-      enabled: true
-      host: grafana.waggle.local
+      ingress:
+        enabled: true
+        host: grafana.waggle.local
 
-  prometheus:
-    ingress:
-      enabled: true
-      host: prometheus.waggle.local
+    prometheus:
+      ingress:
+        enabled: true
+        host: prometheus.waggle.local
