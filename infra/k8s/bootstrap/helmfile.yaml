@@ -6,6 +6,9 @@ environments:
   dev:
     values:
       - ../environments/dev/*.yaml
+  local:
+    values:
+      - ../environments/local/*.yaml
   prod:
     values:
       - ../environments/prod/*.yaml

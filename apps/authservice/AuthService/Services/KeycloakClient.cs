@@ -2,9 +2,10 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Waggle.AuthService.Constants;
-using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Logging;
 using Waggle.AuthService.Models;
+using Waggle.AuthService.Options;
+using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Results.Core;
 
@@ -13,14 +14,14 @@ namespace Waggle.AuthService.Services
     public class KeycloakClient : IKeycloakClient
     {
         private readonly HttpClient _http;
-        private readonly KeycloakSettings _settings;
+        private readonly KeycloakOptions _settings;
         private readonly ILogger<KeycloakClient> _logger;
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
         };
 
-        public KeycloakClient(HttpClient http, IOptions<KeycloakSettings> opts, ILogger<KeycloakClient> logger)
+        public KeycloakClient(HttpClient http, IOptions<KeycloakOptions> opts, ILogger<KeycloakClient> logger)
         {
             _http = http;
             _settings = opts.Value;
@@ -154,7 +155,7 @@ namespace Waggle.AuthService.Services
         private async Task<Result<TokenResponse>> PostTokenAsync(FormUrlEncodedContent content)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, GetEndpoint("token")) { Content = content };
-            return await SendKeycloakRequestAsync<TokenResponse>(req, AuthErrors.Token.RetrievalFailed);
+            return await SendKeycloakRequestAsync<TokenResponse>(req, AuthErrors.Token.InvalidCredentials);
         }
 
         private async Task<Result<T>> SendKeycloakRequestAsync<T>(HttpRequestMessage request, string failureMessage)

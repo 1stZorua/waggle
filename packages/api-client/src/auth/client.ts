@@ -5,5 +5,6 @@ export const AuthClient = {
   register: authApi.postApiAuthRegister,
   refresh: authApi.postApiAuthRefresh,
   logout: authApi.postApiAuthLogout,
-  validate: authApi.getApiAuthValidate
+  validate: authApi.getApiAuthValidate,
+  delete: authApi.deleteApiAuth
 };

@@ -2,6 +2,7 @@
 using Moq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Waggle.AuthService.Dtos;
 using Waggle.Common.Constants;
 using Waggle.Common.Models;
@@ -39,20 +40,26 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
         #region Test Data Helpers
 
         protected static string UniqueUsername(string prefix = "testuser")
-            => $"{prefix}_{Guid.NewGuid():N}";
+        {
+            var guid = Guid.NewGuid().ToString("N").Substring(0, 8);
+            var username = $"{prefix}{guid}";
+            return username.Length > 20 ? username.Substring(0, 20) : username;
+        }
 
         protected static RegisterRequestDto CreateRegisterRequest(
             string? username = null,
             string? email = null,
             string? firstName = null,
             string? lastName = null,
-            string? password = null) => new()
+            string? password = null,
+            string? confirmPassword = null) => new()
             {
                 Username = username ?? UniqueUsername(),
                 Email = email ?? TestConstants.MockEmail,
                 FirstName = firstName ?? "Test",
                 LastName = lastName ?? "User",
-                Password = password ?? "Password123!"
+                Password = password ?? "Password123!",
+                ConfirmPassword = confirmPassword ?? "Password123!"
             };
 
         #endregion
@@ -74,6 +81,24 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                         ""expires_in"":3600,
                         ""token_type"":""Bearer""
                     }"));
+        }
+
+        protected void SetupSuccessfulTokenValidation()
+        {
+            Factory.WireMockServer
+                .Given(Request.Create()
+                    .WithPath("/realms/test-realm/protocol/openid-connect/userinfo")
+                    .UsingGet())
+                .RespondWith(Response.Create()
+                    .WithStatusCode(200)
+                    .WithHeader("Content-Type", "application/json")
+                    .WithBody($@"{{
+                        ""sub"":""{TestConstants.MockUserId}"",
+                        ""preferred_username"":""{TestConstants.MockUsername}"",
+                        ""email"":""{TestConstants.MockEmail}"",
+                        ""name"":""{TestConstants.MockName}"",
+                        ""realm_access"":{{""roles"":[""user"",""admin""]}}
+                    }}"));
         }
 
         protected void SetupSuccessfulUserRegistration(Guid? userId = null)
@@ -219,38 +244,6 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                     }"));
         }
 
-        protected void SetupSuccessfulTokenValidation()
-        {
-            Factory.WireMockServer
-                .Given(Request.Create()
-                    .WithPath("/realms/test-realm/protocol/openid-connect/userinfo")
-                    .UsingGet())
-                .RespondWith(Response.Create()
-                    .WithStatusCode(200)
-                    .WithHeader("Content-Type", "application/json")
-                    .WithBody($@"{{
-                        ""sub"":""{TestConstants.MockUserId}"",
-                        ""preferred_username"":""{TestConstants.MockUsername}"",
-                        ""email"":""{TestConstants.MockEmail}"",
-                        ""name"":""{TestConstants.MockName}"",
-                        ""realm_access"":{{""roles"":[""user"",""admin""]}}
-                    }}"));
-        }
-
-        protected void SetupFailedTokenValidation()
-        {
-            Factory.WireMockServer
-                .Given(Request.Create()
-                    .WithPath("/realms/test-realm/protocol/openid-connect/userinfo")
-                    .UsingGet())
-                .RespondWith(Response.Create()
-                    .WithStatusCode(401)
-                    .WithHeader("Content-Type", "application/json")
-                    .WithBody(@"{
-                        ""error"":""invalid_token""
-                    }"));
-        }
-
         protected void SetupSuccessfulUserDeletion(Guid userId)
         {
             SetupAdminToken();
@@ -347,10 +340,24 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
         #region Logout Helper Methods
 
         protected Task<ApiResponse> LogoutAsync(LogoutRequestDto request)
-            => PostAsync("logout", request);
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, GetEndpoint("logout"))
+            {
+                Content = JsonContent.Create(request)
+            };
+            httpRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(TestConstants.ValidBearerToken);
+            return SendRequestAsync(httpRequest);
+        }
 
         protected Task<ApiResponse> LogoutExpectingFailureAsync(LogoutRequestDto request)
-            => PostAsync("logout", request, expectSuccess: false);
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, GetEndpoint("logout"))
+            {
+                Content = JsonContent.Create(request)
+            };
+            httpRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(TestConstants.ValidBearerToken);
+            return SendRequestAsync(httpRequest, expectSuccess: false);
+        }
 
         #endregion
 
@@ -406,14 +413,24 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
 
         protected Task<ApiResponse> DeleteUserAsync(Guid userId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, GetEndpoint($"{userId}"));
-            return SendRequestAsync(request);
+            var deleteRequest = new DeleteUserRequestDto { Id = userId };
+            var httpRequest = new HttpRequestMessage(HttpMethod.Delete, GetEndpoint(string.Empty))
+            {
+                Content = JsonContent.Create(deleteRequest)
+            };
+            httpRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(TestConstants.ValidBearerToken);
+            return SendRequestAsync(httpRequest);
         }
 
         protected Task<ApiResponse> DeleteUserExpectingFailureAsync(Guid userId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, GetEndpoint($"{userId}"));
-            return SendRequestAsync(request, expectSuccess: false);
+            var deleteRequest = new DeleteUserRequestDto { Id = userId };
+            var httpRequest = new HttpRequestMessage(HttpMethod.Delete, GetEndpoint(string.Empty))
+            {
+                Content = JsonContent.Create(deleteRequest)
+            };
+            httpRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(TestConstants.ValidBearerToken);
+            return SendRequestAsync(httpRequest, expectSuccess: false);
         }
 
         #endregion

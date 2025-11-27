@@ -1,6 +1,6 @@
-﻿namespace Waggle.AuthService.Models
+﻿namespace Waggle.AuthService.Options
 {
-    public class KeycloakSettings
+    public class KeycloakOptions
     {
         public required string AuthServerUrl { get; set; }
         public required string Realm { get; set; }

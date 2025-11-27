@@ -1,0 +1,15 @@
+userservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+  metrics:
+    enabled: true

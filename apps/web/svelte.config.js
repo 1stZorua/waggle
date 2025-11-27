@@ -9,7 +9,13 @@ const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
-	kit: { adapter: adapter() },
+	kit: {
+		adapter: adapter(),
+		alias: {
+			$components: './src/lib/components',
+			$images: './src/lib/images'
+		}
+	},
 	csrf: {
 		checkOrigin: false
 	}

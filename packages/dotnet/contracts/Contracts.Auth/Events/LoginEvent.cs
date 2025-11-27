@@ -8,6 +8,6 @@
 
         // Payload
         public Guid Id { get; set; }
-        public string UserName { get; init; } = string.Empty;
+        public string Identifier { get; init; } = string.Empty;
     }
 }

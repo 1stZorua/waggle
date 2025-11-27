@@ -20,6 +20,7 @@
         {
             public const string Unauthorized = "Authentication required";
             public const string Forbidden = "Access denied";
+            public const string PermissionRequired = "You do not have the required permission";
             public const string TokenExpired = "Your session has expired";
             public const string InvalidToken = "Invalid authentication token";
         }

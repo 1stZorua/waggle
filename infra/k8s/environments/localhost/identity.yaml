@@ -1,0 +1,26 @@
+keycloak:
+  keycloak:
+    replicaCount: 1
+
+    auth:
+      adminUser: admin
+      adminPassword: admin
+
+    extraEnvVars:
+      - name: KC_HOSTNAME
+        value: 'keycloak.localhost'
+      - name: KC_HOSTNAME_URL
+        value: 'https://keycloak.localhost'
+      - name: KC_HOSTNAME_ADMIN_URL
+        value: 'https://keycloak.localhost'
+      - name: KC_PROXY
+        value: 'edge'
+      - name: KC_PROXY_HEADERS
+        value: 'xforwarded'
+      - name: KC_HOSTNAME_STRICT
+        value: 'true'
+      - name: KC_HOSTNAME_STRICT_HTTPS
+        value: 'true'
+
+    ingressRoute:
+      host: keycloak.localhost

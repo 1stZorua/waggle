@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Services;
+using Waggle.Common.Controllers;
 using Waggle.Common.Models;
 using Waggle.Common.Results.Extensions;
 
@@ -8,7 +10,7 @@ namespace Waggle.AuthService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseController
     {
         private readonly IAuthService _authService;
 
@@ -41,6 +43,7 @@ namespace Waggle.AuthService.Controllers
             return result.ToActionResult();
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request)
         {
@@ -48,6 +51,7 @@ namespace Waggle.AuthService.Controllers
             return result.ToActionResult();
         }
 
+        [Authorize]
         [HttpGet("validate")]
         public async Task<IActionResult> Validate()
         {
@@ -69,10 +73,11 @@ namespace Waggle.AuthService.Controllers
             return isGateway ? Ok() : result.ToActionResult();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser(DeleteUserRequestDto request)
         {
-            var result = await _authService.DeleteUserAsync(id);
+            var result = await _authService.DeleteUserAsync(request, CurrentUser);
             return result.ToActionResult();
         }
     }

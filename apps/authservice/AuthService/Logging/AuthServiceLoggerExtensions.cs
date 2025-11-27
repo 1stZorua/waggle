@@ -78,6 +78,15 @@
             Exception exception,
             Guid userId);
 
+        [LoggerMessage(
+            EventId = 1009,
+            Level = LogLevel.Warning,
+            Message = "Unauthorized delete attempt by user {UserId} on target user {TargetUserId}")]
+        public static partial void LogUnauthorizedDeleteAttempt(
+            this ILogger logger,
+            Guid userId,
+            Guid targetUserId);
+
         // Token Events
 
         [LoggerMessage(

@@ -21,7 +21,10 @@ namespace Waggle.AuthService.IntegrationTests
         public async Task Register_ShouldReturnCreatedUser_AndPublishEvent()
         {
             // Arrange
-            var request = CreateRegisterRequest();
+            var request = CreateRegisterRequest(
+                firstName: "John",
+                lastName: "Doe"
+            );
             SetupSuccessfulUserRegistration();
 
             // Act
@@ -54,15 +57,20 @@ namespace Waggle.AuthService.IntegrationTests
         public async Task Register_DuplicateUsername_ShouldReturnFailureResult()
         {
             // Arrange
-            var username = UniqueUsername("duplicateuser");
-            var request = CreateRegisterRequest(username: username, email: "duplicate@example.com");
+            var username = UniqueUsername("duplicate");
+            var request = CreateRegisterRequest(
+                username: username,
+                email: "duplicate@example.com",
+                firstName: "John",
+                lastName: "Doe"
+            );
 
             SetupSuccessfulUserRegistration();
             var firstResult = await RegisterUserAsync(request);
             firstResult.Status.Should().Be(ApiStatus.Success);
 
-            Factory.WireMockServer.ResetMappings();
-            SetupDuplicateUserError(request.Username);
+            await InitializeAsync();
+            SetupDuplicateUserError(username);
 
             // Act
             var result = await RegisterUserExpectingFailureAsync(request);
@@ -84,7 +92,7 @@ namespace Waggle.AuthService.IntegrationTests
             var userId = Guid.NewGuid();
             var request = new LoginRequestDto
             {
-                Username = "testuser",
+                Identifier = "testuser",
                 Password = "Password123!"
             };
 
@@ -110,7 +118,7 @@ namespace Waggle.AuthService.IntegrationTests
             // Arrange
             var request = new LoginRequestDto
             {
-                Username = "testuser",
+                Identifier = "testuser",
                 Password = "WrongPassword"
             };
 
@@ -132,7 +140,7 @@ namespace Waggle.AuthService.IntegrationTests
             var userId = Guid.NewGuid();
             var request = new LoginRequestDto
             {
-                Username = "testuser",
+                Identifier = "testuser",
                 Password = "Password123!"
             };
 
@@ -261,7 +269,15 @@ namespace Waggle.AuthService.IntegrationTests
         {
             // Arrange
             var token = "Bearer invalid-token";
-            SetupFailedTokenValidation();
+
+            Factory.WireMockServer
+                .Given(WireMock.RequestBuilders.Request.Create()
+                    .WithPath("/realms/test-realm/protocol/openid-connect/userinfo")
+                    .UsingGet())
+                .RespondWith(WireMock.ResponseBuilders.Response.Create()
+                    .WithStatusCode(401)
+                    .WithHeader("Content-Type", "application/json")
+                    .WithBody(@"{""error"":""invalid_token""}"));
 
             // Act
             var result = await ValidateTokenExpectingFailureAsync(token);

@@ -1,0 +1,23 @@
+authservice:
+  replicaCount: 1
+  image: waggle-authservice:latest
+
+  ingress:
+    enabled: true
+    host: authservice.localhost
+
+userservice:
+  replicaCount: 1
+  image: waggle-userservice:latest
+
+  ingress:
+    enabled: true
+    host: userservice.localhost
+
+web:
+  replicaCount: 1
+  image: waggle-web:latest
+
+  ingress:
+    enabled: true
+    host: web.localhost

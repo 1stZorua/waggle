@@ -1,10 +1,12 @@
 import { loginSchema } from '$lib/schemas';
-import { fail, redirect, type Actions } from '@sveltejs/kit';
+import { fail, type Actions } from '@sveltejs/kit';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms/server';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { AuthClient } from '@waggle/api-client/auth';
 import type { PageServerLoad } from './$types';
 import { setAuthCookies } from '$lib/server';
+import { isApiError } from '@waggle/api-client';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.auth) throw redirect(302, '/');
@@ -20,20 +22,23 @@ export const actions: Actions = {
 		if (!form.valid) return fail(400, { form });
 
 		try {
-			const { status, data, message } = await AuthClient.login({
-				username: form.data.username,
+			const { data } = await AuthClient.login({
+				identifier: form.data.identifier,
 				password: form.data.password
 			}).then((res) => res.data);
 
-			if (status !== 'success' || !data?.accessToken || !data?.refreshToken)
-				return fail(401, { form, message: message ?? 'Invalid login credentials' });
+			if (!data?.accessToken || !data?.refreshToken) return;
 
 			setAuthCookies(cookies, data.accessToken, data.refreshToken, data.expiresIn);
 		} catch (err) {
+			let message = 'Login service is temporarily unavailable';
+			if (isApiError(err)) message = err.body?.message ?? message;
+
 			console.error(err);
-			return fail(500, { form, message: 'Login failed' });
+			setFlash({ type: 'error', message }, cookies);
+			return fail(400, { form, message });
 		}
 
-		throw redirect(303, '/');
+		redirect('/', { type: 'success', message: 'Successfully logged in' }, cookies);
 	}
 };

@@ -25,5 +25,8 @@
     "apps/*/*",
     "packages/*",
     "packages/typescript/*"
-  ]
+  ],
+  "dependencies": {
+    "tailwind-variants": "^3.1.1"
+  }
 }

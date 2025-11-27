@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Waggle.Common.Controllers;
 using Waggle.Common.Models;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Extensions;
@@ -9,12 +11,13 @@ namespace Waggle.UserService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
         private readonly IUserService _service;
 
         public UsersController(IUserService service) => _service = service;
 
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<UserDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers([FromQuery] PaginationRequest request)
@@ -24,6 +27,7 @@ namespace Waggle.UserService.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -31,6 +35,7 @@ namespace Waggle.UserService.Controllers
             return result.ToActionResult();
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateUser(UserCreateDto dto)
@@ -39,6 +44,7 @@ namespace Waggle.UserService.Controllers
             return result.ToCreatedResult($"/api/users/{result.Data?.Id}");
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteUser(Guid id)

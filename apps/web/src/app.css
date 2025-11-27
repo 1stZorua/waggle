@@ -1,6 +1,114 @@
 @import 'tailwindcss';
 
 @layer base {
+	/* Global */
+
+	:root {
+		/* Fonts */
+		--font-primary: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+		/* General */
+		--color-background: #ffffff;
+		--color-primary: #202e3b;
+		--color-secondary: #989898;
+		--color-tertiary: #747474;
+		--color-accent: #e5e3db;
+
+		/* Colors */
+		--color-pink: #e47083;
+		--color-pink-light: #fb9dad;
+		--color-pink-dark: #c8576b;
+		--color-yellow: #fccd87;
+		--color-yellow-light: #ffdead;
+		--color-yellow-dark: #d8a669;
+		--color-green: #a8bf89;
+		--color-green-light: #c8dea9;
+		--color-green-dark: #8aa06f;
+		--color-blue: #89b8c2;
+		--color-blue-light: #a9dbe5;
+		--color-blue-dark: #6394a7;
+
+		/* Buttons */
+		--color-btn-primary-bg: #e47083;
+		--color-btn-primary-fg: #ffffff;
+		--color-btn-action-bg: #ffffff;
+		--color-btn-action-fg: #202e3b;
+		--color-btn-text-bg: '';
+		--color-btn-text-fg: '';
+
+		/* Shadow */
+		--shadow-ui: 0 0 4px 1px rgba(0, 0, 0, 0.1);
+
+		/* Spacing */
+		--gap-xs: 0.5rem;
+		--gap-sm: 1rem;
+		--gap-md: 1.5rem;
+		--gap-lg: 2rem;
+		--gap-xl: 2.5rem;
+
+		/* Border Radius */
+		--radius-sm: 0.3125rem; /* 5px */
+		--radius-md: 0.625rem; /* 10px */
+		--radius-lg: 1.25rem; /* 20px */
+		--radius-xl: 1.875rem; /* 30px */
+
+		/* Screens */
+		--screen-xs: 360px;
+		--screen-sm: 576px;
+		--screen-md: 768px;
+		--screen-lg: 1024px;
+		--screen-xl: 1280px;
+
+		/* Font Sizes */
+		--text-xs: clamp(0.25rem, 2.5vw, 0.5rem); /* 4px → 8px */
+		--text-sm: clamp(0.75rem, 2.5vw, 1rem); /* 12px → 16px */
+		--text-base: clamp(1rem, 3vw, 1.25rem); /* 16px → 20px */
+		--text-md: clamp(1.125rem, 3vw, 1.5rem); /* 18px → 24px */
+		--text-lg: clamp(1.125rem, 4vw, 2rem); /* 18px → 32px */
+		--text-xl: clamp(1.5rem, 4.5vw, 2.25rem); /* 24px → 36px */
+	}
+
+	Poppins
+	/* Bold */
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-Bold.ttf') format('truetype');
+		font-weight: 700;
+		font-style: normal;
+	}
+
+	/* SemiBold */
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-SemiBold.ttf') format('truetype');
+		font-weight: 600;
+		font-style: normal;
+	}
+
+	/* Medium */
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-Medium.ttf') format('truetype');
+		font-weight: 500;
+		font-style: normal;
+	}
+
+	/* Regular */
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-Regular.ttf') format('truetype');
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	/* Light */
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-Light.ttf') format('truetype');
+		font-weight: 300;
+		font-style: normal;
+	}
+
 	*,
 	*::before,
 	*::after {
@@ -14,9 +122,77 @@
 		width: 100vw;
 		height: 100vh;
 		overflow-x: hidden;
+		font-family: var(--font-primary);
+		background: var(--color-background);
+		color: var(--color-primary);
 	}
 
 	img {
 		max-width: none;
 	}
+}
+
+@theme {
+	/* Fonts */
+	--font-primary: var(--font-primary);
+
+	/* General */
+	--color-background: var(--color-background);
+	--color-primary: var(--color-primary);
+	--color-secondary: var(--color-secondary);
+	--color-tertiary: var(--color-secondary);
+	--color-accent: var(--color-accent);
+
+	/* Colors */
+	--color-pink: var(--color-pink);
+	--color-pink-light: var(--color-pink-light);
+	--color-pink-dark: var(--color-pink-dark);
+	--color-yellow: var(--color-yellow);
+	--color-yellow-light: var(--color-yellow-light);
+	--color-yellow-dark: var(--color-yellow-dark);
+	--color-green: var(--color-green);
+	--color-green-light: var(--color-green-light);
+	--color-green-dark: var(--color-green-dark);
+	--color-blue: var(--color-blue);
+	--color-blue-light: var(--color-blue-light);
+	--color-blue-dark: var(--color-blue-dark);
+
+	/* Buttons */
+	--color-btn-primary-bg: var(--color-btn-primary-bg);
+	--color-btn-primary-fg: var(--color-btn-primary-fg);
+	--color-btn-action-bg: var(--color-btn-secondary-bg);
+	--color-btn-action-fg: var(--color-btn-secondary-fg);
+	--color-btn-text-bg: var(--color-btn-tertiary-bg);
+	--color-btn-text-fg: var(--color-btn-tertiary-fg);
+
+	/* Shadow */
+	--shadow-ui: var(--shadow-ui);
+
+	/* Spacing */
+	--gap-xs: var(--gap-xs);
+	--gap-sm: var(--gap-sm);
+	--gap-md: var(--gap-md);
+	--gap-lg: var(--gap-lg);
+	--gap-xl: var(--gap-xl);
+
+	/* Border Radius */
+	--radius-sm: var(--radius-sm);
+	--radius-md: var(--radius-md);
+	--radius-lg: var(--radius-lg);
+	--radius-xl: var(--radius-xl);
+
+	/* Screens */
+	--screen-xs: var(--screen-xs);
+	--screen-sm: var(--screen-sm);
+	--screen-md: var(--screen-md);
+	--screen-lg: var(--screen-lg);
+	--screen-xl: var(--screen-xl);
+
+	/* Font Sizes */
+	--text-xs: var(--text-xs);
+	--text-sm: var(--text-sm);
+	--text-base: var(--text-base);
+	--text-md: var(--text-md);
+	--text-lg: var(--text-lg);
+	--text-xl: var(--text-xl);
 }

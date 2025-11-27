@@ -1,8 +1,4 @@
-export interface ApiError {
-  status: number;
-  message: string;
-  body?: unknown;
-}
+import type { ApiError, ApiErrorResponse } from './types';
 
 const getBaseUrl = (url: string): string | undefined => {
   if (url.startsWith('http')) return undefined;
@@ -14,6 +10,10 @@ const getBaseUrl = (url: string): string | undefined => {
   if (!envVar) throw new Error(`Environment variable ${service}_SERVICE_BASE_URL is not set`);
 
   return envVar;
+};
+
+export const isApiError = (err: unknown): err is ApiError => {
+  return typeof err === 'object' && err !== null && 'status' in err && 'message' in err;
 };
 
 export const apiFetch = async <T>(url: string, options: RequestInit = {}): Promise<T> => {
@@ -35,7 +35,7 @@ export const apiFetch = async <T>(url: string, options: RequestInit = {}): Promi
     throw {
       status: res.status,
       message: res.statusText || 'Request failed',
-      body
+      body: body as ApiErrorResponse
     } as ApiError;
   }
 

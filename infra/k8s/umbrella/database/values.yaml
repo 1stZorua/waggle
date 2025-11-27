@@ -1,0 +1,14 @@
+userservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: userservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: userservice-db

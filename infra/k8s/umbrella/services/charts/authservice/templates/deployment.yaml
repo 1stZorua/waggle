@@ -39,6 +39,10 @@ spec:
               value: "admin-cli"
             - name: KEYCLOAK_ADMIN_CLIENT_SECRET
               value: "MEwxnBWh7cberaZiDQVYvuUO0Cn35feT"
+            - name: KEYCLOAK_AUTHORITY
+              value: "http://identity-keycloak.identity.svc.cluster.local:80/realms/test-realm"
+            - name: KEYCLOAK_AUDIENCE
+              value: "test-client"
             - name: RabbitMQ__Host
               value: "messaging-rabbitmq.messaging.svc.cluster.local"
             - name: RabbitMQ__Port
@@ -57,3 +61,11 @@ spec:
               value: "Http2"
             - name: GrpcUser
               value: "http://userservice-svc.app.svc.cluster.local:8081"
+            - name: AUTH_MIN_USERNAME_LENGTH
+              value: "3"
+            - name: AUTH_MAX_USERNAME_LENGTH
+              value: "20"
+            - name: AUTH_MIN_PASSWORD_LENGTH
+              value: "4"
+            - name: AUTH_MAX_PASSWORD_LENGTH
+              value: "128"

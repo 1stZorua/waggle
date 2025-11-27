@@ -12,7 +12,8 @@ namespace Waggle.AuthService.Tests.TestUtils
                 Email = "test@gmail.com",
                 FirstName = "Test",
                 LastName = "User",
-                Password = "password"
+                Password = "password",
+                ConfirmPassword = "password"
             };
         }
     }

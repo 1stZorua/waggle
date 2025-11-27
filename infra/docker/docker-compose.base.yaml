@@ -80,6 +80,9 @@ services:
       - KEYCLOAK_ADMIN_CLIENT_ID=${KEYCLOAK_ADMIN_CLIENT_ID}
       - KEYCLOAK_ADMIN_CLIENT_SECRET=${KEYCLOAK_ADMIN_CLIENT_SECRET}
 
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
       - RabbitMQ__Host=${RabbitMQ__Host}
       - RabbitMQ__Port=${RabbitMQ__PORT}
       - RabbitMQ__Username=${RabbitMQ__Username}
@@ -89,6 +92,11 @@ services:
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcUser=${GrpcUser}
+
+      - AUTH_MIN_USERNAME_LENGTH=${AUTH_MIN_USERNAME_LENGTH}
+      - AUTH_MAX_USERNAME_LENGTH=${AUTH_MAX_USERNAME_LENGTH}
+      - AUTH_MIN_PASSWORD_LENGTH=${AUTH_MIN_PASSWORD_LENGTH}
+      - AUTH_MAX_PASSWORD_LENGTH=${AUTH_MAX_PASSWORD_LENGTH}
     depends_on:
       keycloak:
         condition: service_healthy
@@ -108,6 +116,23 @@ services:
       - waggle
     restart: unless-stopped
 
+  userservice-db:
+    image: postgres:15
+    container_name: userservice-postgres
+    environment:
+      POSTGRES_DB: ${USERSERVICE_DB_NAME}
+      POSTGRES_USER: ${USERSERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${USERSERVICE_DB_PASSWORD}
+    volumes:
+      - userservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'userservice']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
   userservice:
     container_name: userservice
     ports:
@@ -115,6 +140,14 @@ services:
       - '${USER_SERVICE_GRPC_PORT}:8081'
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - POSTGRES_HOST=${USERSERVICE_DB_HOST}
+      - POSTGRES_DB=${USERSERVICE_DB_NAME}
+      - POSTGRES_USER=${USERSERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${USERSERVICE_DB_PASSWORD}
 
       - RabbitMQ__Host=${RabbitMQ__Host}
       - RabbitMQ__Port=${RabbitMQ__PORT}
@@ -126,6 +159,8 @@ services:
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcUser=${GrpcAuth}
     depends_on:
+      userservice-db:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     healthcheck:
@@ -175,6 +210,7 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
+  userservice_data:
 
 networks:
   waggle:

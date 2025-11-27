@@ -1,13 +1,15 @@
-﻿using Waggle.AuthService.Constants;
+﻿using AutoMapper;
+using MassTransit;
+using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Logging;
+using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Results.Core;
+using Waggle.Common.Validation;
 using Waggle.Contracts.Auth.Events;
-using MassTransit;
-using AutoMapper;
-using Waggle.Contracts.User.Interfaces;
 using Waggle.Contracts.User.Extensions;
+using Waggle.Contracts.User.Interfaces;
 
 namespace Waggle.AuthService.Services
 {
@@ -17,19 +19,25 @@ namespace Waggle.AuthService.Services
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IUserDataClient _userDataClient;
+        private readonly IServiceValidator _validator;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IKeycloakClient keycloakClient, IMapper mapper, IPublishEndpoint publishEndpoint, IUserDataClient userDataClient, ILogger<AuthService> logger)
+        public AuthService(IKeycloakClient keycloakClient, IMapper mapper, IPublishEndpoint publishEndpoint, IUserDataClient userDataClient, IServiceValidator validator, ILogger<AuthService> logger)
         {
             _keycloakClient = keycloakClient;
             _mapper = mapper;
             _publishEndpoint = publishEndpoint;
             _userDataClient = userDataClient;
+            _validator = validator;
             _logger = logger;
         }
 
         public async Task<Result<RegisterResponseDto>> CreateUserAsync(RegisterRequestDto request)
         {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.Success)
+                return Result<RegisterResponseDto>.ValidationFail(validationResult.ValidationErrors!);
+
             var tokenResult = await _keycloakClient.GetAdminTokenAsync();
 
             if (!tokenResult.Success)
@@ -78,7 +86,11 @@ namespace Waggle.AuthService.Services
 
         public async Task<Result<TokenResponseDto>> PasswordGrantAsync(LoginRequestDto request)
         {
-            var tokenResult = await _keycloakClient.GetPasswordTokenAsync(request.Username, request.Password);
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.Success)
+                return Result<TokenResponseDto>.ValidationFail(validationResult.ValidationErrors!);
+            
+            var tokenResult = await _keycloakClient.GetPasswordTokenAsync(request.Identifier, request.Password);
             
             if (!tokenResult.Success)
             {
@@ -90,7 +102,7 @@ namespace Waggle.AuthService.Services
 
             if (!userInfoResult.Success)
             {
-                _logger.LogUserInfoRetrievalFailed(request.Username, userInfoResult.ErrorCode);
+                _logger.LogUserInfoRetrievalFailed(request.Identifier, userInfoResult.ErrorCode);
                 return Result<TokenResponseDto>.Fail(userInfoResult.Message, userInfoResult.ErrorCode);
             }
 
@@ -100,7 +112,7 @@ namespace Waggle.AuthService.Services
             if (!userExistsResult.Success)
             {
                 _logger.LogUserNotFoundInUserService(userId);
-                return Result<TokenResponseDto>.Fail(userExistsResult.Message, userExistsResult.ErrorCode);
+                return Result<TokenResponseDto>.Fail(AuthErrors.Token.InvalidCredentials, ErrorCodes.Unauthorized);
             }
 
             return _mapper.Map<TokenResponseDto>(tokenResult.Data);
@@ -137,34 +149,43 @@ namespace Waggle.AuthService.Services
             return await _keycloakClient.GetUserInfoAsync(token);
         }
 
-        public async Task<Result> DeleteUserAsync(Guid id)
+        public async Task<Result> DeleteUserAsync(DeleteUserRequestDto request, UserInfoDto currentUser)
         {
-            var tokenResult = await _keycloakClient.GetAdminTokenAsync();
+            if (currentUser == null) return Result.Fail(AuthErrors.User.InfoRetrievalFailed, ErrorCodes.Forbidden);
 
+            bool isAdmin = currentUser.IsAdmin();
+            bool isSelf = currentUser.IsSelf(request.Id);
+
+            if (!isSelf && !isAdmin)
+            {
+                _logger.LogUnauthorizedDeleteAttempt(currentUser.GetUserId(), request.Id);
+                return Result.Fail(ErrorMessages.Authentication.PermissionRequired, ErrorCodes.Forbidden);
+            }
+
+            var tokenResult = await _keycloakClient.GetAdminTokenAsync();
             if (!tokenResult.Success)
             {
-                _logger.LogAdminTokenFailed(id.ToString(), tokenResult.Message);
+                _logger.LogAdminTokenFailed(request.Id.ToString(), tokenResult.Message);
                 return Result.Fail(tokenResult.Message, tokenResult.ErrorCode);
             }
 
             var adminToken = tokenResult.Data!;
 
-            var keycloakResult = await _keycloakClient.DeleteUserAsync(id, adminToken);
+            var keycloakResult = await _keycloakClient.DeleteUserAsync(request.Id, adminToken);
             if (!keycloakResult.Success)
             {
-                _logger.LogKeycloakUserDeletionFailed(id, keycloakResult.Message, keycloakResult.ErrorCode);
+                _logger.LogKeycloakUserDeletionFailed(request.Id, keycloakResult.Message, keycloakResult.ErrorCode);
                 return keycloakResult;
             }
 
             try
             {
-                var deletedEvent = _mapper.Map<DeletedEvent>(id);
+                var deletedEvent = _mapper.Map<DeletedEvent>(request.Id);
                 await _publishEndpoint.Publish(deletedEvent);
             }
             catch (Exception ex)
             {
-                _logger.LogDeletedEventPublishFailed(ex, id);
-                //return Result.Fail(AuthErrors.User.DeletionFailed, ErrorCodes.ServiceFailed);
+                _logger.LogDeletedEventPublishFailed(ex, request.Id);
             }
 
             return Result.Ok();

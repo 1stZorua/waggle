@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
-using Waggle.AuthService.Models;
+using Waggle.AuthService.Options;
 using Waggle.Contracts.User.Interfaces;
 using WireMock.Server;
 
@@ -30,7 +30,7 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                 services.RemoveAll<IUserDataClient>();
                 services.AddSingleton(UserDataClientMock.Object);
 
-                services.PostConfigure<KeycloakSettings>(opt =>
+                services.PostConfigure<KeycloakOptions>(opt =>
                 {
                     opt.AuthServerUrl = WireMockServer.Urls.First();
                 });
@@ -41,12 +41,24 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
 
         private void SetTestEnvironmentVariables()
         {
-            Environment.SetEnvironmentVariable("KEYCLOAK_AUTH_SERVER_URL", WireMockServer.Urls.First());
-            Environment.SetEnvironmentVariable("KEYCLOAK_REALM", "test-realm");
-            Environment.SetEnvironmentVariable("KEYCLOAK_CLIENT_ID", "test-client");
+            var authServerUrl = WireMockServer.Urls.First();
+            var realm = "test-realm";
+            var clientId = "test-client";
+
+            Environment.SetEnvironmentVariable("KEYCLOAK_AUTH_SERVER_URL", authServerUrl);
+            Environment.SetEnvironmentVariable("KEYCLOAK_REALM", realm);
+            Environment.SetEnvironmentVariable("KEYCLOAK_CLIENT_ID", clientId);
             Environment.SetEnvironmentVariable("KEYCLOAK_CLIENT_SECRET", "secret");
             Environment.SetEnvironmentVariable("KEYCLOAK_ADMIN_CLIENT_ID", "admin-client");
             Environment.SetEnvironmentVariable("KEYCLOAK_ADMIN_CLIENT_SECRET", "admin-secret");
+
+            Environment.SetEnvironmentVariable("KEYCLOAK_AUTHORITY", $"{authServerUrl}/realms/{realm}");
+            Environment.SetEnvironmentVariable("KEYCLOAK_AUDIENCE", clientId);
+
+            Environment.SetEnvironmentVariable("AUTH_MIN_USERNAME_LENGTH", "3");
+            Environment.SetEnvironmentVariable("AUTH_MAX_USERNAME_LENGTH", "20");
+            Environment.SetEnvironmentVariable("AUTH_MIN_PASSWORD_LENGTH", "4");
+            Environment.SetEnvironmentVariable("AUTH_MAX_PASSWORD_LENGTH", "128");
         }
 
         public Task InitializeAsync()

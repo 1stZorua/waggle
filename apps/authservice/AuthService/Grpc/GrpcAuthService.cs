@@ -4,6 +4,7 @@ using Grpc.Core;
 using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Services;
+using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Grpc;
 using Waggle.Contracts.Auth.Grpc;
@@ -78,14 +79,33 @@ namespace Waggle.AuthService.Grpc
 
         public override async Task<Empty> DeleteUser(DeleteUserRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.UserId, out var userId))
-                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, AuthErrors.User.InvalidId);
+            if (!Guid.TryParse(request.UserId, out var _))
+                throw GrpcExceptionHelper.CreateRpcException(AuthErrors.User.InvalidId, ErrorCodes.InvalidInput);
 
-            var result = await _service.DeleteUserAsync(userId);
-            if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+            var currentUser = await GetCurrentUserAsync(context);
+
+            var dto = _mapper.Map<DeleteUserRequestDto>(request);
+            var deleteResult = await _service.DeleteUserAsync(dto, currentUser);
+
+            if (!deleteResult.Success)
+                throw GrpcExceptionHelper.CreateRpcException(deleteResult.Message, deleteResult.ErrorCode);
 
             return new Empty();
+        }
+
+        private async Task<UserInfoDto> GetCurrentUserAsync(ServerCallContext context)
+        {
+            var authHeader = context.RequestHeaders.GetValue("Authorization");
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+                throw GrpcExceptionHelper.CreateRpcException(AuthErrors.Token.Missing, ErrorCodes.Unauthorized);
+
+            var token = authHeader["Bearer ".Length..].Trim();
+
+            var result = await _service.ValidateAsync(new ValidateTokenRequestDto { BearerToken = $"Bearer {token}" });
+            if (!result.Success || result.Data == null)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+
+            return result.Data;
         }
     }
 }

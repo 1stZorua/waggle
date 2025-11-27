@@ -6,11 +6,11 @@ namespace Waggle.AuthService.Constants
     {
         public static class Token
         {
-            public const string AdminAccessFailed = "Unable to obtain administrative access";
+            public const string AdminAccessFailed = "Failed to obtain administrative access";
             public const string RetrievalFailed = "Failed to retrieve authentication token";
             public const string InvalidFormat = "Authorization header must use Bearer token format";
             public const string Missing = "Authentication token is required";
-            public const string InvalidCredentials = "Invalid username or password";
+            public const string InvalidCredentials = "Incorrect username or password";
 
             public const string Invalid = ErrorMessages.Authentication.InvalidToken;
             public const string Expired = ErrorMessages.Authentication.TokenExpired;
@@ -18,12 +18,12 @@ namespace Waggle.AuthService.Constants
 
         public static class User
         {
-            public const string CreationFailed = "Unable to create user account";
+            public const string CreationFailed = "Failed to create user account";
             public const string ProfileInitFailed = "Account created but profile initialization failed";
             public const string DeletionFailed = "Failed to remove user from authentication system";
-            public const string InfoRetrievalFailed = "Unable to retrieve user information";
+            public const string InfoRetrievalFailed = "Failed to retrieve user information";
             public const string AlreadyExists = "An account with this email already exists";
-            public const string InvalidId = "Invalid user identifier";
+            public const string InvalidId = "Incorrect user identifier";
         }
 
         public static class Service
@@ -35,13 +35,13 @@ namespace Waggle.AuthService.Constants
 
         public static class Session
         {
-            public const string EndFailed = "Unable to end user session";
+            public const string EndFailed = "Failed to end user session";
         }
 
         public static class Response
         {
             public const string MissingLocation = "Resource created but identifier not returned";
-            public const string ParseFailed = "Unable to process server response";
+            public const string ParseFailed = "Failed to process server response";
         }
     }
 }

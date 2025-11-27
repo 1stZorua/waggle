@@ -1,4 +1,5 @@
-﻿using Waggle.UserService.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Waggle.UserService.Models;
 
 namespace Waggle.UserService.Data
 {
@@ -7,7 +8,17 @@ namespace Waggle.UserService.Data
         public static void PrepPopulation(IApplicationBuilder app)
         {
             using var serviceScope = app.ApplicationServices.CreateScope();
-            SeedData(serviceScope.ServiceProvider.GetRequiredService<UserDbContext>());
+            var context = serviceScope.ServiceProvider.GetRequiredService<UserDbContext>();
+
+            try
+            {
+                context.Database.Migrate();
+            } catch (Exception)
+            {
+                throw;
+            }
+
+            SeedData(context);
         }
 
         private static void SeedData(UserDbContext context)

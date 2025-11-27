@@ -1,5 +1,6 @@
 ﻿using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Models;
+using Waggle.Common.Auth;
 using Waggle.Common.Results.Core;
 
 namespace Waggle.AuthService.Services

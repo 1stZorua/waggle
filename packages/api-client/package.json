@@ -4,8 +4,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/core.ts",
-      "default": "./src/core.ts"
+      "types": "./core.ts",
+      "default": "./core.ts"
+    },
+    "./types": {
+      "types": "./types.ts",
+      "default": "./types.ts"
     },
     "./auth": {
       "types": "./src/auth/client.ts",

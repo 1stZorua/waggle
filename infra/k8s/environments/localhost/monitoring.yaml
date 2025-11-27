@@ -1,0 +1,20 @@
+loki:
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: false
+
+prometheus:
+  kube-prometheus-stack:
+    grafana:
+      persistence:
+        enabled: false
+
+      ingress:
+        enabled: true
+        host: grafana.localhost
+
+    prometheus:
+      ingress:
+        enabled: true
+        host: prometheus.localhost

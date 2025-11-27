@@ -7,10 +7,10 @@ namespace Waggle.UserService.Constants
         public static class User
         {
             public const string NotFound = "User not found";
-            public const string RetrievalFailed = "Unable to retrieve user";
-            public const string CreationFailed = "Unable to create user";
-            public const string UpdateFailed = "Unable to update user";
-            public const string DeletionFailed = "Unable to delete user";
+            public const string RetrievalFailed = "Failed to retrieve user";
+            public const string CreationFailed = "Failed to create user";
+            public const string UpdateFailed = "Failed to update user";
+            public const string DeletionFailed = "Failed to delete user";
             public const string InvalidId = "Invalid user identifier";
 
             public const string AlreadyExists = ErrorMessages.Resource.AlreadyExists;

@@ -14,37 +14,58 @@ environments:
   dev:
     values:
       - environments/dev/*.yaml
+  localhost:
+    values:
+      - environments/localhost/*.yaml
   prod:
     values:
       - environments/prod/*.yaml
 ---
 releases:
+  - name: database
+    namespace: database
+    createNamespace: true
+    chart: ./umbrella/database
+    installed: true
+    values:
+      - environments/{{ .Environment.Name }}/database.yaml
+
   - name: gateway
     namespace: gateway
     createNamespace: true
     chart: ./umbrella/gateway
     installed: true
+    values:
+      - environments/{{ .Environment.Name }}/gateway.yaml
 
   - name: identity
     namespace: identity
     createNamespace: true
     chart: ./umbrella/identity
     installed: true
+    values:
+      - environments/{{ .Environment.Name }}/identity.yaml
 
   - name: messaging
     namespace: messaging
     createNamespace: true
     chart: ./umbrella/messaging
     installed: true
+    values:
+      - environments/{{ .Environment.Name }}/messaging.yaml
 
   - name: monitoring
     namespace: monitoring
     createNamespace: true
     chart: ./umbrella/monitoring
     installed: true
+    values:
+      - environments/{{ .Environment.Name }}/monitoring.yaml
 
   - name: services
     namespace: app
     createNamespace: true
     chart: ./umbrella/services
     installed: true
+    values:
+      - environments/{{ .Environment.Name }}/services.yaml

@@ -1,0 +1,11 @@
+rabbitmq:
+  rabbitmq:
+    replicaCount: 1
+
+    auth:
+      username: admin
+      password: admin
+
+    ingressRoute:
+      enabled: true
+      host: rabbitmq.localhost

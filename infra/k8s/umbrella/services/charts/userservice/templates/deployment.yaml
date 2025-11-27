@@ -27,6 +27,18 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
+            - name: KEYCLOAK_AUTHORITY
+              value: "http://identity-keycloak.identity.svc.cluster.local:80/realms/test-realm"
+            - name: KEYCLOAK_AUDIENCE
+              value: "test-client"
+            - name: POSTGRES_HOST
+              value: "userservice-db.database.svc.cluster.local"
+            - name: POSTGRES_DB
+              value: "userservice"
+            - name: POSTGRES_USER
+              value: "waggle"
+            - name: POSTGRES_PASSWORD
+              value: "waggle"
             - name: RabbitMQ__Host
               value: "messaging-rabbitmq.messaging.svc.cluster.local"
             - name: RabbitMQ__Port

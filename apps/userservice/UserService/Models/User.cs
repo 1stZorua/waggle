@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Waggle.UserService.Models
 {
+    [Table("users")]
     public class User
     {
         [Key]

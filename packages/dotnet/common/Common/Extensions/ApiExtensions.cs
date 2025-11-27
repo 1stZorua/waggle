@@ -27,6 +27,22 @@ namespace Waggle.Common.Extensions
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(apiVersion, new OpenApiInfo { Title = apiTitle, Version = apiVersion });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Enter: Bearer {token}"
+                });
+
+                c.AddSecurityRequirement(new()
+                {
+                    {
+                        new() { Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             return services;
