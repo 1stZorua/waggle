@@ -24,7 +24,7 @@ namespace Waggle.Common.Extensions
                 {
                     opt.Authority = Env.GetRequired("KEYCLOAK_AUTHORITY");
                     opt.Audience = Env.GetRequired("KEYCLOAK_AUDIENCE");
-                    opt.RequireHttpsMetadata = true;
+                    opt.RequireHttpsMetadata = !env.IsDevelopment();
                 });
 
             services.AddAuthorization();
