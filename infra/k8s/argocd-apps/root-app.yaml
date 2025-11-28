@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/argocd-apps
     directory:
       recurse: false
-      include: '{gateway,identity,messaging,monitoring,services}.yaml'
+      include: '{database,gateway,identity,messaging,monitoring,services}.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
