@@ -21,6 +21,8 @@ keycloak:
         value: 'true'
       - name: KC_HOSTNAME_STRICT_HTTPS
         value: 'true'
+      - name: KC_LOG_LEVEL
+        value: 'DEBUG'
 
     ingressRoute:
       host: keycloak.waggle.local
