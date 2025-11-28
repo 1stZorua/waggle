@@ -15,6 +15,10 @@ spec:
         app: {{ .Values.name }}
         metrics: "true"
     spec:
+      hostAliases:
+        - ip: "10.43.187.224"
+          hostnames:
+            - "keycloak.waggle.local"
       containers:
         - name: {{ .Values.name }}
           image: {{ .Values.image }}
