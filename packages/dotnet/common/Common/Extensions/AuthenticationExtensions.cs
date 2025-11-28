@@ -28,12 +28,7 @@ namespace Waggle.Common.Extensions
 
                     opt.TokenValidationParameters = new TokenValidationParameters()
                     {
-                        ValidIssuers =
-                            [
-                                "https://keycloak.waggle.local/realms/test-realm",
-                                "http://identity-keycloak.identity.svc.cluster.local:80/realms/test-realm",
-                                "http://localhost:8080/realms/test-realm"
-                            ]
+                        ValidateIssuer = false,
                     };
                 });
 
