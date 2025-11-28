@@ -22,5 +22,5 @@ spec:
             - containerPort: {{ .Values.ports.http }}
           env:
             - name: AUTH_SERVICE_BASE_URL
-              value: "https://authservice.waggle.local"   
+              value: "http://authservice-svc.app.svc.cluster.local:8080"
               
