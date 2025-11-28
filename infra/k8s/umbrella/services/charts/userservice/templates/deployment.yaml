@@ -28,7 +28,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: KEYCLOAK_AUTHORITY
-              value: "http://keycloak.waggle.local/realms/test-realm"
+              value: "https://keycloak.waggle.local/realms/test-realm"
             - name: KEYCLOAK_AUDIENCE
               value: "test-client"
             - name: POSTGRES_HOST
