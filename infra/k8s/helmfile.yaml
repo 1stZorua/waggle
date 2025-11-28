@@ -22,6 +22,14 @@ environments:
       - environments/prod/*.yaml
 ---
 releases:
+  - name: database
+    namespace: database
+    createNamespace: true
+    chart: ./umbrella/database
+    installed: true
+    values:
+      - environments/{{ .Environment.Name }}/database.yaml
+
   - name: gateway
     namespace: gateway
     createNamespace: true
