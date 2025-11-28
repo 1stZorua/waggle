@@ -34,11 +34,11 @@ spec:
             - name: KEYCLOAK_CLIENT_ID
               value: "test-client"
             - name: KEYCLOAK_CLIENT_SECRET
-              value: "0cWultdK0NnAAGXyUS1gCQDAkuwuV89o"        
+              value: "kctcoL0qKLVs3d7PlyhywnSyoXYGwvPy"        
             - name: KEYCLOAK_ADMIN_CLIENT_ID
               value: "admin-cli"
             - name: KEYCLOAK_ADMIN_CLIENT_SECRET
-              value: "MEwxnBWh7cberaZiDQVYvuUO0Cn35feT"
+              value: "STxIrglGLTf9lHBJ1nst3HzLJQz8WiP8"
             - name: KEYCLOAK_AUTHORITY
               value: "http://identity-keycloak.identity.svc.cluster.local:80/realms/test-realm"
             - name: KEYCLOAK_AUDIENCE
