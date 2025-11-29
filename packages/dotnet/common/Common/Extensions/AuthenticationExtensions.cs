@@ -25,6 +25,8 @@ namespace Waggle.Common.Extensions
                     opt.Authority = Env.GetRequired("KEYCLOAK_AUTHORITY");
                     opt.Audience = Env.GetRequired("KEYCLOAK_AUDIENCE");
                     opt.RequireHttpsMetadata = !env.IsDevelopment();
+
+                    opt.TokenValidationParameters = new TokenValidationParameters { ValidIssuer = "https://keycloak.waggle.local/realms/test-realm" };
                 });
 
             services.AddAuthorization();
