@@ -44,7 +44,7 @@ spec:
             - name: KEYCLOAK_ADMIN_CLIENT_SECRET
               value: "STxIrglGLTf9lHBJ1nst3HzLJQz8WiP8"
             - name: KEYCLOAK_AUTHORITY
-              value: "http://temp"
+              value: "http://keycloak.waggle.local/realms/test-realm"
             - name: KEYCLOAK_AUDIENCE
               value: "test-client"
             - name: RabbitMQ__Host
