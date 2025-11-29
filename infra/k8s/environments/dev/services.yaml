@@ -1,20 +1,20 @@
 authservice:
   replicaCount: 1
-  image: 1stzorua/waggle-authservice:main-4975cf6
+  image: 1stzorua/waggle-authservice:main-0316732
 
   ingress:
     host: authservice.waggle.local
 
 userservice:
   replicaCount: 1
-  image: 1stzorua/waggle-userservice:main-4975cf6
+  image: 1stzorua/waggle-userservice:main-0316732
 
   ingress:
     host: userservice.waggle.local
 
 web:
   replicaCount: 1
-  image: 1stzorua/waggle-web:main-4975cf6
+  image: 1stzorua/waggle-web:main-0316732
 
   ingress:
     host: web.waggle.local
