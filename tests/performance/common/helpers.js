@@ -1,13 +1,18 @@
-import { uuidv4 } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
-
 export function randomUser() {
-  const id = uuidv4();
+  const id = Math.floor(Math.random() * 1_000_000).toString(36);
+  const timestamp = Date.now().toString(36);
+  const vuPart = __VU.toString(36);
+
+  const uniqueId = `${vuPart}${timestamp}${id}`.slice(0, 18);
+  const username = `k6${uniqueId}`;
+
   return {
-    username: `user_${id}`,
-    email: `user_${id}@example.com`,
-    firstName: `First_${id}`,
-    lastName: `Last_${id}`,
-    password: 'Test1234!'
+    username,
+    email: `${username}@example.com`,
+    firstName: `First`,
+    lastName: `Last`,
+    password: 'Test1234!',
+    confirmPassword: 'Test1234!'
   };
 }
 

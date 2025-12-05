@@ -13,7 +13,9 @@ export let options = {
 
 const AUTH_BASE_URL = CONFIG.services.auth;
 
-export default function () {
+export default function (setupData) {
+  const { adminToken } = setupData;
+
   const user = randomUser();
 
   const res = http.post(`${AUTH_BASE_URL}/api/auth/register`, JSON.stringify(user), {
@@ -24,6 +26,7 @@ export default function () {
   const success = checkRegisterResponse(res, user);
 
   if (!success || (res.status !== 200 && res.status !== 201)) {
+    console.error(`Register request failed. Status: ${res.status}, Body: ${res.body}`);
     sleep(randomSleep(0.5, 2));
     return;
   }
@@ -46,14 +49,17 @@ export default function () {
 
   sleep(0.1);
 
-  const delRes = http.del(`${AUTH_BASE_URL}/api/auth/${userId}`, null, {
-    headers: { 'Content-Type': 'application/json' },
+  const delRes = http.del(`${AUTH_BASE_URL}/api/auth`, JSON.stringify({ id: userId }), {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${adminToken}`
+    },
     tags: { name: 'DeleteUser' },
     timeout: '10s'
   });
 
   if (delRes.status !== 200 && delRes.status !== 204) {
-    console.warn(`Failed to delete user ${userId}: ${delRes.status}`);
+    console.warn(`Failed to delete user ${userId}: Status ${delRes.status}, Body: ${delRes.body}`);
   }
 
   sleep(randomSleep(0.5, 2));
@@ -65,6 +71,30 @@ export function setup() {
     throw new Error(`API health check failed: ${res.status}`);
   }
   console.log('✓ API is healthy and ready for testing');
+
+  const adminLoginRes = http.post(
+    `${AUTH_BASE_URL}/api/auth/login`,
+    JSON.stringify({
+      identifier: CONFIG.admin.username,
+      password: CONFIG.admin.password
+    }),
+    { headers: { 'Content-Type': 'application/json' } }
+  );
+
+  if (adminLoginRes.status !== 200) {
+    throw new Error(`Admin login failed: ${adminLoginRes.status}`);
+  }
+
+  const loginBody = JSON.parse(adminLoginRes.body);
+  const adminToken = loginBody.data?.accessToken;
+
+  if (!adminToken) {
+    throw new Error('No access token returned for admin login');
+  }
+
+  console.log('✓ Admin login successful');
+
+  return { adminToken };
 }
 
 export function teardown() {

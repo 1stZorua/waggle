@@ -1,7 +1,12 @@
 export const CONFIG = {
   services: {
-    auth: __ENV.AUTH_SERVICE_BASE_URL || 'http://localhost:9081',
-    user: __ENV.USER_SERVICE_BASE_URL || 'http://localhost:9083'
+    auth: __ENV.AUTH_SERVICE_BASE_URL || 'https://authservice.waggle.local',
+    user: __ENV.USER_SERVICE_BASE_URL || 'https://userservice.waggle.local'
+  },
+
+  admin: {
+    username: __ENV.ADMIN_USERNAME || 'zorua',
+    password: __ENV.ADMIN_PASSWORD || 'test'
   },
 
   scenarios: {
@@ -10,8 +15,12 @@ export const CONFIG = {
       duration: '1m'
     },
     load: {
-      vus: 10,
-      duration: '1m'
+      stages: [
+        { duration: '10s', target: 2 },
+        { duration: '20s', target: 5 },
+        { duration: '30s', target: 10 },
+        { duration: '10s', target: 0 }
+      ]
     },
     stress: {
       stages: [
