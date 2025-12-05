@@ -1,13 +1,13 @@
 import { tv, type VariantProps } from 'tailwind-variants';
 
 const buttonVariants = tv({
-	base: 'flex cursor-pointer w-full outline-none focus:ring-2 focus:ring-accent disabled:cursor-default disabled:bg-light-btn-disabled-bg',
+	base: 'flex cursor-pointer w-full outline-none focus:ring-2 focus:ring-accent disabled:cursor-default disabled:bg-btn-disabled-bg disabled:text-btn-disabled-fg',
 	variants: {
 		variant: {
 			action: 'shadow-ui rounded-full h-max w-max',
 			primary: 'bg-btn-primary-bg text-btn-primary-fg rounded-full justify-center',
 			secondary: 'bg-btn-action-bg text-btn-action-fg rounded-full shadow-ui justify-center',
-			text: 'bg-light-btn-text-bg text-light-btn-text-fg w-max focus:ring-0'
+			text: 'bg-btn-text-bg text-btn-text-fg w-max focus:ring-0'
 		},
 		size: {
 			none: 'p-0',
