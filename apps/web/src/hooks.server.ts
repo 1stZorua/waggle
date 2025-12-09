@@ -10,7 +10,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	if (auth) {
 		event.locals.auth = auth;
+		console.log('Auth cookies:', auth);
 		const user = await validateUser(auth.accessToken);
+		console.log('Validated user:', user);
 		if (user) event.locals.user = user;
 	}
 
@@ -27,6 +29,7 @@ async function refreshToken(cookies: Cookies, refreshToken: string) {
 		return getAuthCookies(cookies);
 	} catch (err) {
 		console.error(err);
+		console.log(err);
 		return null;
 	}
 }
@@ -53,7 +56,9 @@ export async function validateUser(accessToken: string) {
 			name: data.name,
 			roles: data.realm_access.roles
 		};
-	} catch {
+	} catch (err) {
+		console.error(err);
+		console.log(err);
 		return null;
 	}
 }
