@@ -109,14 +109,10 @@ postservice-db:
 mediastore:
   fullnameOverride: mediastore
   image:
-    repository: bitnami/minio
-    tag: latest
+    repository: bitnamilegacy/minio
 
   console:
-    image:
-      repository: bitnami/minio
-      tag: latest
-    enabled: true
+    enabled: false
 
   accessKey: 'waggle'
   secretKey: 'wagglepassword'
