@@ -109,15 +109,7 @@ postservice-db:
 mediastore:
   fullnameOverride: mediastore
   image:
-    registry: docker.io
-    repository: minio/minio
-
-  console:
-    image:
-      registry: docker.io
-      repository: minio/console
-      tag: latest
-    enabled: true
+    repository: bitnamilegacy/minio
 
   accessKey: 'waggle'
   secretKey: 'wagglepassword'
