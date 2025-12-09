@@ -24,3 +24,57 @@ userservice-db:
           memory: 1Gi
   metrics:
     enabled: true
+
+mediaservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  replication:
+    replica:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  metrics:
+    enabled: true
+
+postservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  replication:
+    replica:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  metrics:
+    enabled: true

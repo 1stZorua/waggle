@@ -111,6 +111,11 @@ mediastore:
   image:
     repository: bitnamilegacy/minio
 
+  console:
+    image:
+      repository: bitnamilegacy/minio
+    enabled: true
+
   accessKey: 'waggle'
   secretKey: 'wagglepassword'
   persistence:
