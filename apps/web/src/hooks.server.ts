@@ -36,9 +36,14 @@ async function refreshToken(cookies: Cookies, refreshToken: string) {
 
 export async function validateUser(accessToken: string) {
 	try {
-		const { data } = await AuthClient.validate({
+		const { data, status, code, message } = await AuthClient.validate({
 			headers: { Authorization: `Bearer ${accessToken}` }
 		}).then((res) => res.data);
+
+		console.log(status);
+		console.log(code);
+		console.log(message);
+		console.log(data);
 
 		if (
 			!data?.sub ||
