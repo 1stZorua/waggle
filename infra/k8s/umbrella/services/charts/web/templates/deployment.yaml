@@ -23,7 +23,7 @@ spec:
           env:
             - name: AUTH_SERVICE_BASE_URL
               value: "http://authservice-svc.app.svc.cluster.local:8080"
-            - name: USER_SERVICE_BASE_URL
+            - name: USERS_SERVICE_BASE_URL
               value: "http://userservice-svc.app.svc.cluster.local:8080"
             - name: MEDIA_SERVICE_BASE_URL
               value: "http://mediaservice-svc.app.svc.cluster.local:8080"
