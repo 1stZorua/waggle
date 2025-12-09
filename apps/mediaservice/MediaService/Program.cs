@@ -68,6 +68,8 @@ app.MapCommonGrpcReflection();
 app.MapGrpcService<GrpcMediaService>();
 app.MapControllers();
 
+PrepDb.PrepPopulation(app);
+
 app.UseSerilogOnShutdown();
 
 app.Run();

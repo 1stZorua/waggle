@@ -66,6 +66,8 @@ app.MapCommonGrpcReflection();
 app.MapGrpcService<GrpcPostService>();
 app.MapControllers();
 
+PrepDb.PrepPopulation(app);
+
 app.UseSerilogOnShutdown();
 
 app.Run();
