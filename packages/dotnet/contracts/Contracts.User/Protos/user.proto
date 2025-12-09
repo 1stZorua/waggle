@@ -10,6 +10,7 @@ package user;
 service GrpcUser {
 	rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
 	rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+	rpc GetUsersById(GetUsersByIdRequest) returns (GetUsersByIdResponse);
 	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
 	rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
@@ -44,6 +45,14 @@ message GetUserByIdRequest {
 
 message GetUserByIdResponse {
 	User user = 1;
+}
+
+message GetUsersByIdRequest {
+    repeated string ids = 1;
+}
+
+message GetUsersByIdResponse {
+    repeated User user = 1;
 }
 
 message CreateUserRequest {

@@ -15,6 +15,28 @@ authservice:
   ingress:
     host: authservice.localhost
 
+mediaservice:
+  name: mediaservice
+  image: waggle-mediaservice:latest
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: mediaservice.localhost
+
+postservice:
+  name: postservice
+  image: waggle-postservice:latest
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: postservice.localhost
+
 userservice:
   name: userservice
   image: waggle-userservice:latest

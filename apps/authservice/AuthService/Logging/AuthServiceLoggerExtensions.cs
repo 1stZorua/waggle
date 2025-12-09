@@ -81,7 +81,7 @@
         [LoggerMessage(
             EventId = 1009,
             Level = LogLevel.Warning,
-            Message = "Unauthorized delete attempt by user {UserId} on target user {TargetUserId}")]
+            Message = "Unauthorized deletion attempt on account {TargetUserId} by user {UserId}")]
         public static partial void LogUnauthorizedDeleteAttempt(
             this ILogger logger,
             Guid userId,

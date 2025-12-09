@@ -1,7 +1,9 @@
 import * as userApi from './generated/index';
 
 export const UserClient = {
-  getUsers: userApi.getApiUsers,
-  createUser: userApi.postApiUsers,
-  getUserById: userApi.getApiUsersId
+  getAll: userApi.getApiUsers,
+  getById: userApi.getApiUsersId,
+  getByIds: userApi.postApiUsersBatch,
+  create: userApi.postApiUsers,
+  delete: userApi.deleteApiUsersId
 };

@@ -21,6 +21,9 @@ namespace Waggle.UserService.Data
             builder.Entity<User>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
+
+            builder.Entity<User>()
+                .HasIndex(u => u.CreatedAt);
         }
     }
 }

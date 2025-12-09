@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Services;
+using Waggle.Common.Auth;
 using Waggle.Common.Controllers;
 using Waggle.Common.Models;
 using Waggle.Common.Results.Extensions;
@@ -53,6 +54,7 @@ namespace Waggle.AuthService.Controllers
 
         [Authorize]
         [HttpGet("validate")]
+        [ProducesResponseType(typeof(ApiResponse<UserInfoDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Validate()
         {
             ValidateTokenRequestDto dto = new() { BearerToken = Request.Headers.Authorization.ToString() };

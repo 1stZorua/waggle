@@ -20,7 +20,7 @@
 		{@render children?.()}
 	</a>
 {:else}
-	<button class={cn(buttonVariants({ ...props }), className)} {...rest}>
+	<button class={cn(buttonVariants({ ...props }), className)} {...rest as HTMLButtonAttributes}>
 		{@render children?.()}
 	</button>
 {/if}

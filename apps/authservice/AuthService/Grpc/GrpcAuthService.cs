@@ -97,7 +97,7 @@ namespace Waggle.AuthService.Grpc
         {
             var authHeader = context.RequestHeaders.GetValue("Authorization");
             if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
-                throw GrpcExceptionHelper.CreateRpcException(AuthErrors.Token.Missing, ErrorCodes.Unauthorized);
+                throw GrpcExceptionHelper.CreateRpcException(ErrorMessages.Authentication.TokenMissing, ErrorCodes.Unauthorized);
 
             var token = authHeader["Bearer ".Length..].Trim();
 

@@ -7,6 +7,7 @@ namespace Waggle.Common.Grpc
         public static IServiceCollection AddCommonGrpc(this IServiceCollection services)
         {
             services.AddGrpc();
+            services.AddHttpContextAccessor();
             services.AddGrpcReflection();
             return services;
         }

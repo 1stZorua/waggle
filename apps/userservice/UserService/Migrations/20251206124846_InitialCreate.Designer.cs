@@ -12,7 +12,7 @@ using Waggle.UserService.Data;
 namespace Waggle.UserService.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20251127154752_InitialCreate")]
+    [Migration("20251206124846_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -54,6 +54,8 @@ namespace Waggle.UserService.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
 
                     b.HasIndex("Email")
                         .IsUnique();

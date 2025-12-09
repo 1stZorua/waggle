@@ -31,6 +31,10 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
+            - name: KEYCLOAK_AUTHORITY
+              value: "http://keycloak.waggle.local/realms/test-realm"
+            - name: KEYCLOAK_AUDIENCE
+              value: "test-client"
             - name: KEYCLOAK_AUTH_SERVER_URL
               value: "http://identity-keycloak.identity.svc.cluster.local:80"
             - name: KEYCLOAK_REALM
@@ -43,10 +47,6 @@ spec:
               value: "admin-cli"
             - name: KEYCLOAK_ADMIN_CLIENT_SECRET
               value: "STxIrglGLTf9lHBJ1nst3HzLJQz8WiP8"
-            - name: KEYCLOAK_AUTHORITY
-              value: "http://keycloak.waggle.local/realms/test-realm"
-            - name: KEYCLOAK_AUDIENCE
-              value: "test-client"
             - name: RabbitMQ__Host
               value: "messaging-rabbitmq.messaging.svc.cluster.local"
             - name: RabbitMQ__Port

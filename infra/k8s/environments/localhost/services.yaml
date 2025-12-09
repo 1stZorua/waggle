@@ -6,6 +6,20 @@ authservice:
     enabled: true
     host: authservice.localhost
 
+mediaservice:
+  replicaCount: 1
+  image: waggle-mediaservice:latest
+
+  ingress:
+    host: mediaservice.localhost
+
+postservice:
+  replicaCount: 1
+  image: waggle-postservice:latest
+
+  ingress:
+    host: postservice.localhost
+
 userservice:
   replicaCount: 1
   image: waggle-userservice:latest

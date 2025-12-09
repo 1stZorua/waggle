@@ -5,4 +5,7 @@
 	let { className, icon }: { className?: ClassType; icon: string } = $props();
 </script>
 
-<iconify-icon class={cn('text-xl inline-block w-[1em] h-[1em]', className)} {icon}></iconify-icon>
+<iconify-icon
+	class={cn('inline-block h-[1em] w-[1em] text-xl transition-colors duration-300', className)}
+	{icon}
+></iconify-icon>

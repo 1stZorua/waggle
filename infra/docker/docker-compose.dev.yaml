@@ -1,8 +1,18 @@
 services:
+  mediaservice:
+    build:
+      context: ../../
+      dockerfile: apps/mediaservice/MediaService/Dockerfile
+
   authservice:
     build:
       context: ../../
       dockerfile: apps/authservice/AuthService/Dockerfile
+
+  postservice:
+    build:
+      context: ../../
+      dockerfile: apps/postservice/PostService/Dockerfile
 
   userservice:
     build:

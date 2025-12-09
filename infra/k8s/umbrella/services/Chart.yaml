@@ -8,6 +8,12 @@ dependencies:
   - name: authservice
     version: 0.1.0
     repository: 'file://charts/authservice'
+  - name: mediaservice
+    version: 0.1.0
+    repository: 'file://charts/mediaservice'
+  - name: postservice
+    version: 0.1.0
+    repository: 'file://charts/postservice'
   - name: userservice
     version: 0.1.0
     repository: 'file://charts/userservice'

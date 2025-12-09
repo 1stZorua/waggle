@@ -6,33 +6,26 @@
 
 	let { data } = $props();
 
-	const { form, message, errors, enhance } = superForm(data.form);
+	const { form, errors, enhance } = superForm(data.form);
 </script>
 
-<!-- <form action="?/login" method="POST" use:enhance>
-	<input required type="text" name="username" value={$form.username} placeholder="Username" />
-	<input required type="password" name="password" value={$form.password} placeholder="Password" />
-	<button type="submit">Login</button>
-</form> -->
-
-{#if $message}
-	<span class="text-pink absolute z-10">{$message}</span>
-{/if}
-
-<section class="flex h-full items-center justify-center gap-40" aria-labelledby="login-heading">
-	<div class="relative flex h-full w-[800px]">
+<section
+	class="wrapper flex h-full items-center justify-center gap-28"
+	aria-labelledby="login-heading"
+>
+	<div class="relative flex h-full w-[775px] max-2xl:hidden">
 		<img
-			class="absolute top-1/2 right-[55%] h-[375px] w-[325px] -translate-y-[47.5%] -rotate-12 rounded-xl object-cover"
+			class="absolute top-1/2 right-[54%] h-[350px] w-[320px] -translate-y-[47.5%] -rotate-12 rounded-xl object-cover"
 			src="images/bird.webp"
 			alt="bird"
 		/>
 		<img
-			class="absolute top-1/2 left-1/2 z-10 h-[515px] w-[325px] -translate-x-1/2 -translate-y-1/2 rounded-xl object-cover"
+			class="absolute top-1/2 left-1/2 z-10 h-[490px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-xl object-cover"
 			src="images/cat.webp"
 			alt="cat"
 		/>
 		<img
-			class="absolute top-1/2 left-[55%] h-[375px] w-[325px] -translate-y-[47.5%] rotate-12 rounded-xl object-cover"
+			class="absolute top-1/2 left-[54%] h-[350px] w-[320px] -translate-y-[47.5%] rotate-12 rounded-xl object-cover"
 			src="images/dog.webp"
 			alt="dog"
 		/>
@@ -43,10 +36,7 @@
 		class="gap-lg flex w-[450px] flex-col items-center"
 		use:enhance
 	>
-		<img class="w-52" src="images/logo.svg" alt="Waggle" />
-		{#if $message}
-			<span class="text-pink absolute z-10">{$message}</span>
-		{/if}
+		<img class="w-46 max-sm:w-[40%]" src="images/logo.svg" alt="Waggle" />
 		<div class="gap-md flex w-full flex-col items-center">
 			<div class="gap-sm flex w-full">
 				<ButtonSecondary type="button" className="flex items-center gap-xs flex-1 px-0">
@@ -94,7 +84,7 @@
 			</div>
 		</div>
 		<div class="gap-sm flex w-full flex-col items-center">
-			<ButtonPrimary type="submit" className="border-8 border-pink-light">
+			<ButtonPrimary type="submit">
 				<TextBase>Sign In</TextBase>
 			</ButtonPrimary>
 			<div class="gap-xs flex">

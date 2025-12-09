@@ -5,6 +5,20 @@ authservice:
   ingress:
     host: authservice.waggle.local
 
+mediaservice:
+  replicaCount: 1
+  image: 1stzorua/waggle-mediaservice
+
+  ingress:
+    host: mediaservice.waggle.local
+
+postservice:
+  replicaCount: 1
+  image: 1stzorua/waggle-postservice
+
+  ingress:
+    host: postservice.waggle.local
+
 userservice:
   replicaCount: 1
   image: 1stzorua/waggle-userservice:main-0316732

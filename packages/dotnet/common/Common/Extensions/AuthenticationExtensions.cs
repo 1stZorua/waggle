@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Waggle.Common.Auth;
 using Waggle.Common.Helpers;
+using static System.Net.WebRequestMethods;
 
 namespace Waggle.Common.Extensions
 {
@@ -26,7 +27,7 @@ namespace Waggle.Common.Extensions
                     opt.Audience = Env.GetRequired("KEYCLOAK_AUDIENCE");
                     opt.RequireHttpsMetadata = !env.IsDevelopment();
 
-                    opt.TokenValidationParameters = new TokenValidationParameters { ValidIssuer = "http://keycloak.waggle.local/realms/test-realm" };
+                    opt.TokenValidationParameters = new TokenValidationParameters { ValidIssuers = ["http://keycloak.waggle.local/realms/test-realm", "http://keycloak:8080/realms/test-realm", "http://localhost:8080/realms/test-realm"] };
                 });
 
             services.AddAuthorization();

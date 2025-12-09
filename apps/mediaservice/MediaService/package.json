@@ -1,0 +1,10 @@
+{
+  "name": "media-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "dotnet watch run",
+    "build": "dotnet build Waggle.MediaService.csproj -c Release",
+    "test": "dotnet test"
+  }
+}

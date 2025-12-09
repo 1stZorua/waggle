@@ -45,6 +45,14 @@
             Exception exception,
             Guid userId);
 
+        [LoggerMessage(
+            EventId = 1006,
+            Level = LogLevel.Error,
+            Message = "Failed to retrieve users batch")]
+        public static partial void LogUsersBatchRetrievalFailed(
+            this ILogger logger,
+            Exception exception);
+
         // User Creation Events
 
         [LoggerMessage(

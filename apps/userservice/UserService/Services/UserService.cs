@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Waggle.Common.Constants;
 using Waggle.Common.Pagination.Models;
@@ -39,7 +38,6 @@ namespace Waggle.UserService.Services
                 };
 
                 _logger.LogUsersRetrieved(pagedResult.Items.Count);
-
                 return Result<PagedResult<UserDto>>.Ok(pagedResult);
             } 
             catch (Exception ex)
@@ -72,41 +70,57 @@ namespace Waggle.UserService.Services
             }
         }
 
-        public async Task<Result<UserDto>> CreateUserAsync(UserCreateDto dto)
+        public async Task<Result<List<UserDto>>> GetUsersByIdAsync(UserBatchRequest request)
         {
             try
             {
-                var existing = await _repo.GetUserByIdAsync(dto.Id);
+                var users = await _repo.GetUsersByIdAsync(request);
+                
+                var dtos = _mapper.Map<List<UserDto>>(users);
+                return Result<List<UserDto>>.Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogUsersBatchRetrievalFailed(ex);
+                return Result<List<UserDto>>.Fail(UserErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result<UserDto>> CreateUserAsync(UserCreateDto request)
+        {
+            try
+            {
+                var existing = await _repo.GetUserByIdAsync(request.Id);
                 if (existing != null)
                 {
-                    _logger.LogUserAlreadyExists(dto.Id);
+                    _logger.LogUserAlreadyExists(request.Id);
                     return Result<UserDto>.Fail(UserErrors.User.AlreadyExists, ErrorCodes.AlreadyExists);
                 }
 
-                var user = _mapper.Map<User>(dto);
+                var user = _mapper.Map<User>(request);
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = DateTime.UtcNow;
 
                 await _repo.AddUserAsync(user);
 
-                _logger.LogUserCreated(dto.Username, dto.Id);
+                _logger.LogUserCreated(request.Username, request.Id);
 
                 var result = _mapper.Map<UserDto>(user);
                 return Result<UserDto>.Ok(result);
             }
             catch (DbUpdateException ex) when (IsDuplicateKeyError(ex))
             {
-                _logger.LogDuplicateKeyError(ex, dto.Id);
+                _logger.LogDuplicateKeyError(ex, request.Id);
                 return Result<UserDto>.Fail(UserErrors.User.AlreadyExists, ErrorCodes.AlreadyExists);
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogDatabaseUpdateFailed(ex, dto.Id);
+                _logger.LogDatabaseUpdateFailed(ex, request.Id);
                 return Result<UserDto>.Fail(UserErrors.User.CreationFailed, ErrorCodes.ServiceFailed);
             }
             catch (Exception ex)
             {
-                _logger.LogUserCreationFailed(ex, dto.Id);
+                _logger.LogUserCreationFailed(ex, request.Id);
                 return Result<UserDto>.Fail(UserErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }

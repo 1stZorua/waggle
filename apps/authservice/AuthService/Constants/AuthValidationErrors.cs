@@ -9,7 +9,8 @@
             public const string PasswordRequired = "Password is required";
         }
 
-        public static class Register {
+        public static class Register 
+        {
             public const string UsernameRequired = "Username is required";
             public const string UsernameInvalid = "Username must be between {0}-{1} characters and contain only letters and numbers";
 

@@ -19,6 +19,48 @@ authservice:
     maxReplicas: 10
     targetCPUUtilizationPercentage: 80
 
+mediaservice:
+  replicaCount: 3
+  image: 1stzorua/waggle-mediaservice:latest
+
+  ingress:
+    host: mediaservice.waggle.local
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+postservice:
+  replicaCount: 3
+  image: 1stzorua/waggle-postservice:latest
+
+  ingress:
+    host: postservice.waggle.local
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
 userservice:
   replicaCount: 3
 

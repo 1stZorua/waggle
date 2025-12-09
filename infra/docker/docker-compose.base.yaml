@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'keycloak']
+      test: ['CMD', 'pg_isready', '-U', '${POSTGRES_USER}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,7 +23,7 @@ services:
     container_name: keycloak
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       KC_DB_USERNAME: ${POSTGRES_USER}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
@@ -64,6 +64,99 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  mediastore:
+    image: minio/minio:latest
+    container_name: mediastore
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - mediastore_data:/data
+    networks:
+      - waggle
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:9000/minio/health/live || exit 1']
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  mediaservice-db:
+    image: postgres:15
+    container_name: mediaservice-postgres
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_DB: ${MEDIASERVICE_DB_NAME}
+      POSTGRES_USER: ${MEDIASERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${MEDIASERVICE_DB_PASSWORD}
+    volumes:
+      - mediaservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${MEDIASERVICE_DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  mediaservice:
+    container_name: mediaservice
+    ports:
+      - '${MEDIA_SERVICE_HTTP_PORT}:8080'
+      - '${MEDIA_SERVICE_GRPC_PORT}:8081'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_SERVER_URL=${MINIO_SERVER_URL}
+
+      - POSTGRES_HOST=${MEDIASERVICE_DB_HOST}
+      - POSTGRES_PORT=${MEDIASERVICE_DB_PORT}
+      - POSTGRES_DB=${MEDIASERVICE_DB_NAME}
+      - POSTGRES_USER=${MEDIASERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${MEDIASERVICE_DB_PASSWORD}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
+      - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
+      - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
+
+      - Minio__ExternalHost=${MINIO_SERVER_URL}
+
+      - Media__Buckets__Posts=posts
+      - Media__Buckets__Users=users
+    depends_on:
+      mediastore:
+        condition: service_healthy
+      mediaservice-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'timeout 5 bash -c "</dev/tcp/localhost/8080" && timeout 5 bash -c "echo -e \"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n\" > /dev/tcp/localhost/8080" || exit 1'
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - waggle
+    restart: unless-stopped
 
   authservice:
     container_name: authservice
@@ -116,9 +209,78 @@ services:
       - waggle
     restart: unless-stopped
 
+  postservice-db:
+    image: postgres:15
+    container_name: postservice-postgres
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_DB: ${POSTSERVICE_DB_NAME}
+      POSTGRES_USER: ${POSTSERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${POSTSERVICE_DB_PASSWORD}
+    volumes:
+      - postservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${POSTSERVICE_DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  postservice:
+    container_name: postservice
+    ports:
+      - '${POST_SERVICE_HTTP_PORT}:8080'
+      - '${POST_SERVICE_GRPC_PORT}:8081'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - POSTGRES_HOST=${POSTSERVICE_DB_HOST}
+      - POSTGRES_PORT=${POSTSERVICE_DB_PORT}
+      - POSTGRES_DB=${POSTSERVICE_DB_NAME}
+      - POSTGRES_USER=${POSTSERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${POSTSERVICE_DB_PASSWORD}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+      - GrpcMedia=${GrpcMedia}
+
+      - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
+      - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
+      - GrpcUser=${GrpcUser}
+    depends_on:
+      postservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mediaservice:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'timeout 5 bash -c "</dev/tcp/localhost/8080" && timeout 5 bash -c "echo -e \"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n\" > /dev/tcp/localhost/8080" || exit 1'
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - waggle
+    restart: unless-stopped
+
   userservice-db:
     image: postgres:15
     container_name: userservice-postgres
+    ports:
+      - '5435:5432'
     environment:
       POSTGRES_DB: ${USERSERVICE_DB_NAME}
       POSTGRES_USER: ${USERSERVICE_DB_USER}
@@ -126,7 +288,7 @@ services:
     volumes:
       - userservice_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'userservice']
+      test: ['CMD', 'pg_isready', '-U', '${USERSERVICE_DB_USER}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -145,6 +307,7 @@ services:
       - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
 
       - POSTGRES_HOST=${USERSERVICE_DB_HOST}
+      - POSTGRES_PORT=${USERSERVICE_DB_PORT}
       - POSTGRES_DB=${USERSERVICE_DB_NAME}
       - POSTGRES_USER=${USERSERVICE_DB_USER}
       - POSTGRES_PASSWORD=${USERSERVICE_DB_PASSWORD}
@@ -157,11 +320,13 @@ services:
 
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
-      - GrpcUser=${GrpcAuth}
+      - GrpcAuth=${GrpcAuth}
     depends_on:
       userservice-db:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      mediaservice:
         condition: service_healthy
     healthcheck:
       test:
@@ -189,7 +354,11 @@ services:
     depends_on:
       authservice:
         condition: service_healthy
+      postservice:
+        condition: service_healthy
       userservice:
+        condition: service_healthy
+      mediaservice:
         condition: service_healthy
     healthcheck:
       test:
@@ -210,7 +379,10 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
+  mediastore_data:
+  mediaservice_data:
   userservice_data:
+  postservice_data:
 
 networks:
   waggle:

@@ -26,5 +26,7 @@ const makeService = (name: string) =>
 
 export default defineConfig({
   authservice: makeService('auth'),
-  userservice: makeService('user')
+  userservice: makeService('user'),
+  postservice: makeService('post'),
+  mediaservice: makeService('media')
 });

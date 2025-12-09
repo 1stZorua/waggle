@@ -13,7 +13,6 @@ using Waggle.AuthService.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 if (builder.Environment.IsDevelopment())
     DotNetEnv.Env.Load();
 

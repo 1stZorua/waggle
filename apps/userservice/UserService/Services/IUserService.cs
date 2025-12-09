@@ -8,7 +8,8 @@ namespace Waggle.UserService.Services
     {
         Task<Result<PagedResult<UserDto>>> GetAllUsersAsync(PaginationRequest request);
         Task<Result<UserDto>> GetUserByIdAsync(Guid id);
-        Task<Result<UserDto>> CreateUserAsync(UserCreateDto dto);
+        Task<Result<List<UserDto>>> GetUsersByIdAsync(UserBatchRequest request);
+        Task<Result<UserDto>> CreateUserAsync(UserCreateDto request);
         Task<Result> DeleteUserAsync(Guid id);
     }
 }

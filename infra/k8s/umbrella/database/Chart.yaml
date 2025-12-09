@@ -8,3 +8,18 @@ dependencies:
     version: 18.1.13
     repository: https://charts.bitnami.com/bitnami
     alias: userservice-db
+
+  - name: postgresql
+    version: 18.1.13
+    repository: https://charts.bitnami.com/bitnami
+    alias: mediaservice-db
+
+  - name: postgresql
+    version: 18.1.13
+    repository: https://charts.bitnami.com/bitnami
+    alias: postservice-db
+
+  - name: minio
+    version: 17.0.21
+    repository: https://charts.bitnami.com/bitnami
+    alias: mediastore

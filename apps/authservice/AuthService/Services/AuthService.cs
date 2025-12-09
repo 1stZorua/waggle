@@ -151,7 +151,8 @@ namespace Waggle.AuthService.Services
 
         public async Task<Result> DeleteUserAsync(DeleteUserRequestDto request, UserInfoDto currentUser)
         {
-            if (currentUser == null) return Result.Fail(AuthErrors.User.InfoRetrievalFailed, ErrorCodes.Forbidden);
+            if (!currentUser.TryEnsure(out var failedResult))
+                return failedResult;
 
             bool isAdmin = currentUser.IsAdmin();
             bool isSelf = currentUser.IsSelf(request.Id);

@@ -1,0 +1,11 @@
+name: postservice
+replicaCount: 1
+image: waggle-postservice:latest
+
+ports:
+  http: 8080
+  grpc: 8081
+
+ingress:
+  enabled: true
+  host: postservice.localhost

@@ -19,15 +19,15 @@ namespace Waggle.UserService.Controllers
 
         [Authorize]
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<UserDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<UserDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers([FromQuery] PaginationRequest request)
         {
             var result = await _service.GetAllUsersAsync(request);
             return result.ToActionResult();
         }
 
-        [HttpGet("{id}")]
         [Authorize]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -36,11 +36,20 @@ namespace Waggle.UserService.Controllers
         }
 
         [Authorize]
+        [HttpPost("batch")]
+        [ProducesResponseType(typeof(ApiResponse<List<UserDto>>), StatusCodes.Status201Created)]
+        public async Task<IActionResult> GetUsersBatch(UserBatchRequest request)
+        {
+            var result = await _service.GetUsersByIdAsync(request);
+            return result.ToActionResult();
+        }
+
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateUser(UserCreateDto dto)
+        public async Task<IActionResult> CreateUser(UserCreateDto request)
         {
-            var result = await _service.CreateUserAsync(dto);
+            var result = await _service.CreateUserAsync(request);
             return result.ToCreatedResult($"/api/users/{result.Data?.Id}");
         }
 

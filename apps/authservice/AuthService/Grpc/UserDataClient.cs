@@ -28,6 +28,19 @@ namespace Waggle.AuthService.Grpc
             }
         }
 
+        public async Task<Result<GetUsersByIdResponse>> GetUsersByIdAsync(GetUsersByIdRequest request)
+        {
+            try
+            {
+                var response = await _client.GetUsersByIdAsync(request);
+                return Result<GetUsersByIdResponse>.Ok(response);
+            }
+            catch (RpcException ex)
+            {
+                return GrpcExceptionHelper.HandleRpcException<GetUsersByIdResponse>(ex);
+            }
+        }
+
         public async Task<Result<CreateUserResponse>> CreateUserAsync(CreateUserRequest request)
         {
             try

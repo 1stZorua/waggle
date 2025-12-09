@@ -23,6 +23,8 @@
             public const string PermissionRequired = "You do not have the required permission";
             public const string TokenExpired = "Your session has expired";
             public const string InvalidToken = "Invalid authentication token";
+            public const string TokenMissing = "Authentication token is required";
+            public const string CurrentUserRetrievalFailed = "Failed to retrieve current user information";
         }
 
         public static class Resource

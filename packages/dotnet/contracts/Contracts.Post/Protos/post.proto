@@ -1,0 +1,69 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Waggle.Contracts.Post.Grpc";
+
+package post;
+
+service GrpcPost {
+	rpc GetAllPosts(GetAllPostsRequest) returns (GetAllPostsResponse);
+	rpc GetPostById(GetPostByIdRequest) returns (GetPostByIdResponse);
+	rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+	rpc DeletePost(DeletePostRequest) returns (google.protobuf.Empty);
+}
+
+enum PaginationDirection {
+  FORWARD = 0;
+  BACKWARD = 1;
+}
+
+message PageInfo {
+  string next_cursor = 1;
+  string previous_cursor = 2;
+  bool has_next_page = 3;
+  bool has_previous_page = 4;
+  int32 page_size = 5;
+}
+
+message GetAllPostsRequest {
+  string cursor = 1;
+  int32 page_size = 2;
+  PaginationDirection direction = 3;
+}
+
+message GetAllPostsResponse {
+	repeated Post posts = 1;
+	PageInfo page_info = 2;
+}
+
+message GetPostByIdRequest {
+	string id = 1;
+}
+
+message GetPostByIdResponse {
+	Post post = 1;
+}
+
+message CreatePostRequest {
+	string caption = 1;
+	repeated string media_ids = 2;
+}
+
+message CreatePostResponse {
+	Post post = 1;
+}
+
+message Post {
+	string id = 1;
+	string user_id = 2;
+	string caption = 3;
+	repeated string media_ids = 4; 
+	google.protobuf.Timestamp created_at = 5;
+	google.protobuf.Timestamp updated_at = 6;
+}
+
+message DeletePostRequest {
+	string id = 1;
+}

@@ -2,6 +2,9 @@ services:
   authservice:
     image: 1stzorua/waggle-authservice:latest
 
+  postservice:
+    image: 1stzorua/waggle-postservice:latest
+
   userservice:
     image: 1stzorua/waggle-userservice:latest
 

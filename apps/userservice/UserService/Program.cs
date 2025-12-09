@@ -30,6 +30,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
     var connectionString =
         $"Host={Environment.GetEnvironmentVariable("POSTGRES_HOST")};" +
+        $"Port={Environment.GetEnvironmentVariable("POSTGRES_PORT")};" +
         $"Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};" +
         $"Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};" +
         $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")}";

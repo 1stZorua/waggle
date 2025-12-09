@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Waggle.Common.Pagination.Core;
 using Waggle.Common.Pagination.Models;
+using Waggle.UserService.Dtos;
 using Waggle.UserService.Models;
 
 namespace Waggle.UserService.Data
@@ -26,6 +27,17 @@ namespace Waggle.UserService.Data
         public async Task<User?> GetUserByIdAsync(Guid id)
         {
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<List<User>> GetUsersByIdAsync(UserBatchRequest request)
+        {
+            var ids = request.Ids?.ToList() ?? [];
+            if (ids.Count == 0) return [];
+
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => ids.Contains(u.Id))
+                .ToListAsync();
         }
 
         public async Task AddUserAsync(User user)

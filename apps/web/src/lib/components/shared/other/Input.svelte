@@ -4,7 +4,8 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import type { Snippet } from 'svelte';
 	import { TextSmall } from '../text';
-	import { fade, slide } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 	import Icon from './Icon.svelte';
 
 	interface Props extends HTMLInputAttributes {
@@ -34,7 +35,7 @@
 		{/if}
 	</div>
 	{#if errors?.length}
-		<ul transition:slide={{ duration: 200 }}>
+		<ul transition:slide={{ duration: 300, easing: quintOut }}>
 			{#each errors as err (err)}
 				<li>
 					<TextSmall className="font-normal text-pink">{err}</TextSmall>

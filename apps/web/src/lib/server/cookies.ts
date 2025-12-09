@@ -15,3 +15,12 @@ export const deleteAuthCookies = (cookies: Cookies) => {
 	cookies.delete('access_token', COOKIE_OPTIONS);
 	cookies.delete('refresh_token', COOKIE_OPTIONS);
 };
+
+export const getAuthCookies = (cookies: Cookies) => {
+	const accessToken = cookies.get('access_token');
+	const refreshToken = cookies.get('refresh_token');
+
+	if (!accessToken || !refreshToken) return null;
+
+	return { accessToken, refreshToken };
+};

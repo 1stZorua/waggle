@@ -19,6 +19,22 @@
       "types": "./src/auth/generated/model/index.ts",
       "default": "./src/auth/generated/model/index.ts"
     },
+    "./media": {
+      "types": "./src/media/client.ts",
+      "default": "./src/media/client.ts"
+    },
+    "./media/model": {
+      "types": "./src/media/generated/model/index.ts",
+      "default": "./src/media/generated/model/index.ts"
+    },
+    "./post": {
+      "types": "./src/post/client.ts",
+      "default": "./src/post/client.ts"
+    },
+    "./post/model": {
+      "types": "./src/post/generated/model/index.ts",
+      "default": "./src/post/generated/model/index.ts"
+    },
     "./user": {
       "types": "./src/user/client.ts",
       "default": "./src/user/client.ts"

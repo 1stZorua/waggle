@@ -52,6 +52,8 @@ namespace Waggle.UserService.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("Email")
                         .IsUnique();
 

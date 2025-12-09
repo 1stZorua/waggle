@@ -33,3 +33,95 @@ userservice-db:
     serviceMonitor:
       enabled: true
   fullnameOverride: userservice-db
+
+mediaservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: mediaservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    enabled: true
+    replicaCount: 2
+    replica:
+      persistence:
+        enabled: true
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: mediaservice-db
+
+postservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: postservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    enabled: true
+    replicaCount: 2
+    replica:
+      persistence:
+        enabled: true
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: postservice-db
+
+mediastore:
+  fullnameOverride: mediastore
+  accessKey: 'waggle'
+  secretKey: 'wagglepassword'
+  persistence:
+    enabled: true
+    size: 10Gi
+  service:
+    type: LoadBalancer
+    port: 9000
+    consolePort: 9001
+  livenessProbe:
+    httpGet:
+      path: /minio/health/live
+      port: 9000
+  readinessProbe:
+    httpGet:
+      path: /minio/health/ready
+      port: 9000

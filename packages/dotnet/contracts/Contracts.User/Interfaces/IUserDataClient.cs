@@ -7,6 +7,7 @@ namespace Waggle.Contracts.User.Interfaces
     {
         Task<Result<GetAllUsersResponse>> GetAllUsersAsync(GetAllUsersRequest request);
         Task<Result<GetUserByIdResponse>> GetUserByIdAsync(GetUserByIdRequest request);
+        Task<Result<GetUsersByIdResponse>> GetUsersByIdAsync(GetUsersByIdRequest request);
         Task<Result<CreateUserResponse>> CreateUserAsync(CreateUserRequest request);
         Task<Result> DeleteUserAsync(DeleteUserRequest request);
     }

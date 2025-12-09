@@ -35,7 +35,7 @@ namespace Waggle.UserService.Grpc
             var result = await _service.GetAllUsersAsync(paginationRequest);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.RetrievalFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             var response = new GetAllUsersResponse();
             response.Users.AddRange(_mapper.Map<IEnumerable<User>>(result.Data!.Items));
@@ -51,12 +51,20 @@ namespace Waggle.UserService.Grpc
 
             var result = await _service.GetUserByIdAsync(userId);
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.RetrievalFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetUserByIdResponse
-            {
-                User = _mapper.Map<User>(result.Data)
-            };
+            return _mapper.Map<GetUserByIdResponse>(result.Data);
+        }
+
+        public override async Task<GetUsersByIdResponse> GetUsersById(GetUsersByIdRequest request, ServerCallContext context)
+        {
+            var batchRequest = _mapper.Map<UserBatchRequest>(request);
+            var result = await _service.GetUsersByIdAsync(batchRequest);
+
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+
+            return _mapper.Map<GetUsersByIdResponse>(result.Data);
         }
 
         public override async Task<CreateUserResponse> CreateUser(CreateUserRequest request, ServerCallContext context)
@@ -65,12 +73,9 @@ namespace Waggle.UserService.Grpc
             var result = await _service.CreateUserAsync(dto);
 
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.CreationFailed, result.ErrorCode);
-
-            return new CreateUserResponse
-            {
-                User = _mapper.Map<User>(result.Data)
-            };
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+            
+            return _mapper.Map<CreateUserResponse>(result.Data);
         }
 
         public override async Task<Empty> DeleteUser(DeleteUserRequest request, ServerCallContext context)
@@ -80,7 +85,7 @@ namespace Waggle.UserService.Grpc
 
             var result = await _service.DeleteUserAsync(userId);
             if (!result.Success)
-                throw GrpcExceptionHelper.CreateRpcException(result.Message ?? UserErrors.User.DeletionFailed, result.ErrorCode);
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return new Empty();
         }

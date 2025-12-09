@@ -1,7 +1,41 @@
-﻿namespace Waggle.Common.Auth
+﻿using Waggle.Common.Constants;
+using Waggle.Common.Results.Core;
+
+namespace Waggle.Common.Auth
 {
     public static class UserInfoExtensions
     {
+        /// <summary>
+        /// Validates that the current user is not null.
+        /// </summary>
+        public static bool TryEnsure(this UserInfoDto? user, out Result result)
+        {
+            if (user == null)
+            {
+                result = Result.Fail(ErrorMessages.Authentication.CurrentUserRetrievalFailed, ErrorCodes.Forbidden);
+                return false;
+            }
+
+            result = default!;
+            return true;
+        }
+
+        /// <summary>
+        /// Validates that the current user is not null.
+        /// </summary>
+        public static bool TryEnsure<T>(this UserInfoDto? user, out Result<T> result)
+        {
+            if (user == null)
+            {
+                result = Result<T>.Fail(ErrorMessages.Authentication.CurrentUserRetrievalFailed, ErrorCodes.Forbidden);
+                return false;
+            }
+
+            result = default!;
+            return true;
+        }
+
+
         /// <summary>
         /// Parses the Sub claim to a Guid.
         /// </summary>
