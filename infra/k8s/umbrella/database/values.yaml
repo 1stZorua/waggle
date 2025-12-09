@@ -111,6 +111,13 @@ mediastore:
   image:
     repository: bitnamilegacy/minio
 
+  console:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: minio/console
+      tag: v1.7.3
+
   accessKey: 'waggle'
   secretKey: 'wagglepassword'
   persistence:
