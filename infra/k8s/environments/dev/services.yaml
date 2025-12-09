@@ -28,7 +28,7 @@ userservice:
 
 web:
   replicaCount: 1
-  image: 1stzorua/waggle-web:main-37841f2
+  image: 1stzorua/waggle-web:main-df320d9
 
   ingress:
     host: web.waggle.local
