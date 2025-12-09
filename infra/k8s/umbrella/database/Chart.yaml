@@ -19,7 +19,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     alias: postservice-db
 
-  - name: minio
-    version: 17.0.21
+  - name: minio-operator
+    version: 0.2.9
     repository: https://charts.bitnami.com/bitnami
     alias: mediastore
