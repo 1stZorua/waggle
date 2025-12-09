@@ -66,7 +66,7 @@ spec:
             - name: Kestrel__Endpoints__Grpc__Protocols
               value: "Http2"
             - name: Minio__ExternalHost
-              value: "http://10.0.0.243:9001"
+              value: "http://10.0.0.243:9000"
             - name: Media__Buckets__Posts
               value: "posts"
             - name: Media__Buckets__Users
