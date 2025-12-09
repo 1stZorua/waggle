@@ -33,7 +33,8 @@
 			{#await data.posts}
 				<p>Loading posts...</p>
 			{:then posts}
-				{#each posts.toReversed() as post, index}
+				<div>Loaded</div>
+				<!-- {#each posts.toReversed() as post, index}
 					<CardPrimary className="flex-col shadow-none!">
 						<div class="flex w-full items-center justify-between">
 							<div class="gap-sm flex items-center">
@@ -52,7 +53,7 @@
 						</div>
 						<img
 							class="aspect-square rounded-lg object-cover"
-							src={post.mediaUrls?.[post.mediaIds[0]]?.url}
+							src={post.mediaIds ? post.mediaUrls?.[post.mediaIds[0]]?.url : ''}
 							alt="animal"
 						/>
 						<div class="flex justify-between">
@@ -83,7 +84,7 @@
 							<Separator className="mt-5"></Separator>
 						{/if}
 					</CardPrimary>
-				{/each}
+				{/each} -->
 			{:catch error}
 				<p>Error loading posts: {error.message}</p>
 			{/await}

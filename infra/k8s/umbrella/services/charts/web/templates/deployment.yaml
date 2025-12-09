@@ -27,6 +27,6 @@ spec:
               value: "http://userservice-svc.app.svc.cluster.local:8080"
             - name: MEDIA_SERVICE_BASE_URL
               value: "http://mediaservice-svc.app.svc.cluster.local:8080"
-            - name: POST_SERVICE_BASE_URL
+            - name: POSTS_SERVICE_BASE_URL
               value: "http://postservice-svc.app.svc.cluster.local:8080"
               
