@@ -108,6 +108,9 @@ postservice-db:
 
 mediastore:
   fullnameOverride: mediastore
+  image:
+    repository: bitnamilegacy/minio
+
   accessKey: 'waggle'
   secretKey: 'wagglepassword'
   persistence:
@@ -125,3 +128,7 @@ mediastore:
     httpGet:
       path: /minio/health/ready
       port: 9000
+
+global:
+  security:
+    allowInsecureImages: true
