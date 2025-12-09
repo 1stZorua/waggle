@@ -8,8 +8,8 @@ dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 18.1.13
-- name: minio-operator
+- name: minio
   repository: https://charts.bitnami.com/bitnami
-  version: 0.2.9
-digest: sha256:297b847de78d87e6b1607eb16c2d9a78240923ac1538e0de5acd57537711e367
-generated: "2025-12-09T19:52:15.5909882+01:00"
+  version: 17.0.21
+digest: sha256:bdc5d529abc6e74daaae1aa3a6fc48623f6c030fbf372ad7b75eb556e9e839bf
+generated: "2025-12-09T19:58:44.9906971+01:00"
