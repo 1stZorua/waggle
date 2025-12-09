@@ -107,34 +107,70 @@ postservice-db:
   fullnameOverride: postservice-db
 
 mediastore:
-  fullnameOverride: mediastore
-  image:
-    repository: bitnamilegacy/minio
+  mode: standalone
 
-  console:
-    enabled: true
-    image:
-      registry: docker.io
-      repository: minio/console
-      tag: v1.7.3
+  rootUser: waggle
+  rootPassword: wagglepassword
 
-  accessKey: 'waggle'
-  secretKey: 'wagglepassword'
+  replicas: 1
+
   persistence:
     enabled: true
     size: 10Gi
+    storageClass: ''
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
   service:
     type: LoadBalancer
     port: 9000
-    consolePort: 9001
+
+  consoleService:
+    type: LoadBalancer
+    port: 9001
+
+  buckets:
+    - name: posts
+      policy: public
+      purge: false
+    - name: users
+      policy: public
+      purge: false
+
+  environment:
+    MINIO_BROWSER: 'on'
+
+  securityContext:
+    enabled: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
   livenessProbe:
     httpGet:
       path: /minio/health/live
       port: 9000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
+
   readinessProbe:
     httpGet:
       path: /minio/health/ready
       port: 9000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
 
 global:
   security:
