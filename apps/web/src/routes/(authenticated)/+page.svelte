@@ -33,8 +33,7 @@
 			{#await data.posts}
 				<p>Loading posts...</p>
 			{:then posts}
-				<div>Loaded</div>
-				<!-- {#each posts.toReversed() as post, index}
+				{#each posts.toReversed() as post, index}
 					<CardPrimary className="flex-col shadow-none!">
 						<div class="flex w-full items-center justify-between">
 							<div class="gap-sm flex items-center">
@@ -84,7 +83,7 @@
 							<Separator className="mt-5"></Separator>
 						{/if}
 					</CardPrimary>
-				{/each} -->
+				{/each}
 			{:catch error}
 				<p>Error loading posts: {error.message}</p>
 			{/await}

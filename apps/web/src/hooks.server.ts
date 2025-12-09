@@ -45,21 +45,14 @@ export async function validateUser(accessToken: string) {
 		console.log(message);
 		console.log(data);
 
-		if (
-			!data?.sub ||
-			!data.preferred_username ||
-			!data.email ||
-			!data.name ||
-			!data.realm_access?.roles
-		)
-			return null;
+		if (!data?.sub || !data.preferred_username || !data.email || !data.name) return null;
 
 		return {
 			id: data.sub,
 			username: data.preferred_username,
 			email: data.email,
 			name: data.name,
-			roles: data.realm_access.roles
+			roles: data.realm_access?.roles ?? []
 		};
 	} catch (err) {
 		console.error(err);
