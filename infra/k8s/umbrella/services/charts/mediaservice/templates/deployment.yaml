@@ -36,7 +36,7 @@ spec:
             - name: KEYCLOAK_AUDIENCE
               value: "test-client"
             - name: MINIO_ENDPOINT
-              value: "mediastore.database.svc.cluster.local:9000"
+              value: "mediastore.database.svc.cluster.local"
             - name: MINIO_ROOT_USER
               value: "waggle"
             - name: MINIO_ROOT_PASSWORD
