@@ -109,10 +109,15 @@ postservice-db:
 mediastore:
   fullnameOverride: mediastore
   image:
-    repository: bitnamilegacy/minio
+    registry: docker.io
+    repository: minio/minio
 
   console:
-    enabled: false
+    image:
+      registry: docker.io
+      repository: minio/console
+      tag: latest
+    enabled: true
 
   accessKey: 'waggle'
   secretKey: 'wagglepassword'
@@ -131,7 +136,3 @@ mediastore:
     httpGet:
       path: /minio/health/ready
       port: 9000
-
-global:
-  security:
-    allowInsecureImages: true
