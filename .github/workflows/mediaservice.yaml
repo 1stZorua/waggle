@@ -57,7 +57,8 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: mediaservice-publish
-          path: apps/mediaservice/MediaService/bin/Release/net9.0
+          path: apps/mediaservice/MediaService/publish
+          retention-days: 3
 
   publish_docker:
     name: Build & Push Docker Image

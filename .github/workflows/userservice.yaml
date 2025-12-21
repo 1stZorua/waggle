@@ -57,7 +57,8 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: userservice-publish
-          path: apps/userservice/UserService/bin/Release/net9.0
+          path: apps/userservice/UserService/publish
+          retention-days: 3
 
   publish_docker:
     name: Build & Push Docker Image

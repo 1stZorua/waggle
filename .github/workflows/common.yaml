@@ -44,7 +44,10 @@ jobs:
         run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Upload build output
+        if: github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         uses: actions/upload-artifact@v4.6.2
         with:
           name: common-library-publish
-          path: packages/dotnet/common/Common/bin/Release/net9.0
+          path: packages/dotnet/common/Common/publish
+          retention-days: 3
