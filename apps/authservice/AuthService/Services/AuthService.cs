@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using MassTransit;
 using Waggle.AuthService.Constants;
 using Waggle.AuthService.Dtos;
 using Waggle.AuthService.Logging;
+using Waggle.AuthService.Saga.Context;
 using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Results.Core;
+using Waggle.Common.Saga;
 using Waggle.Common.Validation;
-using Waggle.Contracts.Auth.Events;
 using Waggle.Contracts.User.Extensions;
 using Waggle.Contracts.User.Interfaces;
 
@@ -17,17 +17,26 @@ namespace Waggle.AuthService.Services
     {
         private readonly IKeycloakClient _keycloakClient;
         private readonly IMapper _mapper;
-        private readonly IPublishEndpoint _publishEndpoint;
         private readonly IUserDataClient _userDataClient;
         private readonly IServiceValidator _validator;
+        private readonly ISagaCoordinator<RegistrationSagaContext, RegisterResponseDto> _registrationSaga;
+        private readonly ISagaCoordinator<DeletionSagaContext> _deletionSaga;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IKeycloakClient keycloakClient, IMapper mapper, IPublishEndpoint publishEndpoint, IUserDataClient userDataClient, IServiceValidator validator, ILogger<AuthService> logger)
+        public AuthService(
+            IKeycloakClient keycloakClient, 
+            IMapper mapper,
+            IUserDataClient userDataClient, 
+            IServiceValidator validator, 
+            ISagaCoordinator<RegistrationSagaContext, RegisterResponseDto> registrationSaga, 
+            ISagaCoordinator<DeletionSagaContext> deletionSaga, 
+            ILogger<AuthService> logger)
         {
             _keycloakClient = keycloakClient;
             _mapper = mapper;
-            _publishEndpoint = publishEndpoint;
             _userDataClient = userDataClient;
+            _registrationSaga = registrationSaga;
+            _deletionSaga = deletionSaga;
             _validator = validator;
             _logger = logger;
         }
@@ -38,50 +47,8 @@ namespace Waggle.AuthService.Services
             if (!validationResult.Success)
                 return Result<RegisterResponseDto>.ValidationFail(validationResult.ValidationErrors!);
 
-            var tokenResult = await _keycloakClient.GetAdminTokenAsync();
-
-            if (!tokenResult.Success)
-            {
-                _logger.LogAdminTokenFailed(request.Username, tokenResult.Message);
-                return Result<RegisterResponseDto>.Fail(tokenResult.Message, tokenResult.ErrorCode);
-            }
-
-            var adminToken = tokenResult.Data!;
-
-            var keycloakUser = _mapper.Map<KeycloakUserRequest>(request, opt =>
-            {
-                opt.Items["Enabled"] = true;
-                opt.Items["Credentials"] = new[] { new Credential("password", request.Password, false) };
-            });
-
-            var createResult = await _keycloakClient.CreateUserAsync(keycloakUser, adminToken);
-            if (!createResult.Success)
-            {
-                _logger.LogKeycloakUserCreationFailed(request.Username, createResult.Message, createResult.ErrorCode);
-                return Result<RegisterResponseDto>.Fail(createResult.Message, createResult.ErrorCode);
-            }
-
-            var userId = createResult.Data;
-
-            try
-            {
-                var registeredEvent = _mapper.Map<RegisteredEvent>(request);
-                registeredEvent.Id = userId;
-                await _publishEndpoint.Publish(registeredEvent);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogRegisteredEventPublishFailed(ex, request.Username, userId);
-                await _keycloakClient.DeleteUserAsync(userId, adminToken);
-                return Result<RegisterResponseDto>.Fail(AuthErrors.User.ProfileInitFailed, ErrorCodes.ServiceFailed);
-            }
-
-            _logger.LogUserRegistered(request.Username, userId);
-
-            var registeredUser = _mapper.Map<RegisterResponseDto>(request);
-            registeredUser.Id = userId.ToString();
-
-            return registeredUser;
+            var sagaContext = _mapper.Map<RegistrationSagaContext>(request);
+            return await _registrationSaga.ExecuteAsync(sagaContext);
         }
 
         public async Task<Result<TokenResponseDto>> PasswordGrantAsync(LoginRequestDto request)
@@ -163,33 +130,8 @@ namespace Waggle.AuthService.Services
                 return Result.Fail(ErrorMessages.Authentication.PermissionRequired, ErrorCodes.Forbidden);
             }
 
-            var tokenResult = await _keycloakClient.GetAdminTokenAsync();
-            if (!tokenResult.Success)
-            {
-                _logger.LogAdminTokenFailed(request.Id.ToString(), tokenResult.Message);
-                return Result.Fail(tokenResult.Message, tokenResult.ErrorCode);
-            }
-
-            var adminToken = tokenResult.Data!;
-
-            var keycloakResult = await _keycloakClient.DeleteUserAsync(request.Id, adminToken);
-            if (!keycloakResult.Success)
-            {
-                _logger.LogKeycloakUserDeletionFailed(request.Id, keycloakResult.Message, keycloakResult.ErrorCode);
-                return keycloakResult;
-            }
-
-            try
-            {
-                var deletedEvent = _mapper.Map<DeletedEvent>(request.Id);
-                await _publishEndpoint.Publish(deletedEvent);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogDeletedEventPublishFailed(ex, request.Id);
-            }
-
-            return Result.Ok();
+            var sagaContext = _mapper.Map<DeletionSagaContext>(request);
+            return await _deletionSaga.ExecuteAsync(sagaContext);
         }
     }
 }

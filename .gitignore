@@ -4,6 +4,7 @@ Thumbs.db
 *.pem
 *.tmp
 *.swp
+*~
 
 # Dependencies & Package Managers
 node_modules/
@@ -17,6 +18,9 @@ pnpm-lock.yaml
 # Testing
 coverage/
 *.lcov
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
 
 # Svelte / Web Frameworks
 .svelte-kit/
@@ -31,7 +35,11 @@ out/
 # C# / .NET
 bin/
 obj/
+[Bb]in/
+[Oo]bj/
 *.suo
+*.user
+*.userprefs
 *.userosscache
 *.sln.docstates
 *.vsp
@@ -42,7 +50,12 @@ obj/
 *.svclog
 *.dbmdl
 *.csproj.user
+*.pdb
+*.cache
+*.VC.db
+*.VC.VC.opendb
 project.lock.json
+artifacts/
 
 # IDEs / Editors
 .vs/
@@ -57,6 +70,11 @@ project.lock.json
 .env.production.local
 appsettings.Development.json
 local.settings.json
+
+# Azure / Serverless
+*.azurePubxml
+*.publishproj
+PublishScripts/
 
 # Turborepo / Monorepo
 .turbo/

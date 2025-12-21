@@ -15,6 +15,13 @@ namespace Waggle.Common.Messaging
                 .GetSection(RabbitMQOptions.SectionName)
                 .Get<RabbitMQOptions>() ?? new RabbitMQOptions();
 
+            var serviceBusConnection = configuration["ServiceBusConnection"];
+
+            services.AddScoped<IEventPublisher>(sp =>
+                new EventPublisher(
+                    sp.GetRequiredService<IPublishEndpoint>(),
+                    serviceBusConnection));
+
             services.AddMassTransit(x =>
             {
                 configureConsumers?.Invoke(x);
@@ -27,9 +34,12 @@ namespace Waggle.Common.Messaging
                     {
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
+
+                        h.Heartbeat(5);
+                        h.RequestedConnectionTimeout(1000);
                     });
 
-                    cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                    cfg.UseMessageRetry(r => r.Interval(1, TimeSpan.FromSeconds(1)));
                     cfg.ConfigureEndpoints(context);
                 });
             });

@@ -56,7 +56,8 @@ namespace Waggle.UserService.IntegrationTests.Infrastructure
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
-                db.Database.EnsureCreated();
+
+                db.Database.Migrate();
             });
         }
 

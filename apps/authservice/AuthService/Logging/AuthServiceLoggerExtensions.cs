@@ -43,6 +43,16 @@
             Guid userId);
 
         [LoggerMessage(
+            EventId = 1004,
+            Level = LogLevel.Error,
+            Message = "Registration completed event publication failed: {Username} ({UserId})")]
+        public static partial void LogRegistrationCompletedEventPublishFailed(
+            this ILogger logger,
+            Exception exception,
+            string username,
+            Guid userId);
+
+        [LoggerMessage(
             EventId = 1005,
             Level = LogLevel.Error,
             Message = "User info retrieval failed: {Username} ({ErrorCode})")]

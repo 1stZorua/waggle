@@ -104,7 +104,6 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
         protected void SetupSuccessfulUserRegistration(Guid? userId = null)
         {
             var actualUserId = userId ?? Guid.NewGuid();
-
             SetupAdminToken();
 
             Factory.WireMockServer
@@ -307,7 +306,7 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
 
         #endregion
 
-        #region Register Helper Methods
+        #region HTTP Helper Methods
 
         protected Task<ApiResponse<RegisterResponseDto>> RegisterUserAsync(RegisterRequestDto request)
             => PostAsync<RegisterResponseDto, RegisterRequestDto>("register", request);
@@ -315,29 +314,17 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
         protected Task<ApiResponse<RegisterResponseDto>> RegisterUserExpectingFailureAsync(RegisterRequestDto request)
             => PostAsync<RegisterResponseDto, RegisterRequestDto>("register", request, expectSuccess: false);
 
-        #endregion
-
-        #region Login Helper Methods
-
         protected Task<ApiResponse<TokenResponseDto>> LoginAsync(LoginRequestDto request)
             => PostAsync<TokenResponseDto, LoginRequestDto>("login", request);
 
         protected Task<ApiResponse<TokenResponseDto>> LoginExpectingFailureAsync(LoginRequestDto request)
             => PostAsync<TokenResponseDto, LoginRequestDto>("login", request, expectSuccess: false);
 
-        #endregion
-
-        #region Refresh Helper Methods
-
         protected Task<ApiResponse<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request)
             => PostAsync<TokenResponseDto, RefreshTokenRequestDto>("refresh", request);
 
         protected Task<ApiResponse<TokenResponseDto>> RefreshTokenExpectingFailureAsync(RefreshTokenRequestDto request)
             => PostAsync<TokenResponseDto, RefreshTokenRequestDto>("refresh", request, expectSuccess: false);
-
-        #endregion
-
-        #region Logout Helper Methods
 
         protected Task<ApiResponse> LogoutAsync(LogoutRequestDto request)
         {
@@ -358,10 +345,6 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
             httpRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(TestConstants.ValidBearerToken);
             return SendRequestAsync(httpRequest, expectSuccess: false);
         }
-
-        #endregion
-
-        #region Validate Helper Methods
 
         protected Task<ApiResponse> ValidateTokenAsync(string bearerToken)
         {
@@ -406,10 +389,6 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
 
             return headers;
         }
-
-        #endregion
-
-        #region Delete User Helper Methods
 
         protected Task<ApiResponse> DeleteUserAsync(Guid userId)
         {

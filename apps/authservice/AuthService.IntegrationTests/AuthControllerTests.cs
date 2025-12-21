@@ -153,7 +153,7 @@ namespace Waggle.AuthService.IntegrationTests
             // Assert
             result.Should().NotBeNull();
             result.Status.Should().Be(ApiStatus.Fail);
-            result.Code.Should().Be(ErrorCodes.NotFound);
+            result.Code.Should().Be(ErrorCodes.Unauthorized);
 
             VerifyUserDataClientGetUserCalled(userId);
         }
@@ -328,6 +328,8 @@ namespace Waggle.AuthService.IntegrationTests
         public async Task DeleteUser_ShouldSucceed_AndPublishEvent()
         {
             // Arrange
+            await TestHarness.Start();
+
             var userId = Guid.NewGuid();
             SetupSuccessfulUserDeletion(userId);
 
@@ -338,19 +340,18 @@ namespace Waggle.AuthService.IntegrationTests
             result.Should().NotBeNull();
             result.Status.Should().Be(ApiStatus.Success);
 
-            var publishedEvent = TestHarness.Published
-                .Select<DeletedEvent>()
-                .Where(x => x.Context.Message.Id == userId)
-                .FirstOrDefault()?.Context.Message;
+            var published = await TestHarness.Published
+                .Any<DeletedEvent>(x => x.Context.Message.Id == userId);
 
-            publishedEvent.Should().NotBeNull();
-            publishedEvent.Id.Should().Be(userId);
+            published.Should().BeTrue();
         }
 
         [Fact]
         public async Task DeleteUser_WhenKeycloakFails_ShouldReturnError()
         {
             // Arrange
+            await TestHarness.Start();
+
             var userId = Guid.NewGuid();
             SetupFailedUserDeletion(userId);
 
@@ -362,12 +363,10 @@ namespace Waggle.AuthService.IntegrationTests
             result.Status.Should().Be(ApiStatus.Error);
             result.Code.Should().Be(ErrorCodes.ServiceFailed);
 
-            var publishedEvent = TestHarness.Published
-                .Select<DeletedEvent>()
-                .Where(x => x.Context.Message.Id == userId)
-                .FirstOrDefault();
+            var published = await TestHarness.Published
+                .Any<DeletedEvent>(x => x.Context.Message.Id == userId);
 
-            publishedEvent.Should().BeNull();
+            published.Should().BeFalse();
         }
 
         #endregion

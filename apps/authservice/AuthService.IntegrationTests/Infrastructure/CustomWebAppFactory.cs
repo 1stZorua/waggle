@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using Waggle.AuthService.Options;
+using Waggle.Common.Messaging;
 using Waggle.Contracts.User.Interfaces;
 using WireMock.Server;
 
@@ -14,11 +15,13 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
     {
         public WireMockServer WireMockServer { get; private set; }
         public Mock<IUserDataClient> UserDataClientMock { get; private set; }
+        public Mock<IEventPublisher> EventPublisherMock { get; private set; }
 
         public CustomWebAppFactory()
         {
             WireMockServer = WireMockServer.Start();
             UserDataClientMock = new Mock<IUserDataClient>();
+            EventPublisherMock = new Mock<IEventPublisher>();
             SetTestEnvironmentVariables();
         }
 
@@ -35,7 +38,20 @@ namespace Waggle.AuthService.IntegrationTests.Infrastructure
                     opt.AuthServerUrl = WireMockServer.Urls.First();
                 });
 
-                services.AddMassTransitTestHarness();
+                services.AddMassTransitTestHarness(cfg =>
+                {
+                    cfg.UsingInMemory((context, bus) =>
+                    {
+                        bus.ConfigureEndpoints(context);
+                    });
+                });
+
+                services.RemoveAll<IEventPublisher>();
+                services.AddScoped<IEventPublisher>(sp =>
+                {
+                    var publishEndpoint = sp.GetRequiredService<IPublishEndpoint>();
+                    return new MassTransitEventPublisher(publishEndpoint);
+                });
             });
         }
 

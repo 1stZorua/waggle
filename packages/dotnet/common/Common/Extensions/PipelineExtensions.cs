@@ -15,6 +15,8 @@ namespace Waggle.Common.Extensions
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             return app;
         }

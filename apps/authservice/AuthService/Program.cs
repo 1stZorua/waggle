@@ -1,15 +1,20 @@
-using Waggle.AuthService.Health;
-using Waggle.AuthService.Services;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Waggle.AuthService.Dtos;
+using Waggle.AuthService.Grpc;
+using Waggle.AuthService.Health;
+using Waggle.AuthService.Options;
+using Waggle.AuthService.Saga;
+using Waggle.AuthService.Saga.Context;
+using Waggle.AuthService.Saga.Steps;
+using Waggle.AuthService.Services;
 using Waggle.Common.Extensions;
 using Waggle.Common.Grpc;
 using Waggle.Common.Helpers;
 using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
+using Waggle.Common.Saga;
 using Waggle.Contracts.User.Grpc;
 using Waggle.Contracts.User.Interfaces;
-using Waggle.AuthService.Grpc;
-using Waggle.AuthService.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +64,30 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IKeycloakClient, KeycloakClient>();
 builder.Services.AddScoped<IUserDataClient, UserDataClient>();
 
+builder.Services.AddScoped<CreateUserStep>();
+builder.Services.AddScoped<CreateProfileStep>();
+builder.Services.AddScoped<NotifyUserRegisteredStep>();
+
+builder.Services.AddScoped<ISagaCoordinator<RegistrationSagaContext, RegisterResponseDto>>(sp =>
+{
+    var coordinator = new SagaCoordinator<RegistrationSagaContext, RegisterResponseDto>();
+    coordinator.AddStep(sp.GetRequiredService<CreateUserStep>());
+    coordinator.AddStep(sp.GetRequiredService<CreateProfileStep>());
+    coordinator.AddStep(sp.GetRequiredService<NotifyUserRegisteredStep>());
+    return coordinator;
+});
+
+builder.Services.AddScoped<DeleteAuthUserStep>();
+builder.Services.AddScoped<DeleteUserStep>();
+
+builder.Services.AddScoped<ISagaCoordinator<DeletionSagaContext>>(sp =>
+{
+    var coordinator = new SagaCoordinator<DeletionSagaContext>();
+    coordinator.AddStep(sp.GetRequiredService<DeleteAuthUserStep>());
+    coordinator.AddStep(sp.GetRequiredService<DeleteUserStep>());
+    return coordinator;
+});
+
 builder.Services.AddHealthChecks()
     .AddCheck<KeycloakHealthCheck>("keycloak", HealthStatus.Unhealthy);
 
@@ -72,6 +101,7 @@ app.UseCommonPrometheusEndpoint();
 app.MapCommonHealthChecks();
 app.MapCommonGrpcReflection();
 app.MapGrpcService<GrpcAuthService>();
+
 app.MapControllers();
 
 app.UseSerilogOnShutdown();
