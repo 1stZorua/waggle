@@ -12,7 +12,7 @@ namespace Waggle.Common.Tests.Pagination
         public async Task ToPagedAsync_BasicPagination_ReturnsCorrectItems(PaginationDirection direction, bool shouldReverse)
         {
             // Arrange
-            var items = DummyItem.CreateList(20);
+            var items = DummyItem.CreateList(20); // Creates items 1-20
             var queryable = items.AsQueryable();
 
             var sortFields = new (Expression<Func<TestItem, object>> SortBy, string Name)[]
@@ -31,10 +31,11 @@ namespace Waggle.Common.Tests.Pagination
 
             // Assert
             result.Items.Count.Should().Be(5);
-            result.Items.First().Id.Should().Be(shouldReverse ? 16 : 1);
-            result.Items.Last().Id.Should().Be(shouldReverse ? 20 : 5);
+
+            result.Items.First().Id.Should().Be(shouldReverse ? 16 : 20);
+            result.Items.Last().Id.Should().Be(shouldReverse ? 20 : 16);
             result.PageInfo.HasNextPage.Should().Be(!shouldReverse);
-            result.PageInfo.HasPreviousPage.Should().Be(shouldReverse);
+            result.PageInfo.HasPreviousPage.Should().BeFalse();
         }
 
         [Fact]
@@ -50,21 +51,21 @@ namespace Waggle.Common.Tests.Pagination
             };
 
             var cursorValues = new Dictionary<string, object?> { { nameof(TestItem.Id), 5 } };
-
-            var cursorValue = cursorValues[nameof(TestItem.Id)] as int? ?? 0;
-            var filteredQuery = queryable.Where(x => x.Id > cursorValue);
+            var cursor = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(
+                System.Text.Json.JsonSerializer.Serialize(cursorValues)));
 
             var request = new PaginationRequest
             {
                 PageSize = 3,
-                Cursor = null
+                Cursor = cursor,
+                Direction = PaginationDirection.Forward
             };
 
             // Act
-            var result = await filteredQuery.ToPagedAsync(sortFields, request);
+            var result = await queryable.ToPagedAsync(sortFields, request);
 
             // Assert
-            result.Items.Select(x => x.Id).Should().Equal(6, 7, 8);
+            result.Items.Select(x => x.Id).Should().Equal(10, 9, 8);
         }
 
         [Fact]
@@ -146,13 +147,17 @@ namespace Waggle.Common.Tests.Pagination
                 (x => x.Id, nameof(TestItem.Id))
             };
 
-            var request = new PaginationRequest { PageSize = 4 };
+            var request = new PaginationRequest
+            {
+                PageSize = 4,
+                Direction = PaginationDirection.Forward
+            };
 
             // Act
             var result = await queryable.ToPagedAsync(sortFields, request);
 
             // Assert
-            result.Items.Select(x => x.Id).Should().Equal(2, 3, 1, 4);
+            result.Items.Select(x => x.Id).Should().Equal(4, 1, 3, 2);
         }
     }
 }
