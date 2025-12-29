@@ -5,4 +5,4 @@
 	let { className, src, alt }: { className?: ClassType; src: string; alt: string } = $props();
 </script>
 
-<img class={cn('h-12 w-12 rounded-full object-cover', className)} {src} {alt} />
+<img class={cn('h-12 w-12 shrink-0 rounded-full object-cover', className)} {src} {alt} />

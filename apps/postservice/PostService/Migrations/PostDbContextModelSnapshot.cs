@@ -40,6 +40,9 @@ namespace Waggle.PostService.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<Guid>("ThumbnailId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -50,7 +53,11 @@ namespace Waggle.PostService.Migrations
 
                     b.HasIndex("CreatedAt");
 
+                    b.HasIndex("Id");
+
                     b.HasIndex("UserId");
+
+                    b.HasIndex("CreatedAt", "Id");
 
                     b.ToTable("posts");
                 });

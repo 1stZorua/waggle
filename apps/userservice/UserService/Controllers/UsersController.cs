@@ -22,7 +22,7 @@ namespace Waggle.UserService.Controllers
         [ProducesResponseType(typeof(ApiResponse<PagedResult<UserDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers([FromQuery] PaginationRequest request)
         {
-            var result = await _service.GetAllUsersAsync(request);
+            var result = await _service.GetUsersAsync(request);
             return result.ToActionResult();
         }
 

@@ -54,16 +54,16 @@ namespace Waggle.AuthService.Grpc
             }
         }
 
-        public async Task<Result<GetAllUsersResponse>> GetAllUsersAsync(GetAllUsersRequest request)
+        public async Task<Result<GetUsersResponse>> GetUsersAsync(GetUsersRequest request)
         {
             try
             {
-                var response = await _client.GetAllUsersAsync(request);
-                return Result<GetAllUsersResponse>.Ok(response);
+                var response = await _client.GetUsersAsync(request);
+                return Result<GetUsersResponse>.Ok(response);
             }
             catch (RpcException ex)
             {
-                return GrpcExceptionHelper.HandleRpcException<GetAllUsersResponse>(ex);
+                return GrpcExceptionHelper.HandleRpcException<GetUsersResponse>(ex);
             }
         }
 

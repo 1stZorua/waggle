@@ -64,11 +64,22 @@ namespace Waggle.MediaService.Controllers
 
         [Authorize]
         [HttpPost]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(ApiResponse<MediaDto>), StatusCodes.Status201Created)]
         public async Task<IActionResult> UploadMedia([FromForm] MediaCreateDto request)
         {
             var result = await _service.UploadMediaAsync(request, CurrentUser);
             return result.ToCreatedResult($"/api/media/{result.Data?.Id}");
+        }
+
+        [Authorize]
+        [HttpPost("batch/upload")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(ApiResponse<List<MediaDto>>), StatusCodes.Status201Created)]
+        public async Task<IActionResult> UploadMediaBatch([FromForm] MediaBatchCreateDto request)
+        {
+            var result = await _service.UploadMediaBatchAsync(request, CurrentUser);
+            return result.ToCreatedResult("/api/media");
         }
 
         [Authorize]

@@ -19,9 +19,5 @@
 	<ItemGroup>
 		<Protobuf Include="Protos/post.proto" GrpcServices="both" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Events\" />
-	</ItemGroup>
 	
 </Project>

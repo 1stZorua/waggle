@@ -50,7 +50,7 @@ builder.Services.AddCommonValidation();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddMessaging(builder.Configuration);
+    builder.Services.AddMessaging(builder.Configuration, "auth-service");
 
     builder.Services.AddGrpcClient<GrpcUser.GrpcUserClient>(opt =>
     {

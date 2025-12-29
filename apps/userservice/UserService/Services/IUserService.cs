@@ -6,7 +6,7 @@ namespace Waggle.UserService.Services
 {
     public interface IUserService : IUserEventHandler
     {
-        Task<Result<PagedResult<UserDto>>> GetAllUsersAsync(PaginationRequest request);
+        Task<Result<PagedResult<UserDto>>> GetUsersAsync(PaginationRequest request);
         Task<Result<UserDto>> GetUserByIdAsync(Guid id);
         Task<Result<List<UserDto>>> GetUsersByIdAsync(UserBatchRequest request);
         Task<Result<UserDto>> CreateUserAsync(UserCreateDto request);

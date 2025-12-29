@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Waggle.Contracts.Comment.Grpc";
+
+package comment;
+
+service GrpcComment {
+    rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
+    rpc GetCommentById(GetCommentByIdRequest) returns (GetCommentByIdResponse);
+    rpc GetCommentsByPost(GetCommentsByPostRequest) returns (GetCommentsByPostResponse);
+    rpc GetReplies(GetRepliesRequest) returns (GetRepliesResponse);
+    rpc GetCommentsByUser(GetCommentsByUserRequest) returns (GetCommentsByUserResponse);
+    rpc GetCommentCount(GetCommentCountRequest) returns (GetCommentCountResponse);
+    rpc GetReplyCount(GetReplyCountRequest) returns (GetReplyCountResponse);
+    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+    rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
+    rpc DeleteComment(DeleteCommentRequest) returns (google.protobuf.Empty);
+}
+
+enum PaginationDirection {
+    FORWARD = 0;
+    BACKWARD = 1;
+}
+
+message PageInfo {
+    string next_cursor = 1;
+    string previous_cursor = 2;
+    bool has_next_page = 3;
+    bool has_previous_page = 4;
+    int32 page_size = 5;
+}
+
+message GetCommentsRequest {
+    string cursor = 1;
+    int32 page_size = 2;
+    PaginationDirection direction = 3;
+}
+
+message GetCommentsResponse {
+    repeated Comment comments = 1;
+    PageInfo page_info = 2;
+}
+
+message GetCommentByIdRequest {
+    string id = 1;
+}
+
+message GetCommentByIdResponse {
+    Comment comment = 1;
+}
+
+message GetCommentsByPostRequest {
+    string post_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetCommentsByPostResponse {
+    repeated Comment comments = 1;
+    PageInfo page_info = 2;
+}
+
+message GetRepliesRequest {
+    string comment_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetRepliesResponse {
+    repeated Comment comments = 1;
+    PageInfo page_info = 2;
+}
+
+message GetCommentsByUserRequest {
+    string user_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetCommentsByUserResponse {
+    repeated Comment comments = 1;
+    PageInfo page_info = 2;
+}
+
+message GetCommentCountRequest {
+    string post_id = 1;
+}
+
+message GetCommentCountResponse {
+    int32 count = 1;
+}
+
+message GetReplyCountRequest {
+    string comment_id = 1;
+}
+
+message GetReplyCountResponse {
+    int32 count = 1;
+}
+
+message CreateCommentRequest {
+    string post_id = 1;
+    optional string parent_comment_id = 2;
+    string content = 3;
+}
+
+message CreateCommentResponse {
+    Comment comment = 1;
+}
+
+message UpdateCommentRequest {
+    string id = 1;
+    string post_id = 2;
+    string content = 3;
+}
+
+message UpdateCommentResponse {
+    Comment comment = 1;
+}
+
+message DeleteCommentRequest {
+    string id = 1;
+}
+
+message Comment {
+    string id = 1;
+    string user_id = 2;
+    string post_id = 3;
+    optional string parent_comment_id = 4;
+    string content = 5;
+    google.protobuf.Timestamp created_at = 6;
+    optional google.protobuf.Timestamp updated_at = 7;
+}

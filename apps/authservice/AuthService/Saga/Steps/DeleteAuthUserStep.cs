@@ -25,12 +25,9 @@ namespace Waggle.AuthService.Saga.Steps
 
             var deleteResult = await _keycloakClient.DeleteUserAsync(context.Id, tokenResult.Data!);
             if (!deleteResult.Success)
-            {
                 _logger.LogKeycloakUserDeletionFailed(context.Id, deleteResult.Message, deleteResult.ErrorCode);
-                return deleteResult;
-            }
 
-            return Result.Ok();
+            return deleteResult;
         }
 
         public async Task<Result> CompensateAsync(DeletionSagaContext context)

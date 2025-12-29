@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ButtonPrimary, ButtonSecondary, ButtonText } from '$components/shared/buttons/index.js';
 	import { TextBase, TextSmall } from '$components/shared/text';
-	import { Icon, Input, Separator } from '$components/shared/other';
+	import { Icon, Input, Logo, Separator } from '$components/shared/other';
 	import { superForm } from 'sveltekit-superforms';
 
 	let { data } = $props();
@@ -10,7 +10,7 @@
 </script>
 
 <section
-	class="wrapper flex h-full items-center justify-center gap-28"
+	class="wrapper flex h-full min-h-screen items-center justify-center gap-28"
 	aria-labelledby="login-heading"
 >
 	<div class="relative flex h-full w-[775px] max-2xl:hidden">
@@ -33,11 +33,11 @@
 	<form
 		action="?/login"
 		method="POST"
-		class="gap-lg flex w-[450px] flex-col items-center"
+		class="gap-lg max-sm:gap-md flex w-[450px] flex-col items-center"
 		use:enhance
 	>
-		<img class="w-46 max-sm:w-[40%]" src="images/logo.svg" alt="Waggle" />
-		<div class="gap-md flex w-full flex-col items-center">
+		<Logo className="w-46 max-sm:w-[40%]"></Logo>
+		<div class="gap-md max-sm:gap-sm flex w-full flex-col items-center">
 			<div class="gap-sm flex w-full">
 				<ButtonSecondary type="button" className="flex items-center gap-xs flex-1 px-0">
 					<Icon className="text-md" icon="flat-color-icons:google"></Icon>
@@ -53,7 +53,7 @@
 					<TextSmall className="text-secondary">or continue with credentials</TextSmall>
 				</Separator>
 			</div>
-			<div class="gap-md flex w-full flex-col">
+			<div class="gap-md max-sm:gap-sm flex w-full flex-col">
 				<Input
 					name="identifier"
 					type="text"
@@ -89,7 +89,7 @@
 			</ButtonPrimary>
 			<div class="gap-xs flex">
 				<TextSmall className="text-secondary">Don't have an account?</TextSmall>
-				<ButtonText type="button">
+				<ButtonText href="/register" type="button">
 					<TextSmall className="text-blue-dark">Create an account</TextSmall>
 				</ButtonText>
 			</div>

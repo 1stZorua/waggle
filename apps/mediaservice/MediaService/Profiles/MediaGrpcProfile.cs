@@ -10,6 +10,7 @@ namespace Waggle.MediaService.Profiles
         public MediaGrpcProfile()
         {
             CreateMap<UploadMediaRequest, MediaCreateDto>();
+            CreateMap<UploadMediaBatchRequest, MediaBatchCreateDto>();
             CreateMap<GetMediaByIdRequest, Guid>();
             CreateMap<GetMediaByIdsRequest, MediaBatchRequest>();
             CreateMap<GetMediaUrlRequest, Guid>();
@@ -24,6 +25,9 @@ namespace Waggle.MediaService.Profiles
             CreateMap<MediaDto, UploadMediaResponse>();
             CreateMap<MediaDto, Media>();
             CreateMap<Media, MediaDto>();
+
+            CreateMap<IEnumerable<MediaDto>, UploadMediaBatchResponse>()
+                .ForMember(dest => dest.Media, opt => opt.MapFrom(src => src));
 
             CreateMap<DateTime, Timestamp>()
                 .ConvertUsing(dt => Timestamp.FromDateTime(DateTime.SpecifyKind(dt, DateTimeKind.Utc)));

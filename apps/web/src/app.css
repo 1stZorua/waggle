@@ -16,6 +16,7 @@
 		--color-secondary: #989898;
 		--color-tertiary: #747474;
 		--color-accent: #e5e3db;
+		--color-surface: #f4f5f9;
 
 		/* Colors */
 		--color-pink: #e47083;
@@ -65,13 +66,6 @@
 
 		/* Dimension */
 		--header: 6rem; /* 96px */
-		--sidebar: 20rem; /* 320px */
-		--action-bar: 30rem; /* 480px */
-
-		/* Content */
-		--content-margin-top: calc(var(--header) - var(--padding-wrapper));
-		--content-margin-left: calc(var(--sidebar) + var(--gap-md));
-		--content-margin-right: calc(var(--action-bar));
 
 		/* Font Sizes */
 		--text-xs: clamp(0.65rem, 2.5vw, 0.75rem); /* 10px → 12px */
@@ -131,18 +125,20 @@
 		padding: 0;
 	}
 
-	html {
-		scrollbar-gutter: stable;
-	}
-
 	html,
 	body {
 		width: 100vw;
-		height: 100vh;
+		min-height: 100vh;
 		overflow-x: hidden;
 		font-family: var(--font-primary);
 		background: var(--color-background);
 		color: var(--color-primary);
+		scrollbar-gutter: stable;
+	}
+
+	main {
+		padding: var(--padding-wrapper);
+		padding-top: calc(var(--header)-var(--padding-wrapper));
 	}
 
 	img {
@@ -156,22 +152,21 @@
 	}
 
 	.sidebar {
-		@apply h-[calc(100%-var(--header)-var(--padding-wrapper))] max-sm:h-[calc(100vh-var(--header)-var(--padding-wrapper-sm))];
+		@apply h-[calc(100%-var(--header)-var(--padding-wrapper))] w-80 max-xl:w-19 max-sm:h-[calc(100vh-var(--header)-var(--padding-wrapper-sm))];
 		top: var(--header);
-		width: var(--sidebar);
 	}
 
 	.action-bar {
-		@apply pr-wrapper max-sm:pr-wrapper-sm h-[calc(100%-var(--header)-var(--padding-wrapper))] max-sm:h-[calc(100vh-var(--header)-var(--padding-wrapper-sm))];
+		@apply pb-wrapper max-sm:pr-wrapper-sm h-[calc(100%-var(--header)-var(--padding-wrapper))] w-120 max-sm:h-[calc(100vh-var(--header)-var(--padding-wrapper-sm))];
 		top: var(--header);
-		width: var(--action-bar);
 	}
 
 	.main-content {
-		@apply pb-wrapper max-sm:pb-wrapper-sm;
-		margin-top: var(--content-margin-top);
-		margin-left: var(--content-margin-left);
-		margin-right: var(--content-margin-right);
+		@apply p-wrapper pt-[calc(var(--header)-var(--padding-wrapper))] pr-0 max-md:pl-0 max-sm:pt-[calc(var(--header)-var(--padding-wrapper-sm))];
+	}
+
+	.main-content:has(.action-bar) {
+		@apply pr-0;
 	}
 }
 
@@ -185,6 +180,7 @@
 	--color-secondary: var(--color-secondary);
 	--color-tertiary: var(--color-secondary);
 	--color-accent: var(--color-accent);
+	--color-surface: var(--color-surface);
 
 	/* Colors */
 	--color-pink: var(--color-pink);

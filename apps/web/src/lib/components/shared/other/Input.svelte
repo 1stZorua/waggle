@@ -10,14 +10,15 @@
 
 	interface Props extends HTMLInputAttributes {
 		className?: ClassType;
+		inputClassName?: ClassType;
 		errors?: string[];
 		children?: Snippet;
 	}
 
-	let { className, errors, children, ...rest }: Props = $props();
+	let { className, inputClassName, errors, children, ...rest }: Props = $props();
 </script>
 
-<div class="gap-sm flex flex-col">
+<div class="gap-sm max-sm:gap-xs flex flex-col">
 	<div
 		class={cn(
 			'shadow-ui focus-within:ring-accent relative flex items-center rounded-md px-8 py-3 focus-within:ring-2',
@@ -26,7 +27,10 @@
 		)}
 	>
 		<input
-			class="placeholder:text-secondary w-full py-2 pr-5 pl-3 text-base transition-opacity outline-none"
+			class={cn(
+				'placeholder:text-secondary w-full py-2 pr-5 pl-3 text-base transition-opacity outline-none',
+				inputClassName
+			)}
 			{...rest}
 		/>
 		{@render children?.()}

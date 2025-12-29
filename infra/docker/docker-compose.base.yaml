@@ -127,7 +127,7 @@ services:
       - POSTGRES_PASSWORD=${MEDIASERVICE_DB_PASSWORD}
 
       - RabbitMQ__Host=${RabbitMQ__Host}
-      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Port=${RabbitMQ__Port}
       - RabbitMQ__Username=${RabbitMQ__Username}
       - RabbitMQ__Password=${RabbitMQ__Password}
       - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
@@ -177,7 +177,7 @@ services:
       - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
 
       - RabbitMQ__Host=${RabbitMQ__Host}
-      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Port=${RabbitMQ__Port}
       - RabbitMQ__Username=${RabbitMQ__Username}
       - RabbitMQ__Password=${RabbitMQ__Password}
       - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
@@ -246,15 +246,17 @@ services:
       - POSTGRES_PASSWORD=${POSTSERVICE_DB_PASSWORD}
 
       - RabbitMQ__Host=${RabbitMQ__Host}
-      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Port=${RabbitMQ__Port}
       - RabbitMQ__Username=${RabbitMQ__Username}
       - RabbitMQ__Password=${RabbitMQ__Password}
       - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
-      - GrpcMedia=${GrpcMedia}
 
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcUser=${GrpcUser}
+      - GrpcMedia=${GrpcMedia}
+      - GrpcLike=${GrpcLike}
+      - GrpcComment=${GrpcComment}
     depends_on:
       postservice-db:
         condition: service_healthy
@@ -276,11 +278,268 @@ services:
       - waggle
     restart: unless-stopped
 
+  likeservice-db:
+    image: postgres:15
+    container_name: likeservice-postgres
+    ports:
+      - '5435:5432'
+    environment:
+      POSTGRES_DB: ${LIKESERVICE_DB_NAME}
+      POSTGRES_USER: ${LIKESERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${LIKESERVICE_DB_PASSWORD}
+    volumes:
+      - likeservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${LIKESERVICE_DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  likeservice:
+    container_name: likeservice
+    ports:
+      - '${LIKE_SERVICE_HTTP_PORT}:8080'
+      - '${LIKE_SERVICE_GRPC_PORT}:8081'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - POSTGRES_HOST=${LIKESERVICE_DB_HOST}
+      - POSTGRES_PORT=${LIKESERVICE_DB_PORT}
+      - POSTGRES_DB=${LIKESERVICE_DB_NAME}
+      - POSTGRES_USER=${LIKESERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${LIKESERVICE_DB_PASSWORD}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__Port}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
+      - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
+      - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
+      - GrpcPost=${GrpcPost}
+    depends_on:
+      likeservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'timeout 5 bash -c "</dev/tcp/localhost/8080" && timeout 5 bash -c "echo -e \"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n\" > /dev/tcp/localhost/8080" || exit 1'
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - waggle
+    restart: unless-stopped
+
+  favoriteservice-db:
+    image: postgres:15
+    container_name: favoriteservice-postgres
+    ports:
+      - '5436:5432'
+    environment:
+      POSTGRES_DB: ${FAVORITESERVICE_DB_NAME}
+      POSTGRES_USER: ${FAVORITESERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${FAVORITESERVICE_DB_PASSWORD}
+    volumes:
+      - favoriteservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${FAVORITESERVICE_DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  favoriteservice:
+    container_name: favoriteservice
+    ports:
+      - '${FAVORITE_SERVICE_HTTP_PORT}:8080'
+      - '${FAVORITE_SERVICE_GRPC_PORT}:8081'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - POSTGRES_HOST=${FAVORITESERVICE_DB_HOST}
+      - POSTGRES_PORT=${FAVORITESERVICE_DB_PORT}
+      - POSTGRES_DB=${FAVORITESERVICE_DB_NAME}
+      - POSTGRES_USER=${FAVORITESERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${FAVORITESERVICE_DB_PASSWORD}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__Port}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
+      - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
+      - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
+      - GrpcPost=${GrpcPost}
+    depends_on:
+      favoriteservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'timeout 5 bash -c "</dev/tcp/localhost/8080" && timeout 5 bash -c "echo -e \"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n\" > /dev/tcp/localhost/8080" || exit 1'
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - waggle
+    restart: unless-stopped
+
+  followservice-db:
+    image: postgres:15
+    container_name: followservice-postgres
+    ports:
+      - '5437:5432'
+    environment:
+      POSTGRES_DB: ${FOLLOWSERVICE_DB_NAME}
+      POSTGRES_USER: ${FOLLOWSERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${FOLLOWSERVICE_DB_PASSWORD}
+    volumes:
+      - followservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${FOLLOWSERVICE_DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  followservice:
+    container_name: followservice
+    ports:
+      - '${FOLLOW_SERVICE_HTTP_PORT}:8080'
+      - '${FOLLOW_SERVICE_GRPC_PORT}:8081'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - POSTGRES_HOST=${FOLLOWSERVICE_DB_HOST}
+      - POSTGRES_PORT=${FOLLOWSERVICE_DB_PORT}
+      - POSTGRES_DB=${FOLLOWSERVICE_DB_NAME}
+      - POSTGRES_USER=${FOLLOWSERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${FOLLOWSERVICE_DB_PASSWORD}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__Port}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
+      - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
+      - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
+      - GrpcPost=${GrpcPost}
+      - GrpcUser=${GrpcUser}
+    depends_on:
+      followservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'timeout 5 bash -c "</dev/tcp/localhost/8080" && timeout 5 bash -c "echo -e \"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n\" > /dev/tcp/localhost/8080" || exit 1'
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - waggle
+    restart: unless-stopped
+
+  commentservice-db:
+    image: postgres:15
+    container_name: commentservice-postgres
+    ports:
+      - '5438:5432'
+    environment:
+      POSTGRES_DB: ${COMMENTSERVICE_DB_NAME}
+      POSTGRES_USER: ${COMMENTSERVICE_DB_USER}
+      POSTGRES_PASSWORD: ${COMMENTSERVICE_DB_PASSWORD}
+    volumes:
+      - commentservice_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${COMMENTSERVICE_DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - waggle
+
+  commentservice:
+    container_name: commentservice
+    ports:
+      - '${COMMENT_SERVICE_HTTP_PORT}:8080'
+      - '${COMMENT_SERVICE_GRPC_PORT}:8081'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE}
+
+      - POSTGRES_HOST=${COMMENTSERVICE_DB_HOST}
+      - POSTGRES_PORT=${COMMENTSERVICE_DB_PORT}
+      - POSTGRES_DB=${COMMENTSERVICE_DB_NAME}
+      - POSTGRES_USER=${COMMENTSERVICE_DB_USER}
+      - POSTGRES_PASSWORD=${COMMENTSERVICE_DB_PASSWORD}
+
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__Port}
+      - RabbitMQ__Username=${RabbitMQ__Username}
+      - RabbitMQ__Password=${RabbitMQ__Password}
+      - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
+
+      - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
+      - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
+      - GrpcPost=${GrpcPost}
+    depends_on:
+      commentservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'timeout 5 bash -c "</dev/tcp/localhost/8080" && timeout 5 bash -c "echo -e \"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n\" > /dev/tcp/localhost/8080" || exit 1'
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - waggle
+    restart: unless-stopped
+
   userservice-db:
     image: postgres:15
     container_name: userservice-postgres
     ports:
-      - '5435:5432'
+      - '5439:5432'
     environment:
       POSTGRES_DB: ${USERSERVICE_DB_NAME}
       POSTGRES_USER: ${USERSERVICE_DB_USER}
@@ -313,7 +572,7 @@ services:
       - POSTGRES_PASSWORD=${USERSERVICE_DB_PASSWORD}
 
       - RabbitMQ__Host=${RabbitMQ__Host}
-      - RabbitMQ__Port=${RabbitMQ__PORT}
+      - RabbitMQ__Port=${RabbitMQ__Port}
       - RabbitMQ__Username=${RabbitMQ__Username}
       - RabbitMQ__Password=${RabbitMQ__Password}
       - RabbitMQ__VirtualHost=${RabbitMQ__VirtualHost}
@@ -350,11 +609,25 @@ services:
       - NODE_ENV=${NODE_ENV}
       - ORIGIN=${ORIGIN}
       - AUTH_SERVICE_BASE_URL=${AUTH_SERVICE_BASE_URL}
-      - USER_SERVICE_BASE_URL=${USER_SERVICE_BASE_URL}
+      - USERS_SERVICE_BASE_URL=${USERS_SERVICE_BASE_URL}
+      - POST_SERVICE_BASE_URL=${POST_SERVICE_BASE_URL}
+      - MEDIA_SERVICE_BASE_URL=${MEDIA_SERVICE_BASE_URL}
+      - LIKE_SERVICE_BASE_URL=${LIKE_SERVICE_BASE_URL}
+      - FOLLOW_SERVICE_BASE_URL=${FOLLOW_SERVICE_BASE_URL}
+      - FAVORITE_SERVICE_BASE_URL=${FAVORITE_SERVICE_BASE_URL}
+      - COMMENT_SERVICE_BASE_URL=${COMMENT_SERVICE_BASE_URL}
     depends_on:
       authservice:
         condition: service_healthy
       postservice:
+        condition: service_healthy
+      likeservice:
+        condition: service_healthy
+      favoriteservice:
+        condition: service_healthy
+      followservice:
+        condition: service_healthy
+      commentservice:
         condition: service_healthy
       userservice:
         condition: service_healthy
@@ -383,6 +656,10 @@ volumes:
   mediaservice_data:
   userservice_data:
   postservice_data:
+  likeservice_data:
+  favoriteservice_data:
+  followservice_data:
+  commentservice_data:
 
 networks:
   waggle:

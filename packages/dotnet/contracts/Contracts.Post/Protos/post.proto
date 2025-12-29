@@ -8,32 +8,33 @@ option csharp_namespace = "Waggle.Contracts.Post.Grpc";
 package post;
 
 service GrpcPost {
-	rpc GetAllPosts(GetAllPostsRequest) returns (GetAllPostsResponse);
+	rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
 	rpc GetPostById(GetPostByIdRequest) returns (GetPostByIdResponse);
+	rpc GetPostsByUserId(GetPostsByUserIdRequest) returns (GetPostsByUserIdResponse);
 	rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
 	rpc DeletePost(DeletePostRequest) returns (google.protobuf.Empty);
 }
 
 enum PaginationDirection {
-  FORWARD = 0;
-  BACKWARD = 1;
+	FORWARD = 0;
+	BACKWARD = 1;
 }
 
 message PageInfo {
-  string next_cursor = 1;
-  string previous_cursor = 2;
-  bool has_next_page = 3;
-  bool has_previous_page = 4;
-  int32 page_size = 5;
+	string next_cursor = 1;
+	string previous_cursor = 2;
+	bool has_next_page = 3;
+	bool has_previous_page = 4;
+	int32 page_size = 5;
 }
 
-message GetAllPostsRequest {
-  string cursor = 1;
-  int32 page_size = 2;
-  PaginationDirection direction = 3;
+message GetPostsRequest {
+	string cursor = 1;
+	int32 page_size = 2;
+	PaginationDirection direction = 3;
 }
 
-message GetAllPostsResponse {
+message GetPostsResponse {
 	repeated Post posts = 1;
 	PageInfo page_info = 2;
 }
@@ -44,6 +45,18 @@ message GetPostByIdRequest {
 
 message GetPostByIdResponse {
 	Post post = 1;
+}
+
+message GetPostsByUserIdRequest {
+	string user_id = 1;
+	string cursor = 2;
+	int32 page_size = 3;
+	PaginationDirection direction = 4;
+}
+
+message GetPostsByUserIdResponse {
+	repeated Post posts = 1;
+	PageInfo page_info = 2;
 }
 
 message CreatePostRequest {
@@ -59,9 +72,10 @@ message Post {
 	string id = 1;
 	string user_id = 2;
 	string caption = 3;
-	repeated string media_ids = 4; 
-	google.protobuf.Timestamp created_at = 5;
-	google.protobuf.Timestamp updated_at = 6;
+	string thumbnail_id = 4;
+	repeated string media_ids = 5; 
+	google.protobuf.Timestamp created_at = 6;
+	google.protobuf.Timestamp updated_at = 7;
 }
 
 message DeletePostRequest {

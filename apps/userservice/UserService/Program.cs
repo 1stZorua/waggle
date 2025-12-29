@@ -22,10 +22,10 @@ builder.Services.AddCommonObservability("User Service");
 
 if (!builder.Environment.IsEnvironment("Testing")) 
 {
-    builder.Services.AddMessaging(builder.Configuration, opt =>
+    builder.Services.AddMessaging(builder.Configuration, "user-service", opt =>
     {
         opt.AddConsumer<RegisteredEventConsumer>();
-        opt.AddConsumer<DeletedEventConsumer>();
+        opt.AddConsumer<UserDeletedEventConsumer>();
     });
 
     var connectionString =

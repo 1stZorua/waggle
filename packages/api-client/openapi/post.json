@@ -181,6 +181,68 @@
           }
         }
       }
+    },
+    "/api/post/users/{userId}/posts": {
+      "get": {
+        "tags": [
+          "Post"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Direction",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PaginationDirection"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDtoPagedResultApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDtoPagedResultApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDtoPagedResultApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -250,13 +312,17 @@
       "PostCreateDto": {
         "required": [
           "caption",
-          "mediaIds"
+          "thumbnailId"
         ],
         "type": "object",
         "properties": {
           "caption": {
             "type": "string",
             "nullable": true
+          },
+          "thumbnailId": {
+            "type": "string",
+            "format": "uuid"
           },
           "mediaIds": {
             "type": "array",
@@ -272,7 +338,7 @@
       "PostDto": {
         "required": [
           "caption",
-          "mediaIds"
+          "thumbnailId"
         ],
         "type": "object",
         "properties": {
@@ -288,6 +354,10 @@
             "type": "string",
             "nullable": true
           },
+          "thumbnailId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "mediaIds": {
             "type": "array",
             "items": {
@@ -298,8 +368,18 @@
           },
           "mediaUrls": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": {
+              "$ref": "#/components/schemas/UrlResponseDto"
+            },
             "nullable": true
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commentCount": {
+            "type": "integer",
+            "format": "int32"
           },
           "createdAt": {
             "type": "string",
@@ -366,6 +446,23 @@
           "code": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UrlResponseDto": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "additionalProperties": false

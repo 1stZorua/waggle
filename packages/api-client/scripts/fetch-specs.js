@@ -6,7 +6,11 @@ const services = [
   { name: 'auth', port: 8081 },
   { name: 'user', port: 8083 },
   { name: 'post', port: 8085 },
-  { name: 'media', port: 8087 }
+  { name: 'media', port: 8087 },
+  { name: 'like', port: 8089 },
+  { name: 'follow', port: 8091 },
+  { name: 'favorite', port: 8093 },
+  { name: 'comment', port: 8095 }
 ];
 
 const outputDir = path.resolve('./openapi');

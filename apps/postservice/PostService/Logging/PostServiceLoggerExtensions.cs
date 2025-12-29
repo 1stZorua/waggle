@@ -117,5 +117,41 @@
             this ILogger logger,
             Guid userId,
             Guid postId);
+
+        [LoggerMessage(
+            EventId = 1008,
+            Level = LogLevel.Error,
+            Message = "Deleted event publication failed: {PostId}")]
+        public static partial void LogDeletedEventPublishFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid postId);
+
+        // Event-Based Post Deletion Events
+
+        [LoggerMessage(
+            EventId = 4001,
+            Level = LogLevel.Information,
+            Message = "Post deleted from event: {PostId}")]
+        public static partial void LogPostDeletedFromEvent(
+            this ILogger logger,
+            Guid postId);
+
+        [LoggerMessage(
+            EventId = 4002,
+            Level = LogLevel.Information,
+            Message = "Post not found for deletion from event: {PostId}")]
+        public static partial void LogPostDeleteNotFoundFromEvent(
+            this ILogger logger,
+            Guid postId);
+
+        [LoggerMessage(
+            EventId = 4003,
+            Level = LogLevel.Error,
+            Message = "Post deletion from event failed: {PostId}")]
+        public static partial void LogPostDeletionFromEventFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid postId);
     }
 }

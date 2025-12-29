@@ -40,11 +40,28 @@ namespace Waggle.MediaService.Data
                 .ToListAsync();
         }
 
+        public async Task<List<Media>> GetAllMediaByUploaderIdAsync(Guid uploaderId)
+        {
+            return await _context.Media
+                .AsNoTracking()
+                .Where(m => m.UploaderId == uploaderId)
+                .ToListAsync();
+        }
+
         public async Task AddMediaAsync(Media media)
         {
             ArgumentNullException.ThrowIfNull(media);
 
             await _context.Media.AddAsync(media);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddMediaBatchAsync(IEnumerable<Media> mediaList)
+        {
+            if (mediaList == null || !mediaList.Any())
+                return;
+
+            await _context.Media.AddRangeAsync(mediaList);
             await _context.SaveChangesAsync();
         }
 
@@ -54,6 +71,22 @@ namespace Waggle.MediaService.Data
 
             _context.Media.Remove(media);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAllMediaByUploaderIdAsync(Guid uploaderId)
+        {
+            await _context.Media
+                .Where(m => m.UploaderId == uploaderId)
+                .ExecuteDeleteAsync();
+        }
+        public async Task DeleteAllMediaByIdsAsync(MediaBatchRequest request)
+        {
+            var ids = request.Ids?.ToList() ?? [];
+            if (ids.Count == 0) return;
+
+            await _context.Media
+                .Where(m => ids.Contains(m.Id))
+                .ExecuteDeleteAsync();
         }
     }
 }

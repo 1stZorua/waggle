@@ -1,95 +1,101 @@
 <script lang="ts">
 	import { ButtonText } from '$components/shared/buttons';
 	import { CardPrimary } from '$components/shared/cards';
-	import { Avatar, Ellipse, Icon, Separator } from '$components/shared/other';
+	import { Icon, Logo } from '$components/shared/other';
+	import { Post } from '$components/shared/posts';
 	import { TextBase, TextSmall } from '$components/shared/text';
 	import type { PageProps } from './$types';
+	import { onMount } from 'svelte';
 
 	let { data }: PageProps = $props();
 
-	function timeAgo(dateString: string) {
-		const now = new Date();
-		const date = new Date(dateString);
-		const diffMs = now.getTime() - date.getTime();
+	let posts = $state(data.pageInfo.items);
+	let nextCursor = $state(data.pageInfo.nextCursor);
+	let loadingMore = $state(false);
+	let done = $state(false);
 
-		const diffSec = Math.floor(diffMs / 1000);
-		if (diffSec < 60) return `${diffSec} s`;
-
-		const diffMin = Math.floor(diffSec / 60);
-		if (diffMin < 60) return `${diffMin} m`;
-
-		const diffHours = Math.floor(diffMin / 60);
-		if (diffHours < 24) return `${diffHours} h`;
-
-		const diffDays = Math.floor(diffHours / 24);
-		return `${diffDays}d`;
+	function isSentinelVisible() {
+		if (!sentinel) return false;
+		const rect = sentinel.getBoundingClientRect();
+		return rect.top < window.innerHeight;
 	}
+
+	async function loadMore() {
+		if (!nextCursor || loadingMore || done) return;
+
+		loadingMore = true;
+
+		const res = await fetch('/api/posts', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ cursor: nextCursor })
+		});
+
+		const result = await res.json();
+		if (result.items.length === 0 || !result.nextCursor) done = true;
+
+		posts = [...posts, ...result.items];
+		nextCursor = result.nextCursor;
+		loadingMore = false;
+
+		requestAnimationFrame(() => {
+			if (!done && isSentinelVisible()) loadMore();
+		});
+	}
+
+	let observer: IntersectionObserver;
+	let sentinel: HTMLDivElement | undefined = $state();
+
+	onMount(() => {
+		observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0].isIntersecting) {
+					loadMore();
+				}
+			},
+			{ rootMargin: '200px' }
+		);
+
+		if (sentinel) observer.observe(sentinel);
+
+		return () => {
+			if (observer && sentinel) observer.unobserve(sentinel);
+		};
+	});
 </script>
 
-<section class="gap-md flex h-full">
-	<div class="flex-2/3">
+<section
+	class="gap-md relative grid h-full grid-cols-[1fr_30rem] [grid-template-areas:'feed_action'] max-2xl:grid-cols-[1fr] max-2xl:[grid-template-areas:'feed']"
+>
+	<div class="w-full">
 		<div></div>
-		<div class="shadow-ui flex flex-col rounded-lg">
-			{#await data.posts}
-				<p>Loading posts...</p>
-			{:then posts}
-				{#each posts.toReversed() as post, index}
-					<CardPrimary className="flex-col shadow-none!">
-						<div class="flex w-full items-center justify-between">
-							<div class="gap-sm flex items-center">
-								<Avatar className="h-10 w-10" src="images/avatar.png" alt="Avatar" />
-								<div class="flex flex-col">
-									<TextBase>{post.user?.firstName} {post.user?.lastName}</TextBase>
-									<TextSmall className="text-secondary">@{post.user?.username}</TextSmall>
-								</div>
-								<Ellipse></Ellipse>
-								<TextSmall className="text-secondary">{timeAgo(post.createdAt as string)}</TextSmall
-								>
-							</div>
-							<ButtonText>
-								<Icon className="text-secondary text-lg" icon="uis:ellipsis-h"></Icon>
-							</ButtonText>
-						</div>
-						<img
-							class="aspect-square rounded-lg object-cover"
-							src={post.mediaIds ? post.mediaUrls?.[post.mediaIds[0]]?.url : ''}
-							alt="animal"
-						/>
-						<div class="flex justify-between">
-							<div class="gap-md flex">
-								<ButtonText className="group gap-xs">
-									<Icon
-										className="stroke-2 stroke-tertiary text-transparent text-lg group-hover:stroke-pink-light group-hover:text-pink"
-										icon="iconoir:heart-solid"
-									></Icon>
-									<TextSmall className="text-secondary">1.1K</TextSmall>
-								</ButtonText>
-								<ButtonText className="group gap-xs">
-									<Icon
-										className="stroke-2 stroke-tertiary text-transparent text-lg rotate-y-180 group-hover:stroke-green-light group-hover:text-green"
-										icon="iconamoon:comment-fill"
-									></Icon>
-									<TextSmall className="text-secondary">107</TextSmall>
-								</ButtonText>
-							</div>
-							<ButtonText className="group">
-								<Icon
-									className="stroke-2 stroke-tertiary text-transparent text-lg rotate-y-180 group-hover:stroke-blue-light group-hover:text-blue"
-									icon="material-symbols:bookmark-rounded"
-								></Icon>
-							</ButtonText>
-						</div>
-						{#if index < posts.length - 1}
-							<Separator className="mt-5"></Separator>
-						{/if}
-					</CardPrimary>
+
+		{#if posts.length > 0}
+			<div class="shadow-ui mx-auto flex max-w-[620px] flex-col rounded-lg">
+				{#each posts as post, index}
+					<Post className="shadow-none!" {post} isLast={index < posts.length - 1}></Post>
 				{/each}
-			{:catch error}
-				<p>Error loading posts: {error.message}</p>
-			{/await}
-		</div>
+
+				{#if loadingMore}
+					<div class="py-4 text-center">
+						<Icon className="text-secondary" icon="svg-spinners:90-ring-with-bg" />
+					</div>
+				{/if}
+
+				{#if done && !loadingMore}
+					<div class="flex w-full items-center justify-center py-4">
+						<Logo className="w-20 text-secondary"></Logo>
+					</div>
+				{/if}
+
+				<div bind:this={sentinel}></div>
+			</div>
+		{:else}
+			<p>No posts yet.</p>
+		{/if}
 	</div>
-	<div class="gap-md action-bar fixed right-0 flex flex-1/3 flex-col">
+
+	<div class="action-bar gap-md fixed flex flex-col [grid-area:action] max-2xl:hidden">
 		<CardPrimary className="h-full items-start">
 			<div class="flex w-full items-center justify-between">
 				<TextBase>Top Companions</TextBase>

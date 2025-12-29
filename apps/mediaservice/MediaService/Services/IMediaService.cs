@@ -5,7 +5,7 @@ using Waggle.MediaService.Dtos;
 
 namespace Waggle.MediaService.Services
 {
-    public interface IMediaService
+    public interface IMediaService : IMediaEventHandler
     {
         Task<Result<PagedResult<MediaDto>>> GetAllMediaAsync(PaginationRequest request);
         Task<Result<MediaDto>> GetMediaByIdAsync(Guid id);
@@ -13,6 +13,7 @@ namespace Waggle.MediaService.Services
         Task<Result<UrlResponseDto>> GetPresignedMediaUrlAsync(Guid id);
         Task<Result<Dictionary<Guid, UrlResponseDto>>> GetPresignedMediaUrlsAsync(MediaBatchRequest request);
         Task<Result<MediaDto>> UploadMediaAsync(MediaCreateDto request, UserInfoDto currentUser);
+        Task<Result<List<MediaDto>>> UploadMediaBatchAsync(MediaBatchCreateDto request, UserInfoDto currentUser);
         Task<Result> DeleteMediaAsync(Guid id, UserInfoDto currentUser);
     }
 }

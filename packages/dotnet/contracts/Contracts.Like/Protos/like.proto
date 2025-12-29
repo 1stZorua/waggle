@@ -1,0 +1,118 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Waggle.Contracts.Like.Grpc";
+
+package like;
+
+service GrpcLike {
+    rpc GetLikes(GetLikesRequest) returns (GetLikesResponse);
+    rpc GetLikeById(GetLikeByIdRequest) returns (GetLikeByIdResponse);
+    rpc GetLikesByUserId(GetLikesByUserIdRequest) returns (GetLikesByUserIdResponse);
+    rpc GetLikesByTargetId(GetLikesByTargetIdRequest) returns (GetLikesByTargetIdResponse);
+    rpc GetLikeCount(GetLikeCountRequest) returns (GetLikeCountResponse);
+    rpc HasLiked(HasLikedRequest) returns (HasLikedResponse);
+    rpc CreateLike(CreateLikeRequest) returns (CreateLikeResponse);
+    rpc DeleteLike(DeleteLikeRequest) returns (google.protobuf.Empty);
+}
+
+enum PaginationDirection {
+    FORWARD = 0;
+    BACKWARD = 1;
+}
+
+enum InteractionType {
+    POST = 0;
+    COMMENT = 1;
+}
+
+message PageInfo {
+    string next_cursor = 1;
+    string previous_cursor = 2;
+    bool has_next_page = 3;
+    bool has_previous_page = 4;
+    int32 page_size = 5;
+}
+
+message GetLikesRequest {
+    string cursor = 1;
+    int32 page_size = 2;
+    PaginationDirection direction = 3;
+}
+
+message GetLikesResponse {
+    repeated Like likes = 1;
+    PageInfo page_info = 2;
+}
+
+message GetLikeByIdRequest {
+    string id = 1;
+}
+
+message GetLikeByIdResponse {
+    Like like = 1;
+}
+
+message GetLikesByUserIdRequest {
+    string user_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetLikesByUserIdResponse {
+    repeated Like likes = 1;
+    PageInfo page_info = 2;
+}
+
+message GetLikesByTargetIdRequest {
+    string target_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetLikesByTargetIdResponse {
+    repeated Like likes = 1;
+    PageInfo page_info = 2;
+}
+
+message GetLikeCountRequest {
+    string target_id = 1;
+}
+
+message GetLikeCountResponse {
+    int32 count = 1;
+}
+
+message HasLikedRequest {
+    string user_id = 1;
+    string target_id = 2;
+}
+
+message HasLikedResponse {
+    Like like = 1;
+}
+
+message CreateLikeRequest {
+    string target_id = 1;
+    InteractionType target_type = 2;
+}
+
+message CreateLikeResponse {
+    Like like = 1;
+}
+
+message DeleteLikeRequest {
+    string id = 1;
+}
+
+message Like {
+    string id = 1;
+    string user_id = 2;
+    string target_id = 3;
+    InteractionType target_type = 4;
+    google.protobuf.Timestamp created_at = 5;
+}

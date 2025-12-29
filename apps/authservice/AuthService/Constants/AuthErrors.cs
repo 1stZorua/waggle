@@ -18,7 +18,7 @@ namespace Waggle.AuthService.Constants
 
         public static class User
         {
-            public const string CreationFailed = "Failed to create user account";
+            public const string CreationFailed = "An account with this email or username already exists";
             public const string ProfileInitFailed = "Account created but profile initialization failed";
             public const string DeletionFailed = "Failed to remove user from authentication system";
             public const string InfoRetrievalFailed = "Failed to retrieve user information";

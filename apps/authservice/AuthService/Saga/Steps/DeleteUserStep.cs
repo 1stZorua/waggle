@@ -25,7 +25,7 @@ namespace Waggle.AuthService.Saga.Steps
         {
             try
             {
-                var deletedEvent = _mapper.Map<DeletedEvent>(context.Id);
+                var deletedEvent = _mapper.Map<UserDeletedEvent>(context.Id);
 
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
                 await _eventPublisher.PublishAsync(deletedEvent);

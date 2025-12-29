@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getFlash } from 'sveltekit-flash-message';
 	import { page } from '$app/state';
-	import type { Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import 'iconify-icon';
 	import '../app.css';
 	import { Toaster, toast } from 'svelte-sonner';

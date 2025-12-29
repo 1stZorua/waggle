@@ -4,6 +4,7 @@ using Waggle.Common.Extensions;
 using Waggle.Common.Grpc;
 using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
+using Waggle.MediaService.Consumers;
 using Waggle.MediaService.Data;
 using Waggle.MediaService.Grpc;
 using Waggle.MediaService.Infrastructure;
@@ -25,7 +26,11 @@ builder.Services.AddCommonValidation();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddMessaging(builder.Configuration);
+    builder.Services.AddMessaging(builder.Configuration, "media-service", opt =>
+    {
+        opt.AddConsumer<PostDeletedEventConsumer>();
+        opt.AddConsumer<UserDeletedEventConsumer>();
+    });
 
     var connectionString =
         $"Host={Environment.GetEnvironmentVariable("POSTGRES_HOST")};" +

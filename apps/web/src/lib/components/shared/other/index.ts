@@ -1,5 +1,9 @@
 export { default as Avatar } from './Avatar.svelte';
+export { default as Comment } from './Comment.svelte';
 export { default as Ellipse } from './Ellipse.svelte';
 export { default as Icon } from './Icon.svelte';
 export { default as Input } from './Input.svelte';
+export { default as Logo } from './Logo.svelte';
+export { default as Modal } from './Modal.svelte';
 export { default as Separator } from './Separator.svelte';
+export { default as TabControl } from './TabControl.svelte';

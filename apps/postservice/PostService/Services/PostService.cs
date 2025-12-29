@@ -1,12 +1,18 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
+using Waggle.Common.Saga;
 using Waggle.Common.Validation;
-using Waggle.Contracts.Media.Extensions;
+using Waggle.Contracts.Auth.Events;
+using Waggle.Contracts.Comment.Extensions;
+using Waggle.Contracts.Comment.Grpc;
+using Waggle.Contracts.Comment.Interfaces;
+using Waggle.Contracts.Like.Extensions;
+using Waggle.Contracts.Like.Grpc;
+using Waggle.Contracts.Like.Interfaces;
 using Waggle.Contracts.Media.Grpc;
 using Waggle.Contracts.Media.Interfaces;
 using Waggle.PostService.Constants;
@@ -14,6 +20,7 @@ using Waggle.PostService.Data;
 using Waggle.PostService.Dtos;
 using Waggle.PostService.Logging;
 using Waggle.PostService.Models;
+using Waggle.PostService.Saga.Context;
 
 namespace Waggle.PostService.Services
 {
@@ -22,48 +29,82 @@ namespace Waggle.PostService.Services
         private readonly IPostRepository _repo;
         private readonly IMapper _mapper;
         private readonly IMediaDataClient _mediaDataClient;
+        private readonly ICommentDataClient _commentDataClient;
+        private readonly ILikeDataClient _likeDataClient;
         private readonly IServiceValidator _validator;
+        private readonly ISagaCoordinator<DeletionSagaContext> _deletionSaga;
         private readonly ILogger<PostService> _logger;
 
-        public PostService(IPostRepository repo, IMapper mapper, IMediaDataClient mediaDataClient, IServiceValidator validator, ILogger<PostService> logger)
+        public PostService(
+            IPostRepository repo, 
+            IMapper mapper, 
+            IMediaDataClient mediaDataClient, 
+            ICommentDataClient commentDataClient,
+            ILikeDataClient likeDataClient,
+            IServiceValidator validator, 
+            ISagaCoordinator<DeletionSagaContext> deletionSaga,
+            ILogger<PostService> logger)
         {
             _repo = repo;
             _mapper = mapper;
             _mediaDataClient = mediaDataClient;
+            _commentDataClient = commentDataClient;
+            _likeDataClient = likeDataClient;
             _validator = validator;
+            _deletionSaga = deletionSaga;
             _logger = logger;
         }
 
-        public async Task<Result<PagedResult<PostDto>>> GetAllPostsAsync(PaginationRequest request)
+        public async Task<Result<PagedResult<PostDto>>> GetPostsAsync(PaginationRequest request)
         {
             try
             {
-                var posts = await _repo.GetAllPostsAsync(request);
+                var posts = await _repo.GetPostsAsync(request);
 
                 var dtos = _mapper.Map<List<PostDto>>(posts.Items);
 
-                var allMediaIds = dtos.SelectMany(p => p.MediaIds).Distinct().ToList();
+                var allMediaIds = dtos
+                    .SelectMany(p => new[] { p.ThumbnailId }.Concat(p.MediaIds ?? []))
+                    .Distinct()
+                    .ToList();
 
-                var mediaUrls = await _mediaDataClient.GetMediaUrlsAsync(
+                var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
                     new GetMediaUrlsRequest { Ids = { allMediaIds.Select(id => id.ToString()) } }
                 );
+
+                var countTasks = dtos.Select(async dto =>
+                {
+                    var likeCountTask = _likeDataClient.GetLikeCountAsync(dto.Id);
+                    var commentCountTask = _commentDataClient.GetCommentCountAsync(dto.Id);
+
+                    await Task.WhenAll(likeCountTask, commentCountTask);
+
+                    dto.LikeCount = likeCountTask.Result.Data?.Count ?? 0;
+                    dto.CommentCount = commentCountTask.Result.Data?.Count ?? 0;
+                }).ToList();
+
+                await Task.WhenAll(countTasks.Append(mediaUrlsTask));
+
+                var mediaUrls = await mediaUrlsTask;
                 if (!mediaUrls.Success || mediaUrls.Data == null)
                     return Result<PagedResult<PostDto>>.Fail(mediaUrls.Message, mediaUrls.ErrorCode);
 
-                var allUrlsMapped = mediaUrls.Data.Urls.ToDictionary(
+                var urlMap = mediaUrls.Data.Urls.ToDictionary(
                     kvp => Guid.Parse(kvp.Key),
-                    kvp => (object)new
+                    kvp => new UrlResponseDto
                     {
-                        kvp.Value.Url,
+                        Url = kvp.Value.Url,
                         ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
                     }
                 );
 
                 foreach (var dto in dtos)
                 {
-                    dto.MediaUrls = dto.MediaIds
-                        .Where(mid => allUrlsMapped.ContainsKey(mid))
-                        .ToDictionary(mid => mid, mid => allUrlsMapped[mid]);
+                    var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
+                    dto.MediaUrls = ids
+                        .Select(id => (id, url: urlMap.GetValueOrDefault(id)))
+                        .Where(x => x.url != null)
+                        .ToDictionary(x => x.id, x => x.url!);
                 }
 
                 var pagedResult = new PagedResult<PostDto>
@@ -74,6 +115,7 @@ namespace Waggle.PostService.Services
 
                 _logger.LogPostsRetrieved(pagedResult.Items.Count);
                 return Result<PagedResult<PostDto>>.Ok(pagedResult);
+
             }
             catch (Exception ex)
             {
@@ -97,18 +139,35 @@ namespace Waggle.PostService.Services
 
                 var dto = _mapper.Map<PostDto>(post);
 
-                var mediaUrls = await _mediaDataClient.GetMediaUrlsAsync(new ()
-                    { Ids = { dto.MediaIds.Select(mid => mid.ToString()) } });
+                var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
+
+                var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
+                    new GetMediaUrlsRequest { Ids = { ids.Select(mid => mid.ToString()) } }
+                );
+                var likeCountTask = _likeDataClient.GetLikeCountAsync(id);
+                var commentCountTask = _commentDataClient.GetCommentCountAsync(id);
+
+                await Task.WhenAll(mediaUrlsTask, likeCountTask, commentCountTask);
+
+                var mediaUrls = mediaUrlsTask.Result;
                 if (!mediaUrls.Success || mediaUrls.Data == null)
                     return Result<PostDto>.Fail(mediaUrls.Message, mediaUrls.ErrorCode);
 
-                dto.MediaUrls = mediaUrls.Data.Urls.ToDictionary(
+                var urlMap = mediaUrls.Data.Urls.ToDictionary(
                     kvp => Guid.Parse(kvp.Key),
-                    kvp => (object)new
+                    kvp => new UrlResponseDto
                     {
-                        kvp.Value.Url,
+                        Url = kvp.Value.Url,
                         ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
-                    });
+                    }
+                );
+
+                dto.MediaUrls = ids
+                    .Where(id => urlMap.ContainsKey(id))
+                    .ToDictionary(id => id, id => urlMap[id]);
+
+                dto.LikeCount = likeCountTask.Result.Data?.Count ?? 0;
+                dto.CommentCount = commentCountTask.Result.Data?.Count ?? 0;
 
                 return Result<PostDto>.Ok(dto);
             }
@@ -116,6 +175,74 @@ namespace Waggle.PostService.Services
             {
                 _logger.LogPostRetrievalFailed(ex, id);
                 return Result<PostDto>.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result<PagedResult<PostDto>>> GetPostsByUserIdAsync(Guid userId, PaginationRequest request)
+        {
+            try
+            {
+                var posts = await _repo.GetPostsByUserIdAsync(userId, request);
+
+                var dtos = _mapper.Map<List<PostDto>>(posts.Items);
+
+                var allMediaIds = dtos
+                    .SelectMany(p => new[] { p.ThumbnailId }.Concat(p.MediaIds ?? []))
+                    .Distinct()
+                    .ToList();
+
+                var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
+                    new GetMediaUrlsRequest { Ids = { allMediaIds.Select(id => id.ToString()) } }
+                );
+
+                var countTasks = dtos.Select(async dto =>
+                {
+                    var likeCountTask = _likeDataClient.GetLikeCountAsync(dto.Id);
+                    var commentCountTask = _commentDataClient.GetCommentCountAsync(dto.Id);
+
+                    await Task.WhenAll(likeCountTask, commentCountTask);
+
+                    dto.LikeCount = likeCountTask.Result.Data?.Count ?? 0;
+                    dto.CommentCount = commentCountTask.Result.Data?.Count ?? 0;
+                }).ToList();
+
+                await Task.WhenAll(countTasks.Append(mediaUrlsTask));
+
+                var mediaUrls = await mediaUrlsTask;
+                if (!mediaUrls.Success || mediaUrls.Data == null)
+                    return Result<PagedResult<PostDto>>.Fail(mediaUrls.Message, mediaUrls.ErrorCode);
+
+                var urlMap = mediaUrls.Data.Urls.ToDictionary(
+                    kvp => Guid.Parse(kvp.Key),
+                    kvp => new UrlResponseDto
+                    {
+                        Url = kvp.Value.Url,
+                        ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
+                    }
+                );
+
+                foreach (var dto in dtos)
+                {
+                    var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
+                    dto.MediaUrls = ids
+                        .Select(id => (id, url: urlMap.GetValueOrDefault(id)))
+                        .Where(x => x.url != null)
+                        .ToDictionary(x => x.id, x => x.url!);
+                }
+
+                var pagedResult = new PagedResult<PostDto>
+                {
+                    Items = dtos,
+                    PageInfo = posts.PageInfo
+                };
+
+                _logger.LogPostsRetrieved(pagedResult.Items.Count);
+                return Result<PagedResult<PostDto>>.Ok(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogPostsRetrievalFailed(ex);
+                return Result<PagedResult<PostDto>>.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
@@ -132,11 +259,15 @@ namespace Waggle.PostService.Services
 
             try
             {
+                var mediaIds = new[] { request.ThumbnailId.ToString() }
+                    .Concat(request.MediaIds?.Select(id => id.ToString()) ?? [])
+                    .ToList();
+
                 var mediaUrlsResult = await _mediaDataClient.GetMediaUrlsAsync(
-                    new GetMediaUrlsRequest { Ids = { request.MediaIds.Select(id => id.ToString()) } }
+                    new GetMediaUrlsRequest { Ids = { mediaIds } }
                 );
 
-                if (!mediaUrlsResult.Success || mediaUrlsResult.Data?.Urls.Count != request.MediaIds.Count)
+                if (!mediaUrlsResult.Success || mediaUrlsResult.Data?.Urls.Count != mediaIds.Count)
                 {
                     _logger.LogPostCreationFailedMedia(userId);
                     return Result<PostDto>.Fail(PostErrors.Post.MediaDoesNotExist, ErrorCodes.InvalidInput);
@@ -172,37 +303,30 @@ namespace Waggle.PostService.Services
             if (!currentUser.TryEnsure(out var failedResult))
                 return failedResult;
 
+            var sagaContext = new DeletionSagaContext()
+            {
+                Id = id,
+                CurrentUser = currentUser
+            };
+
+            return await _deletionSaga.ExecuteAsync(sagaContext);
+        }
+
+        public async Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event)
+        {
             try
             {
-                var post = await _repo.GetPostByIdAsync(id);
-                if (post == null)
-                {
-                    _logger.LogPostDeleteNotFound(id);
-                    return Result.Fail(PostErrors.Post.NotFound, ErrorCodes.NotFound);
-                }
-
-                bool isAdmin = currentUser.IsAdmin();
-                bool isSelf = currentUser.IsSelf(post.UserId);
-
-                if (!isSelf && !isAdmin)
-                {
-                    _logger.LogUnauthorizedDeleteAttempt(currentUser.GetUserId(), id);
-                    return Result.Fail(ErrorMessages.Authentication.PermissionRequired, ErrorCodes.Forbidden);
-                }
-
-                await _repo.DeletePostAsync(post);
-
-                _logger.LogPostDeleted(id);
+                await _repo.DeletePostsByUserIdAsync(@event.Id);
                 return Result.Ok();
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogPostDeletionFailed(ex, id);
+                _logger.LogPostDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(PostErrors.Post.DeletionFailed, ErrorCodes.ServiceFailed);
             }
             catch (Exception ex)
             {
-                _logger.LogPostDeletionFailed(ex, id);
+                _logger.LogPostDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }

@@ -117,5 +117,32 @@
             this ILogger logger,
             Guid userId,
             Guid mediaId);
+
+        // Event-Based Media Deletion Events
+
+        [LoggerMessage(
+            EventId = 4001,
+            Level = LogLevel.Information,
+            Message = "Media deleted from event: {MediaId}")]
+        public static partial void LogMediaDeletedFromEvent(
+            this ILogger logger,
+            Guid mediaId);
+
+        [LoggerMessage(
+            EventId = 4002,
+            Level = LogLevel.Information,
+            Message = "Media not found for deletion from event: {MediaId}")]
+        public static partial void LogMediaDeleteNotFoundFromEvent(
+            this ILogger logger,
+            Guid mediaId);
+
+        [LoggerMessage(
+            EventId = 4003,
+            Level = LogLevel.Error,
+            Message = "Media deletion from event failed: {MediaId}")]
+        public static partial void LogMediaDeletionFromEventFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid mediaId);
     }
 }

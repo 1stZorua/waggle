@@ -24,7 +24,7 @@ namespace Waggle.PostService.Grpc
             _mapper = mapper;
         }
 
-        public override async Task<GetAllPostsResponse> GetAllPosts(GetAllPostsRequest request, ServerCallContext context)
+        public override async Task<GetPostsResponse> GetPosts(GetPostsRequest request, ServerCallContext context)
         {
             var paginationRequest = new Common.Pagination.Models.PaginationRequest
             {
@@ -35,12 +35,12 @@ namespace Waggle.PostService.Grpc
                     : Common.Pagination.Models.PaginationDirection.Forward
             };
 
-            var result = await _service.GetAllPostsAsync(paginationRequest);
+            var result = await _service.GetPostsAsync(paginationRequest);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            var response = new GetAllPostsResponse();
+            var response = new GetPostsResponse();
             response.Posts.AddRange(_mapper.Map<IEnumerable<Post>>(result.Data!.Items));
             response.PageInfo = _mapper.Map<PageInfo>(result.Data.PageInfo);
 
@@ -57,6 +57,32 @@ namespace Waggle.PostService.Grpc
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<GetPostByIdResponse>(result.Data);
+        }
+
+        public override async Task<GetPostsByUserIdResponse> GetPostsByUserId(GetPostsByUserIdRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.UserId, out var userId))
+                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, PostErrors.Post.InvalidId);
+
+            var paginationRequest = new Common.Pagination.Models.PaginationRequest
+            {
+                Cursor = request.Cursor,
+                PageSize = request.PageSize,
+                Direction = request.Direction == PaginationDirection.Backward
+                    ? Common.Pagination.Models.PaginationDirection.Backward
+                    : Common.Pagination.Models.PaginationDirection.Forward
+            };
+
+            var result = await _service.GetPostsByUserIdAsync(userId, paginationRequest);
+
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+
+            var response = new GetPostsByUserIdResponse();
+            response.Posts.AddRange(_mapper.Map<IEnumerable<Post>>(result.Data!.Items));
+            response.PageInfo = _mapper.Map<PageInfo>(result.Data.PageInfo);
+
+            return response;
         }
 
         public override async Task<CreatePostResponse> CreatePost(CreatePostRequest request, ServerCallContext context)

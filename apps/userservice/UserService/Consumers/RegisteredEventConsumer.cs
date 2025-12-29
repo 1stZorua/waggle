@@ -25,7 +25,7 @@ namespace Waggle.UserService.Consumers
                 @event.Email
             );
 
-            await _userService.HandleUserRegisteredAsync(@event);
+            await _userService.HandleUserRegisteredEventAsync(@event);
         }
     }
 }

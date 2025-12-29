@@ -1,9 +1,24 @@
 services:
+  mediaservice:
+    image: 1stzorua/waggle-mediaservice:latest
+
   authservice:
     image: 1stzorua/waggle-authservice:latest
 
   postservice:
     image: 1stzorua/waggle-postservice:latest
+
+  likeservice:
+    image: 1stzorua/waggle-likeservice:latest
+
+  favoriteservice:
+    image: 1stzorua/waggle-favoriteservice:latest
+
+  followservice:
+    image: 1stzorua/waggle-followservice:latest
+
+  commentservice:
+    image: 1stzorua/waggle-commentservice:latest
 
   userservice:
     image: 1stzorua/waggle-userservice:latest

@@ -4,13 +4,26 @@
 	import { Card, CardPrimary } from '$components/shared/cards';
 	import { Avatar, Icon } from '$components/shared/other';
 	import { Tag } from '$components/shared/tags';
-	import type { User } from '$lib/types/types';
 	import { sidebarConfig } from './config';
 	import { cn } from '$lib/utils/merge';
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
+	import type { LayoutData } from '../../../../routes/(authenticated)/$types';
+	import { PostForm } from '$components/forms';
+	import type { ClassType } from '$components/_types';
 
+	let showPostModal = $state(false);
 	let currentPage = $derived(page.url.pathname);
+
+	const items = sidebarConfig.map((item) => {
+		if (item.title === 'Create') {
+			return {
+				...item,
+				onClick: () => (showPostModal = true)
+			};
+		}
+		return item;
+	});
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -22,24 +35,24 @@
 		});
 	});
 
-	let { user }: { user: User } = $props();
+	let { className, data }: { className: ClassType; data: LayoutData } = $props();
 </script>
 
-<aside class="sidebar gap-md fixed flex flex-col justify-between">
+<aside class={cn('sidebar fixed z-10 flex flex-col justify-between max-md:hidden', className)}>
 	<div class="gap-md flex flex-col">
-		<CardPrimary className="items-center">
-			<Avatar src="images/avatar.png" alt="Avatar" />
+		<CardPrimary className="items-center max-xl:hidden">
+			<Avatar src="/images/avatar.png" alt="Avatar" />
 			<div class="flex flex-col">
-				<TextBase>{user.name}</TextBase>
-				<TextSmall className="text-secondary font-normal -mt-1">@{user.username}</TextSmall>
+				<TextBase>{data.user.name}</TextBase>
+				<TextSmall className="text-secondary font-normal -mt-1">@{data.user.username}</TextSmall>
 			</div>
 		</CardPrimary>
 		<Card tag="nav" props={{ variant: 'primary' }} className="flex-col overflow-hidden">
-			{#each sidebarConfig as item, index}
+			{#each items as item, index}
 				{@const isActive =
 					(index === 0 && currentPage === '/') || currentPage.includes(item.title.toLowerCase())}
 
-				<ButtonText href={item.href} className="group gap-md p-2 w-full">
+				<ButtonText href={item.href} onclick={item.onClick} className="group gap-md p-2 w-full">
 					{#if isActive}
 						<span
 							class="bg-primary absolute left-0 h-10 w-2 rounded-tr-full rounded-br-full [view-transition-name:header]"
@@ -49,9 +62,11 @@
 						className={cn('group-hover:text-primary', !isActive && 'text-secondary')}
 						icon={item.icon}
 					></Icon>
-					<TextBase className={cn(isActive && 'font-semibold')}>{item.title}</TextBase>
+					<TextBase className={cn('max-xl:hidden', isActive && 'font-semibold')}
+						>{item.title}</TextBase
+					>
 					{#if item.tag}
-						<Tag className="m-auto" props={{ variant: item.tag.variant }}>
+						<Tag className="m-auto max-xl:hidden" props={{ variant: item.tag.variant }}>
 							<TextSmall className="text-xs">{item.tag.label}</TextSmall>
 						</Tag>
 					{/if}
@@ -62,7 +77,9 @@
 	<form action="/logout" method="POST">
 		<ButtonText className="text-pink gap-lg p-6 hover:text-pink-light w-full" type="submit">
 			<Icon icon="material-symbols:logout-rounded"></Icon>
-			<TextBase>Logout</TextBase>
+			<TextBase className="max-xl:hidden">Logout</TextBase>
 		</ButtonText>
 	</form>
 </aside>
+
+<PostForm bind:isOpen={showPostModal} {data}></PostForm>

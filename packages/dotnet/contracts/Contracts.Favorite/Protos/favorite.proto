@@ -1,0 +1,118 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Waggle.Contracts.Favorite.Grpc";
+
+package favorite;
+
+service GrpcFavorite {
+    rpc GetFavorites(GetFavoritesRequest) returns (GetFavoritesResponse);
+    rpc GetFavoriteById(GetFavoriteByIdRequest) returns (GetFavoriteByIdResponse);
+    rpc GetFavoritesByUserId(GetFavoritesByUserIdRequest) returns (GetFavoritesByUserIdResponse);
+    rpc GetFavoritesByTarget(GetFavoritesByTargetRequest) returns (GetFavoritesByTargetResponse);
+    rpc GetFavoriteCount(GetFavoriteCountRequest) returns (GetFavoriteCountResponse);
+    rpc HasFavorited(HasFavoritedRequest) returns (HasFavoritedResponse);
+    rpc CreateFavorite(CreateFavoriteRequest) returns (CreateFavoriteResponse);
+    rpc DeleteFavorite(DeleteFavoriteRequest) returns (google.protobuf.Empty);
+}
+
+enum PaginationDirection {
+    FORWARD = 0;
+    BACKWARD = 1;
+}
+
+enum InteractionType {
+    POST = 0;
+    COMMENT = 1;
+}
+
+message PageInfo {
+    string next_cursor = 1;
+    string previous_cursor = 2;
+    bool has_next_page = 3;
+    bool has_previous_page = 4;
+    int32 page_size = 5;
+}
+
+message GetFavoritesRequest {
+    string cursor = 1;
+    int32 page_size = 2;
+    PaginationDirection direction = 3;
+}
+
+message GetFavoritesResponse {
+    repeated Favorite favorites = 1;
+    PageInfo page_info = 2;
+}
+
+message GetFavoriteByIdRequest {
+    string id = 1;
+}
+
+message GetFavoriteByIdResponse {
+    Favorite favorite = 1;
+}
+
+message GetFavoritesByUserIdRequest {
+    string user_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetFavoritesByUserIdResponse {
+    repeated Favorite favorites = 1;
+    PageInfo page_info = 2;
+}
+
+message GetFavoritesByTargetRequest {
+    string target_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetFavoritesByTargetResponse {
+    repeated Favorite favorites = 1;
+    PageInfo page_info = 2;
+}
+
+message GetFavoriteCountRequest {
+    string target_id = 1;
+}
+
+message GetFavoriteCountResponse {
+    int32 count = 1;
+}
+
+message HasFavoritedRequest {
+    string user_id = 1;
+    string target_id = 2;
+}
+
+message HasFavoritedResponse {
+    Favorite favorite = 1;
+}
+
+message CreateFavoriteRequest {
+    string target_id = 1;
+    InteractionType target_type = 2;
+}
+
+message CreateFavoriteResponse {
+    Favorite favorite = 1;
+}
+
+message DeleteFavoriteRequest {
+    string id = 1;
+}
+
+message Favorite {
+    string id = 1;
+    string user_id = 2;
+    string target_id = 3;
+    InteractionType target_type = 4;
+    google.protobuf.Timestamp created_at = 5;
+}

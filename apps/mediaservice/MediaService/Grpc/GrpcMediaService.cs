@@ -106,7 +106,6 @@ namespace Waggle.MediaService.Grpc
 
         public override async Task<UploadMediaResponse> UploadMedia(UploadMediaRequest request, ServerCallContext context)
         {
-
             var dto = _mapper.Map<MediaCreateDto>(request);
 
             var currentUser = GetCurrentUser();
@@ -116,6 +115,21 @@ namespace Waggle.MediaService.Grpc
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<UploadMediaResponse>(result.Data);
+        }
+
+        public override async Task<UploadMediaBatchResponse> UploadMediaBatch(
+            UploadMediaBatchRequest request,
+            ServerCallContext context)
+        {
+            var dto = _mapper.Map<MediaBatchCreateDto>(request);
+            
+            var currentUser = GetCurrentUser();
+            var result = await _service.UploadMediaBatchAsync(dto, currentUser);
+
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+
+            return _mapper.Map<UploadMediaBatchResponse>(result.Data);
         }
 
         public override async Task<Empty> DeleteMedia(DeleteMediaRequest request, ServerCallContext context)

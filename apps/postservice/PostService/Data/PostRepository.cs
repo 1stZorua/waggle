@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Waggle.Common.Pagination.Core;
 using Waggle.Common.Pagination.Models;
@@ -12,7 +13,7 @@ namespace Waggle.PostService.Data
 
         public PostRepository(PostDbContext context) => _context = context;
 
-        public async Task<PagedResult<Post>> GetAllPostsAsync(PaginationRequest request)
+        public async Task<PagedResult<Post>> GetPostsAsync(PaginationRequest request)
         {
             var sortFields = new (Expression<Func<Post, object>> SortBy, string Name)[]
             {
@@ -20,12 +21,31 @@ namespace Waggle.PostService.Data
                 (u => u.Id, nameof(Post.Id))
             };
 
-            return await _context.Posts.AsNoTracking().ToPagedAsync(sortFields, request);
+            var query = _context.Posts.AsNoTracking()
+                .OrderByDescending(p => p.CreatedAt)
+                .ThenByDescending(p => p.Id);
+
+            return await query.ToPagedAsync(sortFields, request);
         }
 
         public async Task<Post?> GetPostByIdAsync(Guid id)
         {
             return await _context.Posts.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<PagedResult<Post>> GetPostsByUserIdAsync(Guid userId, PaginationRequest request)
+        {
+            var sortFields = new (Expression<Func<Post, object>> SortBy, string Name)[]
+            {
+                (u => u.CreatedAt, nameof(Post.CreatedAt)),
+                (u => u.Id, nameof(Post.Id))
+            };
+
+            var query = _context.Posts.AsNoTracking()
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.CreatedAt);
+
+            return await query.ToPagedAsync(sortFields, request);
         }
 
         public async Task AddPostAsync(Post post)
@@ -42,6 +62,13 @@ namespace Waggle.PostService.Data
 
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeletePostsByUserIdAsync(Guid userId)
+        {
+            await _context.Posts
+                .Where(p => p.UserId == userId)
+                .ExecuteDeleteAsync();
         }
     }
 }

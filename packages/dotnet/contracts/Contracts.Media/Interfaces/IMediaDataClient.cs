@@ -11,6 +11,7 @@ namespace Waggle.Contracts.Media.Interfaces
         Task<Result<GetMediaUrlResponse>> GetMediaUrlAsync(GetMediaUrlRequest request);
         Task<Result<GetMediaUrlsResponse>> GetMediaUrlsAsync(GetMediaUrlsRequest request);
         Task<Result<UploadMediaResponse>> UploadMediaAsync(UploadMediaRequest request);
+        Task<Result<UploadMediaBatchResponse>> UploadMediaBatchAsync(UploadMediaBatchRequest request);
         Task<Result> DeleteMediaAsync(DeleteMediaRequest request);
     }
 }

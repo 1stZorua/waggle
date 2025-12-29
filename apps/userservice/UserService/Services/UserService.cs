@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
@@ -25,11 +26,11 @@ namespace Waggle.UserService.Services
             _logger = logger;
         }
 
-        public async Task<Result<PagedResult<UserDto>>> GetAllUsersAsync(PaginationRequest request)
+        public async Task<Result<PagedResult<UserDto>>> GetUsersAsync(PaginationRequest request)
         {
             try
             {
-                var users = await _repo.GetAllUsersAsync(request);
+                var users = await _repo.GetUsersAsync(request);
 
                 var pagedResult = new PagedResult<UserDto>
                 {
@@ -153,7 +154,7 @@ namespace Waggle.UserService.Services
             }
         }
 
-        public async Task<Result<UserDto>> HandleUserRegisteredAsync(RegisteredEvent @event)
+        public async Task<Result<UserDto>> HandleUserRegisteredEventAsync(RegisteredEvent @event)
         {
             try
             {
@@ -201,7 +202,7 @@ namespace Waggle.UserService.Services
             }
         }
 
-        public async Task<Result> HandleUserDeletedAsync(DeletedEvent @event)
+        public async Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event)
         {
             try
             {

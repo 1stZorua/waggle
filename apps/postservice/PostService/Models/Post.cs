@@ -16,6 +16,8 @@ namespace Waggle.PostService.Models
         public string Caption { get; set; } = string.Empty;
 
         [Required]
+        public Guid ThumbnailId { get; set; }
+
         [Column(TypeName = "jsonb")]
         public List<Guid> MediaIds { get; set; } = [];
 

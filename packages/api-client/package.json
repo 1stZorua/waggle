@@ -19,6 +19,38 @@
       "types": "./src/auth/generated/model/index.ts",
       "default": "./src/auth/generated/model/index.ts"
     },
+    "./comment": {
+      "types": "./src/comment/client.ts",
+      "default": "./src/comment/client.ts"
+    },
+    "./comment/model": {
+      "types": "./src/comment/generated/model/index.ts",
+      "default": "./src/comment/generated/model/index.ts"
+    },
+    "./favorite": {
+      "types": "./src/favorite/client.ts",
+      "default": "./src/favorite/client.ts"
+    },
+    "./favorite/model": {
+      "types": "./src/favorite/generated/model/index.ts",
+      "default": "./src/favorite/generated/model/index.ts"
+    },
+    "./follow": {
+      "types": "./src/follow/client.ts",
+      "default": "./src/follow/client.ts"
+    },
+    "./follow/model": {
+      "types": "./src/follow/generated/model/index.ts",
+      "default": "./src/follow/generated/model/index.ts"
+    },
+    "./like": {
+      "types": "./src/like/client.ts",
+      "default": "./src/like/client.ts"
+    },
+    "./like/model": {
+      "types": "./src/like/generated/model/index.ts",
+      "default": "./src/like/generated/model/index.ts"
+    },
     "./media": {
       "types": "./src/media/client.ts",
       "default": "./src/media/client.ts"
@@ -51,6 +83,12 @@
     "fetch-specs": "node ./scripts/fetch-specs.js",
     "generate": "orval",
     "generate:auth": "orval --project authservice",
+    "generate:comment": "orval --project commentservice",
+    "generate:favorite": "orval --project favoriteservice",
+    "generate:follow": "orval --project followservice",
+    "generate:like": "orval --project likeservice",
+    "generate:media": "orval --project mediaservice",
+    "generate:post": "orval --project postservice",
     "generate:user": "orval --project userservice"
   },
   "devDependencies": {

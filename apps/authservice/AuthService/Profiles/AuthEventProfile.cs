@@ -18,9 +18,9 @@ namespace Waggle.AuthService.Profiles
             CreateMap<RegistrationSagaContext, RegistrationCompletedEvent>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-            CreateMap<DeletionSagaContext, DeletedEvent>();
+            CreateMap<DeletionSagaContext, UserDeletedEvent>();
 
-            CreateMap<Guid, DeletedEvent>()
+            CreateMap<Guid, UserDeletedEvent>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
         }
     }

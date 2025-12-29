@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Waggle.Contracts.Follow.Grpc";
+
+package follow;
+
+service GrpcFollow {
+    rpc GetFollows(GetFollowsRequest) returns (GetFollowsResponse);
+    rpc GetFollowById(GetFollowByIdRequest) returns (GetFollowByIdResponse);
+    rpc GetFollowers(GetFollowersRequest) returns (GetFollowersResponse);
+    rpc GetFollowing(GetFollowingRequest) returns (GetFollowingResponse);
+    rpc GetFollowerCount(GetFollowerCountRequest) returns (GetFollowerCountResponse);
+    rpc GetFollowingCount(GetFollowingCountRequest) returns (GetFollowingCountResponse);
+    rpc IsFollowing(IsFollowingRequest) returns (IsFollowingResponse);
+    rpc CreateFollow(CreateFollowRequest) returns (CreateFollowResponse);
+    rpc DeleteFollow(DeleteFollowRequest) returns (google.protobuf.Empty);
+}
+
+enum PaginationDirection {
+    FORWARD = 0;
+    BACKWARD = 1;
+}
+
+message PageInfo {
+    string next_cursor = 1;
+    string previous_cursor = 2;
+    bool has_next_page = 3;
+    bool has_previous_page = 4;
+    int32 page_size = 5;
+}
+
+message GetFollowsRequest {
+    string cursor = 1;
+    int32 page_size = 2;
+    PaginationDirection direction = 3;
+}
+
+message GetFollowsResponse {
+    repeated Follow follows = 1;
+    PageInfo page_info = 2;
+}
+
+message GetFollowByIdRequest {
+    string id = 1;
+}
+
+message GetFollowByIdResponse {
+    Follow follow = 1;
+}
+
+message GetFollowersRequest {
+    string user_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetFollowersResponse {
+    repeated Follow follows = 1;
+    PageInfo page_info = 2;
+}
+
+message GetFollowingRequest {
+    string user_id = 1;
+    string cursor = 2;
+    int32 page_size = 3;
+    PaginationDirection direction = 4;
+}
+
+message GetFollowingResponse {
+    repeated Follow follows = 1;
+    PageInfo page_info = 2;
+}
+
+message GetFollowerCountRequest {
+    string user_id = 1;
+}
+
+message GetFollowerCountResponse {
+    int32 count = 1;
+}
+
+message GetFollowingCountRequest {
+    string user_id = 1;
+}
+
+message GetFollowingCountResponse {
+    int32 count = 1;
+}
+
+message IsFollowingRequest {
+    string follower_id = 1;
+    string following_id = 2;
+}
+
+message IsFollowingResponse {
+    Follow follow = 1;
+}
+
+message CreateFollowRequest {
+    string following_id = 1;
+}
+
+message CreateFollowResponse {
+    Follow follow = 1;
+}
+
+message DeleteFollowRequest {
+    string id = 1;
+}
+
+message Follow {
+    string id = 1;
+    string follower_id = 2;
+    string following_id = 3;
+    google.protobuf.Timestamp created_at = 4;
+}

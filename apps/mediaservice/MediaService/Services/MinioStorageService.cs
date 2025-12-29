@@ -53,10 +53,22 @@ namespace Waggle.MediaService.Services
                     Url = fileResult.Data.Url
                 });
             }
-            catch (Exception ex) 
+            catch (Exception) 
             {
                 return Result<UploadFileResponseDto>.Fail(MediaErrors.Media.UploadFailed, ErrorCodes.ServiceFailed);
             }
+        }
+
+        public async Task<Result<List<UploadFileResponseDto>>> UploadFilesAsync(IEnumerable<UploadFileRequestDto> request)
+        {
+            var tasks = request.Select(r => UploadFileAsync(r));
+            var results = await Task.WhenAll(tasks);
+
+            var failed = results.FirstOrDefault(r => !r.Success || r.Data == null);
+            if (failed != null)
+                return Result<List<UploadFileResponseDto>>.Fail(failed.Message, failed.ErrorCode);
+
+            return Result<List<UploadFileResponseDto>>.Ok([.. results.Select(r => r.Data!)]);
         }
 
         public async Task<Result> DeleteFileAsync(DeleteFileRequestDto request)
@@ -70,9 +82,46 @@ namespace Waggle.MediaService.Services
 
                 return Result.Ok();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Result.Fail(MediaErrors.Media.StorageDeletionFailed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> DeleteFilesAsync(DeleteFileRequestDto[] requests)
+        {
+            try
+            {
+                if (requests.Length == 0)
+                    return Result.Ok();
+
+                var groupedByBucket = requests.GroupBy(r => r.BucketName);
+
+                foreach (var bucketGroup in groupedByBucket)
+                {
+                    var objectNames = bucketGroup
+                        .Select(r => r.ObjectName)
+                        .Distinct()
+                        .ToList();
+
+                    if (objectNames.Count == 0)
+                        continue;
+
+                    var removeArgs = new RemoveObjectsArgs()
+                        .WithBucket(bucketGroup.Key)
+                        .WithObjects(objectNames);
+
+                    await _minioClient.RemoveObjectsAsync(removeArgs);
+                }
+
+                return Result.Ok();
+            }
+            catch
+            {
+                return Result.Fail(
+                    MediaErrors.Media.StorageDeletionFailed,
+                    ErrorCodes.ServiceFailed
+                );
             }
         }
 
@@ -113,7 +162,7 @@ namespace Waggle.MediaService.Services
 
                 return Result<UrlResponseDto>.Ok(dto);
             } 
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Result<UrlResponseDto>.Fail(MediaErrors.Media.GenerateUrlFailed, ErrorCodes.ServiceFailed);
             }
@@ -137,7 +186,7 @@ namespace Waggle.MediaService.Services
 
                 return Result<Dictionary<string, UrlResponseDto>>.Ok(dictionary);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Result<Dictionary<string, UrlResponseDto>>.Fail(MediaErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }

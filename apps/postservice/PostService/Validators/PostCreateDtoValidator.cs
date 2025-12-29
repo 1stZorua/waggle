@@ -16,11 +16,15 @@ namespace Waggle.PostService.Validators
                 .WithMessage(string.Format(PostValidationErrors.Create.CaptionTooLong, 1000));
             #endregion
 
+            #region ThumbnailId
+            RuleFor(x => x.ThumbnailId)
+                .NotEmpty()
+                .WithMessage(PostValidationErrors.Create.ThumbnailRequired);
+            #endregion
+
             #region MediaIds
             RuleFor(x => x.MediaIds)
-                .NotNull()
-                .WithMessage(PostValidationErrors.Create.MediaRequired)
-                .Must(ids => ids.Count >= 1 && ids.Count <= 4)
+                .Must(ids => ids == null || (ids.Count >= 0 && ids.Count <= 4))
                 .WithMessage(PostValidationErrors.Create.MediaCountInvalid);
             #endregion
         }

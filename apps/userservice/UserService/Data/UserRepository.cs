@@ -13,7 +13,7 @@ namespace Waggle.UserService.Data
 
         public UserRepository(UserDbContext context) => _context = context;
 
-        public async Task<PagedResult<User>> GetAllUsersAsync(PaginationRequest request)
+        public async Task<PagedResult<User>> GetUsersAsync(PaginationRequest request)
         {
             var sortFields = new (Expression<Func<User, object>> SortBy, string Name)[]
             {

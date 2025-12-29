@@ -4,7 +4,8 @@ const buttonVariants = tv({
 	base: 'flex items-center cursor-pointer w-full h-full outline-none transition-colors duration-500 focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-default disabled:bg-btn-disabled-bg disabled:text-btn-disabled-fg',
 	variants: {
 		variant: {
-			action: 'shadow-ui rounded-full h-max w-max',
+			action:
+				'shadow-ui rounded-full h-max w-max bg-btn-action-bg hover:bg-btn-action-hover-bg text-btn-action-fg',
 			primary:
 				'bg-btn-primary-bg text-btn-primary-fg rounded-full justify-center border-8 border-pink-light hover:shadow-xs hover:bg-btn-primary-hover-bg hover:border-btn-primary-hover-border',
 			secondary:
@@ -14,7 +15,7 @@ const buttonVariants = tv({
 		size: {
 			none: 'p-0',
 			sm: 'px-4 py-2',
-			md: 'px-6 py-3',
+			md: 'px-8 py-3.5',
 			lg: 'px-12 py-4',
 			xl: 'px-12 py-5'
 		}

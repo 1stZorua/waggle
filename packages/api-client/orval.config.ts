@@ -28,5 +28,9 @@ export default defineConfig({
   authservice: makeService('auth'),
   userservice: makeService('user'),
   postservice: makeService('post'),
-  mediaservice: makeService('media')
+  mediaservice: makeService('media'),
+  likeservice: makeService('like'),
+  followservice: makeService('follow'),
+  favoriteservice: makeService('favorite'),
+  commentService: makeService('comment')
 });

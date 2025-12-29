@@ -24,11 +24,12 @@ namespace Waggle.Common.Pagination.Core
             var isBackward = request.Direction == PaginationDirection.Backward;
             var cursorValues = CursorHelper.Decode(request.Cursor);
             var hasCursor = cursorValues != null && cursorValues.Count > 0;
+            var isDescending = true;
 
             if (cursorValues != null)
-                query = ApplyCursorFilter(query, sortFields, cursorValues, isBackward);
+                query = ApplyCursorFilter(query, sortFields, cursorValues, isBackward, isDescending);
 
-            query = ApplyOrder(query, sortFields, isBackward);
+            query = ApplyOrder(query, sortFields, isDescending);
 
             List<T> items;
             if (query.Provider is IAsyncQueryProvider)
@@ -37,19 +38,22 @@ namespace Waggle.Common.Pagination.Core
                 items = [.. query.Take(request.PageSize + 1)];
 
             var hasMore = items.Count > request.PageSize;
-
-            if (hasMore) items = [.. items.Take(request.PageSize)];
+            if (hasMore) items = items.Take(request.PageSize).ToList();
             if (isBackward) items.Reverse();
 
             string? nextCursor = null;
             string? previousCursor = null;
 
+            var hasNextPage = !isBackward && hasMore;
+
+            var hasPreviousPage = !isBackward && hasCursor;
+
             if (items.Count > 0)
             {
-                if ((!isBackward && hasMore) || (isBackward && hasCursor))
+                if (hasNextPage)
                     nextCursor = MakeCursor(items.Last(), sortFields);
 
-                if ((isBackward && hasMore) || (!isBackward && hasCursor))
+                if (hasPreviousPage)
                     previousCursor = MakeCursor(items.First(), sortFields);
             }
 
@@ -61,8 +65,8 @@ namespace Waggle.Common.Pagination.Core
                     PageSize = request.PageSize,
                     NextCursor = nextCursor,
                     PreviousCursor = previousCursor,
-                    HasNextPage = !isBackward && hasMore,
-                    HasPreviousPage = hasCursor || (isBackward && hasMore)
+                    HasNextPage = hasNextPage,
+                    HasPreviousPage = hasPreviousPage
                 }
             };
         }
@@ -74,7 +78,8 @@ namespace Waggle.Common.Pagination.Core
             IQueryable<T> query,
             (Expression<Func<T, object>> SortBy, string Name)[] sortFields,
             Dictionary<string, object?> cursorValues,
-            bool backward)
+            bool backward,
+            bool descending)
         {
             var param = Expression.Parameter(typeof(T), "x");
             Expression? predicate = null;
@@ -85,9 +90,20 @@ namespace Waggle.Common.Pagination.Core
                 if (!cursorValues.TryGetValue(name, out var value) || value == null) continue;
 
                 var fieldExpr = Expression.Convert(Expression.Invoke(sortBy, param), value.GetType());
-                var comparison = backward
-                    ? Expression.LessThan(fieldExpr, Expression.Constant(value))
-                    : Expression.GreaterThan(fieldExpr, Expression.Constant(value));
+
+                Expression comparison;
+                if (descending)
+                {
+                    comparison = backward
+                        ? Expression.GreaterThan(fieldExpr, Expression.Constant(value))
+                        : Expression.LessThan(fieldExpr, Expression.Constant(value));
+                }
+                else
+                {
+                    comparison = backward
+                        ? Expression.LessThan(fieldExpr, Expression.Constant(value))
+                        : Expression.GreaterThan(fieldExpr, Expression.Constant(value));
+                }
 
                 if (i > 0)
                 {
@@ -95,12 +111,14 @@ namespace Waggle.Common.Pagination.Core
                         .Select(j =>
                         {
                             var (prevSortBy, prevName) = sortFields[j];
-                            var prevValue = cursorValues[prevName];
-                            var prevExpr = Expression.Convert(Expression.Invoke(prevSortBy, param), prevValue!.GetType());
+                            if (!cursorValues.TryGetValue(prevName, out var prevValue) || prevValue == null)
+                                return null;
+                            var prevExpr = Expression.Convert(Expression.Invoke(prevSortBy, param), prevValue.GetType());
                             return Expression.Equal(prevExpr, Expression.Constant(prevValue));
                         })
                         .Where(e => e != null)
-                        .Aggregate<Expression>((left, right) => Expression.AndAlso(left!, right!));
+                        .Select(e => e!)
+                        .Aggregate((left, right) => Expression.AndAlso(left, right));
 
                     comparison = Expression.AndAlso(equalityChain, comparison);
                 }

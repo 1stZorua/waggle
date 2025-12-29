@@ -80,6 +80,19 @@ namespace Waggle.PostService.Grpc
             }
         }
 
+        public async Task<Result<UploadMediaBatchResponse>> UploadMediaBatchAsync(UploadMediaBatchRequest request)
+        {
+            try
+            {
+                var response = await _client.UploadMediaBatchAsync(request);
+                return Result<UploadMediaBatchResponse>.Ok(response);
+            }
+            catch (RpcException ex)
+            {
+                return GrpcExceptionHelper.HandleRpcException<UploadMediaBatchResponse>(ex);
+            }
+        }
+
         public async Task<Result<GetAllMediaResponse>> GetAllMediaAsync(GetAllMediaRequest request)
         {
             try

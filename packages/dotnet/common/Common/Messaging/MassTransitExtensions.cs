@@ -9,6 +9,7 @@ namespace Waggle.Common.Messaging
         public static IServiceCollection AddMessaging(
             this IServiceCollection services,
             IConfiguration configuration,
+            string serviceName,
             Action<IBusRegistrationConfigurator>? configureConsumers = null)
         {
             var rabbitMqSettings = configuration
@@ -26,7 +27,9 @@ namespace Waggle.Common.Messaging
             {
                 configureConsumers?.Invoke(x);
 
-                x.SetKebabCaseEndpointNameFormatter();
+                x.SetEndpointNameFormatter(
+                    new KebabCaseEndpointNameFormatter(serviceName, false)
+                );
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
@@ -34,7 +37,6 @@ namespace Waggle.Common.Messaging
                     {
                         h.Username(rabbitMqSettings.Username);
                         h.Password(rabbitMqSettings.Password);
-
                         h.Heartbeat(5);
                         h.RequestedConnectionTimeout(1000);
                     });

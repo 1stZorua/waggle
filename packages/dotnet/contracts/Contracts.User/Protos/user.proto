@@ -8,7 +8,7 @@ option csharp_namespace = "Waggle.Contracts.User.Grpc";
 package user;
 
 service GrpcUser {
-	rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+	rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
 	rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
 	rpc GetUsersById(GetUsersByIdRequest) returns (GetUsersByIdResponse);
 	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
@@ -28,13 +28,13 @@ message PageInfo {
   int32 page_size = 5;
 }
 
-message GetAllUsersRequest {
+message GetUsersRequest {
   string cursor = 1;
   int32 page_size = 2;
   PaginationDirection direction = 3;
 }
 
-message GetAllUsersResponse {
+message GetUsersResponse {
 	repeated User users = 1;
 	PageInfo page_info = 2;
 }

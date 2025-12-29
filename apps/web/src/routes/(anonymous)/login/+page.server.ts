@@ -1,16 +1,14 @@
 import { loginSchema } from '$lib/schemas';
-import { fail, type Actions } from '@sveltejs/kit';
-import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { type Actions } from '@sveltejs/kit';
+import { redirect } from 'sveltekit-flash-message/server';
 import { superValidate } from 'sveltekit-superforms/server';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { AuthClient } from '@waggle/api-client/auth';
 import type { PageServerLoad } from './$types';
 import { setAuthCookies } from '$lib/server';
-import { isApiError } from '@waggle/api-client';
+import { handleFormAction } from '$lib/server';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (locals.auth) throw redirect(302, '/');
-
+export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod4(loginSchema));
 	return { form };
 };
@@ -19,25 +17,24 @@ export const actions: Actions = {
 	login: async ({ request, cookies }) => {
 		const form = await superValidate(request, zod4(loginSchema));
 
-		if (!form.valid) return fail(400, { form });
+		const error = await handleFormAction(
+			form,
+			async (data) => {
+				const { data: authData } = await AuthClient.login({
+					identifier: data.identifier,
+					password: data.password
+				}).then((res) => res.data);
 
-		try {
-			const { data } = await AuthClient.login({
-				identifier: form.data.identifier,
-				password: form.data.password
-			}).then((res) => res.data);
+				if (!authData?.accessToken || !authData?.refreshToken) {
+					throw new Error('Invalid auth response');
+				}
 
-			if (!data?.accessToken || !data?.refreshToken) return;
+				setAuthCookies(cookies, authData.accessToken, authData.refreshToken, authData.expiresIn);
+			},
+			cookies
+		);
 
-			setAuthCookies(cookies, data.accessToken, data.refreshToken, data.expiresIn);
-		} catch (err) {
-			let message = 'Login service is temporarily unavailable';
-			if (isApiError(err)) message = err.body?.message ?? message;
-
-			console.error(err);
-			setFlash({ type: 'error', message }, cookies);
-			return fail(400, { form, message });
-		}
+		if (error) return error;
 
 		redirect('/', { type: 'success', message: 'Successfully logged in' }, cookies);
 	}

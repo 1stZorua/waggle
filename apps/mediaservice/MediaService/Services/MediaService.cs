@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using Waggle.Common.Auth;
 using Waggle.Common.Constants;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
 using Waggle.Common.Validation;
+using Waggle.Contracts.Auth.Events;
+using Waggle.Contracts.Post.Events;
 using Waggle.Mediaervice.Logging;
 using Waggle.MediaService.Constants;
 using Waggle.MediaService.Data;
@@ -134,7 +135,7 @@ namespace Waggle.MediaService.Services
                 return Result<Dictionary<Guid, UrlResponseDto>>.Ok(resultMap);
 
             } 
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Result<Dictionary<Guid, UrlResponseDto>>.Fail(MediaErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
@@ -192,6 +193,58 @@ namespace Waggle.MediaService.Services
             }
         }
 
+        public async Task<Result<List<MediaDto>>> UploadMediaBatchAsync(MediaBatchCreateDto request, UserInfoDto currentUser)
+        {
+            if (!currentUser.TryEnsure<List<MediaDto>>(out var failedResult))
+                return failedResult;
+
+            var userId = currentUser.GetUserId();
+
+            try
+            {
+                var uploadRequests = request.Files.Select(file => new UploadFileRequestDto
+                {
+                    BucketName = request.BucketName,
+                    Prefix = request.Prefix,
+                    File = file
+                }).ToList();
+
+                var uploadResult = await _storage.UploadFilesAsync(uploadRequests);
+                if (!uploadResult.Success || uploadResult.Data == null)
+                    return Result<List<MediaDto>>.Fail(uploadResult.Message, uploadResult.ErrorCode);
+
+                var mediaList = uploadResult.Data
+                    .Zip(request.Files, (uploaded, file) => new Media
+                    {
+                        UploaderId = userId,
+                        BucketName = request.BucketName,
+                        ObjectName = uploaded.ObjectName,
+                        FileName = file.FileName,
+                        ContentType = file.ContentType,
+                        FileSize = file.Length,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    })
+                    .ToList();
+
+                await _repo.AddMediaBatchAsync(mediaList);
+
+                var mediaDtos = mediaList.Select(m => _mapper.Map<MediaDto>(m)).ToList();
+
+                return Result<List<MediaDto>>.Ok(mediaDtos);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogDatabaseUpdateFailed(ex, userId);
+                return Result<List<MediaDto>>.Fail(MediaErrors.Media.CreationFailed, ErrorCodes.ServiceFailed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMediaCreationFailed(ex, userId);
+                return Result<List<MediaDto>>.Fail(MediaErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
         public async Task<Result> DeleteMediaAsync(Guid id, UserInfoDto currentUser)
         {
             if (!currentUser.TryEnsure(out var failedResult))
@@ -241,6 +294,74 @@ namespace Waggle.MediaService.Services
             catch (Exception ex)
             {
                 _logger.LogMediaDeletionFailed(ex, id);
+                return Result.Fail(MediaErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandlePostDeletedEventAsync(PostDeletedEvent @event)
+        {
+            try
+            {
+                var media = await _repo.GetMediaByIdsAsync(new() { Ids = @event.MediaIds });
+                if (media.Count == 0)
+                    return Result.Ok();
+
+                var storageResult = await _storage.DeleteFilesAsync(
+                    [.. media.Select(m => new DeleteFileRequestDto
+                    {
+                        BucketName = m.BucketName,
+                        ObjectName = m.ObjectName
+                    })]
+                );
+
+                if (!storageResult.Success)
+                    return storageResult;
+
+                await _repo.DeleteAllMediaByIdsAsync(new() { Ids = @event.MediaIds });
+                return Result.Ok();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogMediaDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(MediaErrors.Media.DeletionFailed, ErrorCodes.ServiceFailed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMediaDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(MediaErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event)
+        {
+            try
+            {
+                var media = await _repo.GetAllMediaByUploaderIdAsync(@event.Id);
+                if (media.Count == 0)
+                    return Result.Ok();
+
+                var storageResult = await _storage.DeleteFilesAsync(
+                    [.. media.Select(m => new DeleteFileRequestDto
+                    {
+                        BucketName = m.BucketName,
+                        ObjectName = m.ObjectName
+                    })]
+                );
+
+                if (!storageResult.Success)
+                    return storageResult;
+
+                await _repo.DeleteAllMediaByUploaderIdAsync(@event.Id);
+                return Result.Ok();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogMediaDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(MediaErrors.Media.DeletionFailed, ErrorCodes.ServiceFailed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMediaDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(MediaErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }

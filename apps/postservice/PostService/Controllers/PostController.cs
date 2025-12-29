@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Waggle.Common.Auth;
 using Waggle.Common.Controllers;
 using Waggle.Common.Models;
 using Waggle.Common.Pagination.Models;
@@ -23,16 +22,25 @@ namespace Waggle.PostService.Controllers
         [ProducesResponseType(typeof(ApiResponse<PagedResult<PostDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPosts([FromQuery] PaginationRequest request)
         {
-            var result = await _service.GetAllPostsAsync(request);
+            var result = await _service.GetPostsAsync(request);
             return result.ToActionResult();
         }
 
-        [HttpGet("{id}")]
         [Authorize]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(ApiResponse<PostDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPostById(Guid id)
         {
             var result = await _service.GetPostByIdAsync(id);
+            return result.ToActionResult();
+        }
+
+        [Authorize]
+        [HttpGet("users/{userId}/posts")]
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<PostDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPostsByUserId(Guid userId, [FromQuery] PaginationRequest request)
+        {
+            var result = await _service.GetPostsByUserIdAsync(userId, request);
             return result.ToActionResult();
         }
 

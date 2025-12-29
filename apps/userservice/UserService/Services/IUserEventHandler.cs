@@ -6,7 +6,7 @@ namespace Waggle.UserService.Services
 {
     public interface IUserEventHandler
     {
-        Task<Result<UserDto>> HandleUserRegisteredAsync(RegisteredEvent @event);
-        Task<Result> HandleUserDeletedAsync(DeletedEvent @event);
+        Task<Result<UserDto>> HandleUserRegisteredEventAsync(RegisteredEvent @event);
+        Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event);
     }
 }

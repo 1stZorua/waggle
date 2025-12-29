@@ -3,7 +3,8 @@ import type { TagProps } from '$components/shared/tags/variants';
 export interface SidebarItem {
 	title: string;
 	icon: string;
-	href: string;
+	href?: string;
+	onClick?: () => void;
 	tag?: {
 		label: string;
 		variant: TagProps['variant'];
@@ -37,12 +38,11 @@ export const sidebarConfig: SidebarItem[] = [
 	},
 	{
 		title: 'Create',
-		href: '#create',
 		icon: 'uil:camera'
 	},
 	{
 		title: 'Profile',
-		href: '#profile',
+		href: '/profile',
 		icon: 'bx:user'
 	}
 ];

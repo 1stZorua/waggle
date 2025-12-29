@@ -21,7 +21,7 @@ namespace Waggle.UserService.Grpc
             _mapper = mapper;
         }
 
-        public override async Task<GetAllUsersResponse> GetAllUsers(GetAllUsersRequest request, ServerCallContext context)
+        public override async Task<GetUsersResponse> GetUsers(GetUsersRequest request, ServerCallContext context)
         {
             var paginationRequest = new Common.Pagination.Models.PaginationRequest
             {
@@ -32,12 +32,12 @@ namespace Waggle.UserService.Grpc
                     : Common.Pagination.Models.PaginationDirection.Forward
             };
 
-            var result = await _service.GetAllUsersAsync(paginationRequest);
+            var result = await _service.GetUsersAsync(paginationRequest);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            var response = new GetAllUsersResponse();
+            var response = new GetUsersResponse();
             response.Users.AddRange(_mapper.Map<IEnumerable<User>>(result.Data!.Items));
             response.PageInfo = _mapper.Map<PageInfo>(result.Data.PageInfo);
 

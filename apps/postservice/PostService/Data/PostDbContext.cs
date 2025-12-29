@@ -19,6 +19,12 @@ namespace Waggle.PostService.Data
 
             builder.Entity<Post>()
                 .HasIndex(p => p.CreatedAt);
+
+            builder.Entity<Post>()
+                .HasIndex(p => p.Id);
+
+            builder.Entity<Post>()
+                .HasIndex(p => new { p.CreatedAt, p.Id });
         }
     }
 }
