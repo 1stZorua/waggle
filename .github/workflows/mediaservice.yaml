@@ -50,16 +50,6 @@ jobs:
       # - name: Test
       #   run: dotnet test --configuration Release --no-build --verbosity normal
 
-      - name: Publish build output
-        run: dotnet publish -c Release
-
-      - name: Upload build output
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: mediaservice-publish
-          path: apps/mediaservice/MediaService/publish
-          retention-days: 3
-
   publish_docker:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
@@ -71,11 +61,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Download build output
-        uses: actions/download-artifact@v5
-        with:
-          name: mediaservice-publish
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3.6.0
