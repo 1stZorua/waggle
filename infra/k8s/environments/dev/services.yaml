@@ -1,62 +1,62 @@
 authservice:
   replicaCount: 1
-  image: 1stzorua/waggle-authservice:main-b7e001c
+  image: 1stzorua/waggle-authservice:main-2fd00f8
 
   ingress:
     host: authservice.waggle.local
 
 mediaservice:
   replicaCount: 1
-  image: 1stzorua/waggle-mediaservice:main-b7e001c
+  image: 1stzorua/waggle-mediaservice:main-2fd00f8
 
   ingress:
     host: mediaservice.waggle.local
 
 postservice:
   replicaCount: 1
-  image: 1stzorua/waggle-postservice:main-b7e001c
+  image: 1stzorua/waggle-postservice:main-2fd00f8
 
   ingress:
     host: postservice.waggle.local
 
 userservice:
   replicaCount: 1
-  image: 1stzorua/waggle-userservice:main-b7e001c
+  image: 1stzorua/waggle-userservice:main-2fd00f8
 
   ingress:
     host: userservice.waggle.local
 
 likeservice:
   replicaCount: 1
-  image: 1stzorua/waggle-likeservice:main-b7e001c
+  image: 1stzorua/waggle-likeservice:main-2fd00f8
 
   ingress:
     host: likeservice.waggle.local
 
 followservice:
   replicaCount: 1
-  image: 1stzorua/waggle-followservice:main-b7e001c
+  image: 1stzorua/waggle-followservice:main-2fd00f8
 
   ingress:
     host: followservice.waggle.local
 
 favoriteservice:
   replicaCount: 1
-  image: 1stzorua/waggle-favoriteservice:main-b7e001c
+  image: 1stzorua/waggle-favoriteservice:main-2fd00f8
 
   ingress:
     host: favoriteservice.waggle.local
 
 commentservice:
   replicaCount: 1
-  image: 1stzorua/waggle-commentservice:main-b7e001c
+  image: 1stzorua/waggle-commentservice:main-2fd00f8
 
   ingress:
     host: commentservice.waggle.local
 
 web:
   replicaCount: 1
-  image: 1stzorua/waggle-web:main-df320d9
+  image: 1stzorua/waggle-web:main-2fd00f8
 
   ingress:
     host: web.waggle.local

@@ -29,4 +29,11 @@ spec:
               value: "http://mediaservice-svc.app.svc.cluster.local:8080"
             - name: POST_SERVICE_BASE_URL
               value: "http://postservice-svc.app.svc.cluster.local:8080"
-              
+            - name: LIKE_SERVICE_BASE_URL
+              value: "http://likeservice-svc.app.svc.cluster.local:8080"
+            - name: FOLLOW_SERVICE_BASE_URL
+              value: "http://followservice-svc.app.svc.cluster.local:8080"
+            - name: FAVORITE_SERVICE_BASE_URL
+              value: "http://favoriteservice-svc.app.svc.cluster.local:8080"
+            - name: COMMENT_SERVICE_BASE_URL
+              value: "http://commentservice-svc.app.svc.cluster.local:8080"
