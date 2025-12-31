@@ -22,8 +22,13 @@ export const actions: Actions = {
 		const error = await handleFormAction(
 			form,
 			async (data) => {
+				const sanitizedImages = data.images.map((file) => {
+					const sanitizedName = file.name.replace(/\s+/g, '_');
+					return new File([file], sanitizedName, { type: file.type });
+				});
+
 				const { data: mediaData } = await MediaClient.createBatch(
-					{ BucketName: 'posts', Files: data.images },
+					{ BucketName: 'posts', Files: sanitizedImages },
 					{
 						headers: {
 							...authHeaders(locals.auth.accessToken),
