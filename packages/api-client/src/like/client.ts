@@ -5,7 +5,6 @@ export const LikeClient = {
   getById: likeApi.getApiLikeId,
   getAllByUserId: likeApi.getApiLikeUsersUserId,
   getAllByTargetId: likeApi.getApiLikeTargetTargetId,
-  getTargetCount: likeApi.getApiLikeTargetTargetIdCount,
   hasLiked: likeApi.getApiLikeCheckUserIdTargetId,
   create: likeApi.postApiLike,
   delete: likeApi.deleteApiLikeId

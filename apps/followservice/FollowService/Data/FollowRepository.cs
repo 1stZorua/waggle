@@ -54,18 +54,32 @@ namespace Waggle.FollowService.Data
                 .FirstOrDefaultAsync(f => f.FollowerId == followerId && f.FollowingId == followingId);
         }
 
-        public async Task<int> GetFollowerCountAsync(Guid userId)
+        public async Task<Dictionary<Guid, int>> GetFollowerCountsAsync(IEnumerable<Guid> userIds)
         {
+            var ids = userIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return [];
+
             return await _context.Follows
                 .AsNoTracking()
-                .CountAsync(f => f.FollowingId == userId);
+                .Where(f => ids.Contains(f.FollowingId))
+                .GroupBy(f => f.FollowingId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.UserId, x => x.Count);
         }
 
-        public async Task<int> GetFollowingCountAsync(Guid userId)
+        public async Task<Dictionary<Guid, int>> GetFollowingCountsAsync(IEnumerable<Guid> userIds)
         {
+            var ids = userIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return [];
+
             return await _context.Follows
                 .AsNoTracking()
-                .CountAsync(f => f.FollowerId == userId);
+                .Where(f => ids.Contains(f.FollowerId))
+                .GroupBy(f => f.FollowerId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.UserId, x => x.Count);
         }
 
         public async Task AddFollowAsync(Follow follow)

@@ -13,6 +13,7 @@ using Waggle.Common.Helpers;
 using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
 using Waggle.Common.Saga;
+using Waggle.Contracts.User.Clients;
 using Waggle.Contracts.User.Grpc;
 using Waggle.Contracts.User.Interfaces;
 

@@ -306,86 +306,6 @@
         }
       }
     },
-    "/api/follow/followers/{userId}/count": {
-      "get": {
-        "tags": [
-          "Follow"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Int32ApiResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Int32ApiResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Int32ApiResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/follow/following/{userId}/count": {
-      "get": {
-        "tags": [
-          "Follow"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Int32ApiResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Int32ApiResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Int32ApiResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/follow/check/{followerId}/{followingId}": {
       "get": {
         "tags": [
@@ -417,17 +337,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/BooleanApiResponse"
+                  "$ref": "#/components/schemas/FollowDtoApiResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BooleanApiResponse"
+                  "$ref": "#/components/schemas/FollowDtoApiResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BooleanApiResponse"
+                  "$ref": "#/components/schemas/FollowDtoApiResponse"
                 }
               }
             }
@@ -468,29 +388,6 @@
           "error"
         ],
         "type": "string"
-      },
-      "BooleanApiResponse": {
-        "required": [
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ApiStatus"
-          },
-          "data": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
       },
       "FollowCreateDto": {
         "type": "object",
@@ -574,30 +471,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/FollowDtoPagedResult"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Int32ApiResponse": {
-        "required": [
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ApiStatus"
-          },
-          "data": {
-            "type": "integer",
-            "format": "int32"
           },
           "message": {
             "type": "string",

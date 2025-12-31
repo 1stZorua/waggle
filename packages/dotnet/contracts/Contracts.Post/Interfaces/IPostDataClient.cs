@@ -8,7 +8,9 @@ namespace Waggle.Contracts.Post.Interfaces
         Task<Result<GetPostsResponse>> GetPostsAsync(GetPostsRequest request);
         Task<Result<GetPostByIdResponse>> GetPostByIdAsync(GetPostByIdRequest request);
         Task<Result<GetPostsByUserIdResponse>> GetPostsByUserIdAsync(GetPostsByUserIdRequest request);
+        Task<Result<GetPostCountsResponse>> GetPostCountsAsync(GetPostCountsRequest request);
         Task<Result<CreatePostResponse>> CreatePostAsync(CreatePostRequest request);
+        Task<Result<UpdatePostResponse>> UpdatePostAsync(UpdatePostRequest request);
         Task<Result> DeletePostAsync(DeletePostRequest request);
     }
 }

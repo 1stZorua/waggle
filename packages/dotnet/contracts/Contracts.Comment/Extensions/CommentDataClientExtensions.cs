@@ -20,11 +20,22 @@ namespace Waggle.Contracts.Comment.Extensions
             return await client.DeleteCommentAsync(new DeleteCommentRequest { Id = id.ToString() });
         }
 
-        public static async Task<Result<GetCommentCountResponse>> GetCommentCountAsync(
+        public static async Task<Result<GetCommentCountsResponse>> GetCommentCountsAsync(
             this ICommentDataClient client,
-            Guid postId)
+            IEnumerable<Guid> postIds)
         {
-            return await client.GetCommentCountAsync(new GetCommentCountRequest { PostId = postId.ToString() });
+            var request = new GetCommentCountsRequest();
+            request.PostIds.AddRange(postIds.Select(id => id.ToString()));
+            return await client.GetCommentCountsAsync(request);
+        }
+
+        public static async Task<Result<GetReplyCountsResponse>> GetReplyCountsAsync(
+            this ICommentDataClient client,
+            IEnumerable<Guid> commentIds)
+        {
+            var request = new GetReplyCountsRequest();
+            request.CommentIds.AddRange(commentIds.Select(id => id.ToString()));
+            return await client.GetReplyCountsAsync(request);
         }
     }
 }

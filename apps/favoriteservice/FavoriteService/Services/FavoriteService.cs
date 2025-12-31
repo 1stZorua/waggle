@@ -7,7 +7,9 @@ using Waggle.Common.Models;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
 using Waggle.Common.Validation;
+using Waggle.Contracts.Auth.Events;
 using Waggle.Contracts.Favorite.Events;
+using Waggle.Contracts.Post.Events;
 using Waggle.Contracts.Post.Extensions;
 using Waggle.Contracts.Post.Interfaces;
 using Waggle.FavoriteService.Constants;
@@ -138,18 +140,17 @@ namespace Waggle.FavoriteService.Services
             }
         }
 
-        public async Task<Result<int>> GetFavoriteCountAsync(Guid targetId)
+        public async Task<Result<Dictionary<Guid, int>>> GetFavoriteCountsAsync(IEnumerable<Guid> targetIds)
         {
             try
             {
-                var count = await _repo.GetFavoriteCountAsync(targetId);
-                _logger.LogFavoritesRetrieved(count);
-                return Result<int>.Ok(count);
+                var counts = await _repo.GetFavoriteCountsAsync(targetIds);
+                return Result<Dictionary<Guid, int>>.Ok(counts);
             }
             catch (Exception ex)
             {
                 _logger.LogFavoritesRetrievalFailed(ex);
-                return Result<int>.Fail(FavoriteErrors.Service.Failed, ErrorCodes.ServiceFailed);
+                return Result<Dictionary<Guid, int>>.Fail(FavoriteErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
@@ -267,6 +268,36 @@ namespace Waggle.FavoriteService.Services
             catch (Exception ex)
             {
                 _logger.LogFavoriteDeletionFailed(ex, id);
+                return Result.Fail(FavoriteErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandlePostDeletedEventAsync(PostDeletedEvent @event)
+        {
+            try
+            {
+                await _repo.DeleteFavoritesAsync(targetId: @event.Id);
+                _logger.LogFavoriteDeletedFromEvent(@event.Id);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogFavoriteDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(FavoriteErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event)
+        {
+            try
+            {
+                await _repo.DeleteFavoritesAsync(userId: @event.Id);
+                _logger.LogFavoriteDeletedFromEvent(@event.Id);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogFavoriteDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(FavoriteErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }

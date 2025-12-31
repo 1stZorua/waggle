@@ -48,6 +48,50 @@ userservice:
   ingress:
     host: userservice.localhost
 
+likeservice:
+  name: likeservice
+  image: waggle-likeservice:latest
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: likeservice.localhost
+
+followservice:
+  name: followservice
+  image: waggle-followservice:latest
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: followservice.localhost
+
+favoriteservice:
+  name: favoriteservice
+  image: waggle-favoriteservice:latest
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: favoriteservice.localhost
+
+commentservice:
+  name: commentservice
+  image: waggle-commentservice:latest
+
+  ports:
+    http: 8080
+    grpc: 8081
+
+  ingress:
+    host: commentservice.localhost
+
 web:
   name: web
   image: waggle-web:latest

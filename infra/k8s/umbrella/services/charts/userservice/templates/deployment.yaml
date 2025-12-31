@@ -59,5 +59,9 @@ spec:
               value: "http://+:8081"
             - name: Kestrel__Endpoints__Grpc__Protocols
               value: "Http2"
-            - name: GrpcAuth
-              value: "http://authservice-svc.app.svc.cluster.local:8081"
+            - name: GrpcMedia
+              value: "http://mediaservice-svc.app.svc.cluster.local:8081"
+            - name: GrpcPost
+              value: "http://postservice-svc.app.svc.cluster.local:8081"
+            - name: GrpcFollow
+              value: "http://followservice-svc.app.svc.cluster.local:8081"

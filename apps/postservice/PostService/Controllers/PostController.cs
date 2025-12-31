@@ -54,6 +54,15 @@ namespace Waggle.PostService.Controllers
         }
 
         [Authorize]
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<PostDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdatePost(Guid id, PostUpdateDto request)
+        {
+            var result = await _service.UpdatePostAsync(id, request, CurrentUser);
+            return result.ToActionResult();
+        }
+
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeletePost(Guid id)

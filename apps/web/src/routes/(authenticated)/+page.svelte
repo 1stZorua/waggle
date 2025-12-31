@@ -1,67 +1,37 @@
 <script lang="ts">
 	import { ButtonText } from '$components/shared/buttons';
 	import { CardPrimary } from '$components/shared/cards';
-	import { Icon, Logo } from '$components/shared/other';
+	import { Icon, Logo, InfiniteScroll } from '$components/shared/other';
 	import { Post } from '$components/shared/posts';
 	import { TextBase, TextSmall } from '$components/shared/text';
 	import type { PageProps } from './$types';
-	import { onMount } from 'svelte';
 
 	let { data }: PageProps = $props();
 
 	let posts = $state(data.pageInfo.items);
 	let nextCursor = $state(data.pageInfo.nextCursor);
 	let loadingMore = $state(false);
-	let done = $state(false);
-
-	function isSentinelVisible() {
-		if (!sentinel) return false;
-		const rect = sentinel.getBoundingClientRect();
-		return rect.top < window.innerHeight;
-	}
 
 	async function loadMore() {
-		if (!nextCursor || loadingMore || done) return;
+		if (!nextCursor || loadingMore) return;
 
 		loadingMore = true;
 
-		const res = await fetch('/api/posts', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ cursor: nextCursor })
-		});
+		try {
+			const res = await fetch('/api/posts', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ cursor: nextCursor })
+			});
 
-		const result = await res.json();
-		if (result.items.length === 0 || !result.nextCursor) done = true;
+			const result = await res.json();
 
-		posts = [...posts, ...result.items];
-		nextCursor = result.nextCursor;
-		loadingMore = false;
-
-		requestAnimationFrame(() => {
-			if (!done && isSentinelVisible()) loadMore();
-		});
+			posts = [...posts, ...result.items];
+			nextCursor = result.nextCursor;
+		} finally {
+			loadingMore = false;
+		}
 	}
-
-	let observer: IntersectionObserver;
-	let sentinel: HTMLDivElement | undefined = $state();
-
-	onMount(() => {
-		observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0].isIntersecting) {
-					loadMore();
-				}
-			},
-			{ rootMargin: '200px' }
-		);
-
-		if (sentinel) observer.observe(sentinel);
-
-		return () => {
-			if (observer && sentinel) observer.unobserve(sentinel);
-		};
-	});
 </script>
 
 <section
@@ -72,23 +42,30 @@
 
 		{#if posts.length > 0}
 			<div class="shadow-ui mx-auto flex max-w-[620px] flex-col rounded-lg">
-				{#each posts as post, index}
-					<Post className="shadow-none!" {post} isLast={index < posts.length - 1}></Post>
-				{/each}
+				<InfiniteScroll
+					items={posts}
+					hasMore={!!nextCursor}
+					isLoading={loadingMore}
+					onLoadMore={loadMore}
+				>
+					{#snippet children({ items })}
+						{#each items as post, index}
+							<Post className="shadow-none!" {post} isLast={index < items.length - 1}></Post>
+						{/each}
+					{/snippet}
 
-				{#if loadingMore}
-					<div class="py-4 text-center">
-						<Icon className="text-secondary" icon="svg-spinners:90-ring-with-bg" />
-					</div>
-				{/if}
+					{#snippet loadingContent()}
+						<div class="py-4 text-center">
+							<Icon className="text-secondary" icon="svg-spinners:90-ring-with-bg" />
+						</div>
+					{/snippet}
+				</InfiniteScroll>
 
-				{#if done && !loadingMore}
+				{#if !nextCursor && !loadingMore}
 					<div class="flex w-full items-center justify-center py-4">
 						<Logo className="w-20 text-secondary"></Logo>
 					</div>
 				{/if}
-
-				<div bind:this={sentinel}></div>
 			</div>
 		{:else}
 			<p>No posts yet.</p>

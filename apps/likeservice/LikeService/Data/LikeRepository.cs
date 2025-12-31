@@ -61,11 +61,18 @@ namespace Waggle.LikeService.Data
                     l.TargetId == targetId);
         }
 
-        public async Task<int> GetLikeCountAsync(Guid targetId)
+        public async Task<Dictionary<Guid, int>> GetLikeCountsAsync(IEnumerable<Guid> targetIds)
         {
+            var ids = targetIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return [];
+
             return await _context.Likes
                 .AsNoTracking()
-                .CountAsync(l => l.TargetId == targetId);
+                .Where(l => ids.Contains(l.TargetId))
+                .GroupBy(l => l.TargetId)
+                .Select(g => new { TargetId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.TargetId, x => x.Count);
         }
 
         public async Task AddLikeAsync(Like like)

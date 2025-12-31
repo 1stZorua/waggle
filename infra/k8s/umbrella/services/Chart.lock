@@ -11,8 +11,20 @@ dependencies:
 - name: userservice
   repository: file://charts/userservice
   version: 0.1.0
+- name: likeservice
+  repository: file://charts/likeservice
+  version: 0.1.0
+- name: followservice
+  repository: file://charts/followservice
+  version: 0.1.0
+- name: favoriteservice
+  repository: file://charts/favoriteservice
+  version: 0.1.0
+- name: commentservice
+  repository: file://charts/commentservice
+  version: 0.1.0
 - name: web
   repository: file://charts/web
   version: 0.1.0
-digest: sha256:757e939b7227d2ae44aee5d8d9f7cdab4f540d407dbce3e7ad73857034a27f7e
-generated: "2025-12-09T18:47:07.3270771+01:00"
+digest: sha256:f67ea5fac38b8d72e2175d230924aefa80f71e19565e93718b038a1261ff10f3
+generated: "2025-12-31T17:37:44.4045116+01:00"

@@ -26,12 +26,8 @@
 		<ProjectReference Include="..\..\..\packages\dotnet\common\Common\Waggle.Common.csproj" />
 		<ProjectReference Include="..\..\..\packages\dotnet\contracts\Contracts.Comment\Waggle.Contracts.Comment.csproj" />
 		<ProjectReference Include="..\..\..\packages\dotnet\contracts\Contracts.Post\Waggle.Contracts.Post.csproj" />
+		<ProjectReference Include="..\..\..\packages\dotnet\contracts\Contracts.Like\Waggle.Contracts.Like.csproj" />
 		<ProjectReference Include="..\..\..\packages\dotnet\contracts\Contracts.Auth\Waggle.Contracts.Auth.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Consumers\" />
-		<Folder Include="Saga\" />
 	</ItemGroup>
 
 </Project>

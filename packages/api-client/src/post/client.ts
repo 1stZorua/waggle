@@ -5,5 +5,6 @@ export const PostClient = {
   getById: postApi.getApiPostId,
   getAllByUserId: postApi.getApiPostUsersUserIdPosts,
   create: postApi.postApiPost,
+  update: postApi.putApiPostId,
   delete: postApi.deleteApiPostId
 };

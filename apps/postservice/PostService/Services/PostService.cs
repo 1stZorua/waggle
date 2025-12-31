@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Waggle.Common.Auth;
 using Waggle.Common.Constants;
+using Waggle.Common.Messaging;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
 using Waggle.Common.Saga;
@@ -15,6 +16,7 @@ using Waggle.Contracts.Like.Grpc;
 using Waggle.Contracts.Like.Interfaces;
 using Waggle.Contracts.Media.Grpc;
 using Waggle.Contracts.Media.Interfaces;
+using Waggle.Contracts.Post.Events;
 using Waggle.PostService.Constants;
 using Waggle.PostService.Data;
 using Waggle.PostService.Dtos;
@@ -31,17 +33,19 @@ namespace Waggle.PostService.Services
         private readonly IMediaDataClient _mediaDataClient;
         private readonly ICommentDataClient _commentDataClient;
         private readonly ILikeDataClient _likeDataClient;
+        private readonly IEventPublisher _eventPublisher;
         private readonly IServiceValidator _validator;
         private readonly ISagaCoordinator<DeletionSagaContext> _deletionSaga;
         private readonly ILogger<PostService> _logger;
 
         public PostService(
-            IPostRepository repo, 
-            IMapper mapper, 
-            IMediaDataClient mediaDataClient, 
+            IPostRepository repo,
+            IMapper mapper,
+            IMediaDataClient mediaDataClient,
             ICommentDataClient commentDataClient,
             ILikeDataClient likeDataClient,
-            IServiceValidator validator, 
+            IEventPublisher eventPublisher,
+            IServiceValidator validator,
             ISagaCoordinator<DeletionSagaContext> deletionSaga,
             ILogger<PostService> logger)
         {
@@ -50,6 +54,7 @@ namespace Waggle.PostService.Services
             _mediaDataClient = mediaDataClient;
             _commentDataClient = commentDataClient;
             _likeDataClient = likeDataClient;
+            _eventPublisher = eventPublisher;
             _validator = validator;
             _deletionSaga = deletionSaga;
             _logger = logger;
@@ -60,52 +65,9 @@ namespace Waggle.PostService.Services
             try
             {
                 var posts = await _repo.GetPostsAsync(request);
-
                 var dtos = _mapper.Map<List<PostDto>>(posts.Items);
 
-                var allMediaIds = dtos
-                    .SelectMany(p => new[] { p.ThumbnailId }.Concat(p.MediaIds ?? []))
-                    .Distinct()
-                    .ToList();
-
-                var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
-                    new GetMediaUrlsRequest { Ids = { allMediaIds.Select(id => id.ToString()) } }
-                );
-
-                var countTasks = dtos.Select(async dto =>
-                {
-                    var likeCountTask = _likeDataClient.GetLikeCountAsync(dto.Id);
-                    var commentCountTask = _commentDataClient.GetCommentCountAsync(dto.Id);
-
-                    await Task.WhenAll(likeCountTask, commentCountTask);
-
-                    dto.LikeCount = likeCountTask.Result.Data?.Count ?? 0;
-                    dto.CommentCount = commentCountTask.Result.Data?.Count ?? 0;
-                }).ToList();
-
-                await Task.WhenAll(countTasks.Append(mediaUrlsTask));
-
-                var mediaUrls = await mediaUrlsTask;
-                if (!mediaUrls.Success || mediaUrls.Data == null)
-                    return Result<PagedResult<PostDto>>.Fail(mediaUrls.Message, mediaUrls.ErrorCode);
-
-                var urlMap = mediaUrls.Data.Urls.ToDictionary(
-                    kvp => Guid.Parse(kvp.Key),
-                    kvp => new UrlResponseDto
-                    {
-                        Url = kvp.Value.Url,
-                        ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
-                    }
-                );
-
-                foreach (var dto in dtos)
-                {
-                    var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
-                    dto.MediaUrls = ids
-                        .Select(id => (id, url: urlMap.GetValueOrDefault(id)))
-                        .Where(x => x.url != null)
-                        .ToDictionary(x => x.id, x => x.url!);
-                }
+                await EnrichPostsWithMetadataAsync(dtos);
 
                 var pagedResult = new PagedResult<PostDto>
                 {
@@ -115,7 +77,6 @@ namespace Waggle.PostService.Services
 
                 _logger.LogPostsRetrieved(pagedResult.Items.Count);
                 return Result<PagedResult<PostDto>>.Ok(pagedResult);
-
             }
             catch (Exception ex)
             {
@@ -138,36 +99,7 @@ namespace Waggle.PostService.Services
                 _logger.LogPostRetrieved(id);
 
                 var dto = _mapper.Map<PostDto>(post);
-
-                var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
-
-                var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
-                    new GetMediaUrlsRequest { Ids = { ids.Select(mid => mid.ToString()) } }
-                );
-                var likeCountTask = _likeDataClient.GetLikeCountAsync(id);
-                var commentCountTask = _commentDataClient.GetCommentCountAsync(id);
-
-                await Task.WhenAll(mediaUrlsTask, likeCountTask, commentCountTask);
-
-                var mediaUrls = mediaUrlsTask.Result;
-                if (!mediaUrls.Success || mediaUrls.Data == null)
-                    return Result<PostDto>.Fail(mediaUrls.Message, mediaUrls.ErrorCode);
-
-                var urlMap = mediaUrls.Data.Urls.ToDictionary(
-                    kvp => Guid.Parse(kvp.Key),
-                    kvp => new UrlResponseDto
-                    {
-                        Url = kvp.Value.Url,
-                        ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
-                    }
-                );
-
-                dto.MediaUrls = ids
-                    .Where(id => urlMap.ContainsKey(id))
-                    .ToDictionary(id => id, id => urlMap[id]);
-
-                dto.LikeCount = likeCountTask.Result.Data?.Count ?? 0;
-                dto.CommentCount = commentCountTask.Result.Data?.Count ?? 0;
+                await EnrichPostsWithMetadataAsync(new[] { dto }.ToList());
 
                 return Result<PostDto>.Ok(dto);
             }
@@ -183,52 +115,9 @@ namespace Waggle.PostService.Services
             try
             {
                 var posts = await _repo.GetPostsByUserIdAsync(userId, request);
-
                 var dtos = _mapper.Map<List<PostDto>>(posts.Items);
 
-                var allMediaIds = dtos
-                    .SelectMany(p => new[] { p.ThumbnailId }.Concat(p.MediaIds ?? []))
-                    .Distinct()
-                    .ToList();
-
-                var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
-                    new GetMediaUrlsRequest { Ids = { allMediaIds.Select(id => id.ToString()) } }
-                );
-
-                var countTasks = dtos.Select(async dto =>
-                {
-                    var likeCountTask = _likeDataClient.GetLikeCountAsync(dto.Id);
-                    var commentCountTask = _commentDataClient.GetCommentCountAsync(dto.Id);
-
-                    await Task.WhenAll(likeCountTask, commentCountTask);
-
-                    dto.LikeCount = likeCountTask.Result.Data?.Count ?? 0;
-                    dto.CommentCount = commentCountTask.Result.Data?.Count ?? 0;
-                }).ToList();
-
-                await Task.WhenAll(countTasks.Append(mediaUrlsTask));
-
-                var mediaUrls = await mediaUrlsTask;
-                if (!mediaUrls.Success || mediaUrls.Data == null)
-                    return Result<PagedResult<PostDto>>.Fail(mediaUrls.Message, mediaUrls.ErrorCode);
-
-                var urlMap = mediaUrls.Data.Urls.ToDictionary(
-                    kvp => Guid.Parse(kvp.Key),
-                    kvp => new UrlResponseDto
-                    {
-                        Url = kvp.Value.Url,
-                        ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
-                    }
-                );
-
-                foreach (var dto in dtos)
-                {
-                    var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
-                    dto.MediaUrls = ids
-                        .Select(id => (id, url: urlMap.GetValueOrDefault(id)))
-                        .Where(x => x.url != null)
-                        .ToDictionary(x => x.id, x => x.url!);
-                }
+                await EnrichPostsWithMetadataAsync(dtos);
 
                 var pagedResult = new PagedResult<PostDto>
                 {
@@ -243,6 +132,19 @@ namespace Waggle.PostService.Services
             {
                 _logger.LogPostsRetrievalFailed(ex);
                 return Result<PagedResult<PostDto>>.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result<Dictionary<Guid, int>>> GetPostCountsAsync(IEnumerable<Guid> userIds)
+        {
+            try
+            {
+                var counts = await _repo.GetPostCountsAsync(userIds);
+                return Result<Dictionary<Guid, int>>.Ok(counts);
+            }
+            catch (Exception)
+            {
+                return Result<Dictionary<Guid, int>>.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
@@ -281,6 +183,9 @@ namespace Waggle.PostService.Services
 
                 await _repo.AddPostAsync(post);
 
+                var createdEvent = _mapper.Map<PostCreatedEvent>(post);
+                await _eventPublisher.PublishAsync(createdEvent);
+
                 _logger.LogPostCreated(post.Id, post.UserId);
 
                 var result = _mapper.Map<PostDto>(post);
@@ -294,6 +199,58 @@ namespace Waggle.PostService.Services
             catch (Exception ex)
             {
                 _logger.LogPostCreationFailed(ex, userId);
+                return Result<PostDto>.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result<PostDto>> UpdatePostAsync(Guid id, PostUpdateDto request, UserInfoDto currentUser)
+        {
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.Success)
+                return Result<PostDto>.ValidationFail(validationResult.ValidationErrors!);
+
+            if (!currentUser.TryEnsure<PostDto>(out var failedResult))
+                return failedResult;
+
+            var userId = currentUser.GetUserId();
+
+            try
+            {
+                var post = await _repo.GetPostByIdAsync(id);
+                if (post == null)
+                {
+                    _logger.LogPostNotFound(id);
+                    return Result<PostDto>.Fail(PostErrors.Post.NotFound, ErrorCodes.NotFound);
+                }
+
+                if (post.UserId != userId)
+                {
+                    _logger.LogUnauthorizedPostAccess(id, userId);
+                    return Result<PostDto>.Fail(ErrorMessages.Authentication.PermissionRequired, ErrorCodes.Forbidden);
+                }
+
+                post.Caption = request.Caption;
+                post.UpdatedAt = DateTime.UtcNow;
+
+                await _repo.UpdatePostAsync(post);
+
+                var updatedEvent = _mapper.Map<PostUpdatedEvent>(post);
+                await _eventPublisher.PublishAsync(updatedEvent);
+
+                var dto = _mapper.Map<PostDto>(post);
+                await EnrichPostsWithMetadataAsync([dto]);
+
+                _logger.LogPostUpdated(post.Id, post.UserId);
+                return Result<PostDto>.Ok(dto);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogDatabaseUpdateFailed(ex, userId);
+                return Result<PostDto>.Fail(PostErrors.Post.UpdateFailed, ErrorCodes.ServiceFailed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogPostUpdateFailed(ex, id, userId);
                 return Result<PostDto>.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
@@ -329,6 +286,75 @@ namespace Waggle.PostService.Services
                 _logger.LogPostDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(PostErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
+        }
+
+        private async Task EnrichPostsWithMetadataAsync(List<PostDto> dtos)
+        {
+            if (dtos.Count == 0) return;
+
+            var allMediaIds = dtos
+                .SelectMany(p => new[] { p.ThumbnailId }.Concat(p.MediaIds ?? []))
+                .Distinct()
+                .ToList();
+
+            var postIds = dtos.Select(d => d.Id).ToList();
+
+            var mediaUrlsTask = _mediaDataClient.GetMediaUrlsAsync(
+                new GetMediaUrlsRequest { Ids = { allMediaIds.Select(id => id.ToString()) } }
+            );
+            var likeCountsTask = _likeDataClient.GetLikeCountsAsync(postIds);
+            var commentCountsTask = _commentDataClient.GetCommentCountsAsync(postIds);
+
+            await Task.WhenAll(mediaUrlsTask, likeCountsTask, commentCountsTask);
+
+            var mediaUrls = await mediaUrlsTask;
+            var urlMap = mediaUrls.Success && mediaUrls.Data != null
+                ? mediaUrls.Data.Urls.ToDictionary(
+                    kvp => Guid.Parse(kvp.Key),
+                    kvp => new UrlResponseDto
+                    {
+                        Url = kvp.Value.Url,
+                        ExpiresAt = kvp.Value.ExpiresAt.ToDateTime()
+                    }
+                )
+                : [];
+
+            var likeCounts = ConvertLikeCountsToDictionary(await likeCountsTask);
+            var commentCounts = ConvertCommentCountsToDictionary(await commentCountsTask);
+
+            foreach (var dto in dtos)
+            {
+                var ids = new[] { dto.ThumbnailId }.Concat(dto.MediaIds ?? []);
+                dto.MediaUrls = ids
+                    .Select(id => (id, url: urlMap.GetValueOrDefault(id)))
+                    .Where(x => x.url != null)
+                    .ToDictionary(x => x.id, x => x.url!);
+
+                dto.LikeCount = likeCounts.TryGetValue(dto.Id, out var likeCount) ? likeCount : 0;
+                dto.CommentCount = commentCounts.TryGetValue(dto.Id, out var commentCount) ? commentCount : 0;
+            }
+        }
+
+        private static Dictionary<Guid, int> ConvertLikeCountsToDictionary(Result<GetLikeCountsResponse> result)
+        {
+            if (!result.Success || result.Data?.Counts == null)
+                return [];
+
+            return result.Data.Counts.ToDictionary(
+                x => Guid.Parse(x.TargetId),
+                x => x.Count
+            );
+        }
+
+        private static Dictionary<Guid, int> ConvertCommentCountsToDictionary(Result<GetCommentCountsResponse> result)
+        {
+            if (!result.Success || result.Data?.Counts == null)
+                return [];
+
+            return result.Data.Counts.ToDictionary(
+                x => Guid.Parse(x.PostId),
+                x => x.Count
+            );
         }
     }
 }

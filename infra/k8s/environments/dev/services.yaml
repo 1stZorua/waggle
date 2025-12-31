@@ -26,6 +26,34 @@ userservice:
   ingress:
     host: userservice.waggle.local
 
+likeservice:
+  replicaCount: 1
+  image: 1stzorua/waggle-likeservice:main-b7e001c
+
+  ingress:
+    host: likeservice.waggle.local
+
+followservice:
+  replicaCount: 1
+  image: 1stzorua/waggle-followservice:main-b7e001c
+
+  ingress:
+    host: followservice.waggle.local
+
+favoriteservice:
+  replicaCount: 1
+  image: 1stzorua/waggle-favoriteservice:main-b7e001c
+
+  ingress:
+    host: favoriteservice.waggle.local
+
+commentservice:
+  replicaCount: 1
+  image: 1stzorua/waggle-commentservice:main-b7e001c
+
+  ingress:
+    host: commentservice.waggle.local
+
 web:
   replicaCount: 1
   image: 1stzorua/waggle-web:main-df320d9

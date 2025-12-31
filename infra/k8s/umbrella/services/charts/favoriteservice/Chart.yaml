@@ -1,0 +1,5 @@
+apiVersion: v2
+name: favoriteservice
+version: 0.1.0
+description: Helm chart for the favoriteservice service
+type: application

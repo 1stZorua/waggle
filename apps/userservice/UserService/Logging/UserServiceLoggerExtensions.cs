@@ -99,6 +99,43 @@
             Exception exception,
             Guid userId);
 
+        // User Update Events
+
+        [LoggerMessage(
+            EventId = 2501,
+            Level = LogLevel.Information,
+            Message = "User updated: {UserId}")]
+        public static partial void LogUserUpdated(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 2502,
+            Level = LogLevel.Warning,
+            Message = "Unauthorized user update attempt: User {RequestingUserId} tried to update {TargetUserId}")]
+        public static partial void LogUnauthorizedUserAccess(
+            this ILogger logger,
+            Guid targetUserId,
+            Guid requestingUserId);
+
+        [LoggerMessage(
+            EventId = 2503,
+            Level = LogLevel.Warning,
+            Message = "User update failed - media does not exist: {UserId}")]
+        public static partial void LogUserUpdateFailedMedia(
+            this ILogger logger,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 2504,
+            Level = LogLevel.Error,
+            Message = "User update failed: {UserId} (Requesting User: {RequestingUserId})")]
+        public static partial void LogUserUpdateFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid userId,
+            Guid requestingUserId);
+
         // User Deletion Events
 
         [LoggerMessage(

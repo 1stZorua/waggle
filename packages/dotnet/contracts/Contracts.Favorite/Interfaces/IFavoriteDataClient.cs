@@ -9,7 +9,7 @@ namespace Waggle.Contracts.Favorite.Interfaces
         Task<Result<GetFavoriteByIdResponse>> GetFavoriteByIdAsync(GetFavoriteByIdRequest request);
         Task<Result<GetFavoritesByUserIdResponse>> GetFavoritesByUserIdAsync(GetFavoritesByUserIdRequest request);
         Task<Result<GetFavoritesByTargetResponse>> GetFavoritesByTargetAsync(GetFavoritesByTargetRequest request);
-        Task<Result<GetFavoriteCountResponse>> GetFavoriteCountAsync(GetFavoriteCountRequest request);
+        Task<Result<GetFavoriteCountsResponse>> GetFavoriteCountsAsync(GetFavoriteCountsRequest request);
         Task<Result<HasFavoritedResponse>> HasFavoritedAsync(HasFavoritedRequest request);
         Task<Result<CreateFavoriteResponse>> CreateFavoriteAsync(CreateFavoriteRequest request);
         Task<Result> DeleteFavoriteAsync(DeleteFavoriteRequest request);

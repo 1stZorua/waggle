@@ -14,6 +14,8 @@ namespace Waggle.UserService.Constants
             public const string InvalidId = "Invalid user identifier";
 
             public const string AlreadyExists = ErrorMessages.Resource.AlreadyExists;
+
+            public const string MediaDoesNotExist = "Media item does not exist";
         }
 
         public static class Service

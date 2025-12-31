@@ -19,5 +19,14 @@ namespace Waggle.Contracts.Favorite.Extensions
         {
             return await client.DeleteFavoriteAsync(new DeleteFavoriteRequest { Id = id.ToString() });
         }
+
+        public static async Task<Result<GetFavoriteCountsResponse>> GetFavoriteCountsAsync(
+            this IFavoriteDataClient client,
+            IEnumerable<Guid> targetIds)
+        {
+            var request = new GetFavoriteCountsRequest();
+            request.TargetIds.AddRange(targetIds.Select(id => id.ToString()));
+            return await client.GetFavoriteCountsAsync(request);
+        }
     }
 }

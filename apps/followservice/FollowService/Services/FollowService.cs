@@ -5,6 +5,7 @@ using Waggle.Common.Constants;
 using Waggle.Common.Messaging;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
+using Waggle.Contracts.Auth.Events;
 using Waggle.Contracts.Follow.Events;
 using Waggle.Contracts.User.Extensions;
 using Waggle.Contracts.User.Interfaces;
@@ -13,7 +14,6 @@ using Waggle.FollowService.Data;
 using Waggle.FollowService.Dtos;
 using Waggle.FollowService.Logging;
 using Waggle.FollowService.Models;
-using static MassTransit.Util.ChartTable;
 
 namespace Waggle.FollowService.Services
 {
@@ -130,33 +130,31 @@ namespace Waggle.FollowService.Services
             }
         }
 
-        public async Task<Result<int>> GetFollowerCountAsync(Guid userId)
+        public async Task<Result<Dictionary<Guid, int>>> GetFollowerCountsAsync(IEnumerable<Guid> userIds)
         {
             try
             {
-                var count = await _repo.GetFollowerCountAsync(userId);
-                _logger.LogFollowsRetrieved(count);
-                return Result<int>.Ok(count);
+                var counts = await _repo.GetFollowerCountsAsync(userIds);
+                return Result<Dictionary<Guid, int>>.Ok(counts);
             }
             catch (Exception ex)
             {
                 _logger.LogFollowsRetrievalFailed(ex);
-                return Result<int>.Fail(FollowErrors.Service.Failed, ErrorCodes.ServiceFailed);
+                return Result<Dictionary<Guid, int>>.Fail(FollowErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
-        public async Task<Result<int>> GetFollowingCountAsync(Guid userId)
+        public async Task<Result<Dictionary<Guid, int>>> GetFollowingCountsAsync(IEnumerable<Guid> userIds)
         {
             try
             {
-                var count = await _repo.GetFollowingCountAsync(userId);
-                _logger.LogFollowsRetrieved(count);
-                return Result<int>.Ok(count);
+                var counts = await _repo.GetFollowingCountsAsync(userIds);
+                return Result<Dictionary<Guid, int>>.Ok(counts);
             }
             catch (Exception ex)
             {
                 _logger.LogFollowsRetrievalFailed(ex);
-                return Result<int>.Fail(FollowErrors.Service.Failed, ErrorCodes.ServiceFailed);
+                return Result<Dictionary<Guid, int>>.Fail(FollowErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
@@ -275,6 +273,21 @@ namespace Waggle.FollowService.Services
             catch (Exception ex)
             {
                 _logger.LogFollowDeletionFailed(ex, id);
+                return Result.Fail(FollowErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event)
+        {
+            try
+            {
+                await _repo.DeleteFollowsAsync(followerId: @event.Id);
+                await _repo.DeleteFollowsAsync(followingId: @event.Id);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogFollowDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(FollowErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }

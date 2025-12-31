@@ -59,17 +59,8 @@ namespace Waggle.FavoriteService.Controllers
         }
 
         [Authorize]
-        [HttpGet("target/{targetId}/count")]
-        [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFavoriteCount(Guid targetId)
-        {
-            var result = await _service.GetFavoriteCountAsync(targetId);
-            return result.ToActionResult();
-        }
-
-        [Authorize]
         [HttpGet("check/{userId}/{targetId}")]
-        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<FavoriteDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> HasFavorited(Guid userId, Guid targetId)
         {
             var result = await _service.HasFavoritedAsync(userId, targetId);

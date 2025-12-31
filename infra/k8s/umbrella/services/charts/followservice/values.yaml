@@ -1,0 +1,11 @@
+name: followservice
+replicaCount: 1
+image: waggle-followservice:latest
+
+ports:
+  http: 8080
+  grpc: 8081
+
+ingress:
+  enabled: true
+  host: followservice.localhost

@@ -57,26 +57,8 @@ namespace Waggle.FollowService.Controllers
         }
 
         [Authorize]
-        [HttpGet("followers/{userId}/count")]
-        [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFollowerCount(Guid userId)
-        {
-            var result = await _service.GetFollowerCountAsync(userId);
-            return result.ToActionResult();
-        }
-
-        [Authorize]
-        [HttpGet("following/{userId}/count")]
-        [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFollowingCount(Guid userId)
-        {
-            var result = await _service.GetFollowingCountAsync(userId);
-            return result.ToActionResult();
-        }
-
-        [Authorize]
         [HttpGet("check/{followerId}/{followingId}")]
-        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<FollowDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> IsFollowing(Guid followerId, Guid followingId)
         {
             var result = await _service.IsFollowingAsync(followerId, followingId);

@@ -20,7 +20,7 @@ namespace Waggle.CommentService.Data
 
         public async Task<PagedResult<Comment>> GetCommentsAsync(
             Guid? postId = null,
-            Guid? parentCommentId = null,
+            Guid? parentId = null,
             Guid? userId = null,
             PaginationRequest request = null!)
         {
@@ -31,10 +31,10 @@ namespace Waggle.CommentService.Data
             if (postId.HasValue)
                 query = query.Where(c => c.PostId == postId.Value);
 
-            if (parentCommentId.HasValue)
-                query = query.Where(c => c.ParentCommentId == parentCommentId.Value);
+            if (parentId.HasValue)
+                query = query.Where(c => c.ParentId == parentId.Value);
             else if (postId.HasValue)
-                query = query.Where(c => c.ParentCommentId == null);
+                query = query.Where(c => c.ParentId == null);
 
             if (userId.HasValue)
                 query = query.Where(c => c.UserId == userId.Value);
@@ -53,18 +53,60 @@ namespace Waggle.CommentService.Data
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<int> GetCommentCountAsync(Guid postId)
+        public async Task<Dictionary<Guid, int>> GetCommentCountsAsync(IEnumerable<Guid> postIds)
         {
+            var ids = postIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return [];
+
             return await _context.Comments
                 .AsNoTracking()
-                .CountAsync(c => c.PostId == postId);
+                .Where(c => c.ParentId == null && ids.Contains(c.PostId))
+                .GroupBy(c => c.PostId)
+                .Select(g => new { PostId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.PostId, x => x.Count);
         }
 
-        public async Task<int> GetReplyCountAsync(Guid commentId)
+        public async Task<Dictionary<Guid, int>> GetReplyCountsAsync(IEnumerable<Guid> commentIds)
         {
+            var ids = commentIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return [];
+
             return await _context.Comments
                 .AsNoTracking()
-                .CountAsync(c => c.ParentCommentId == commentId);
+                .Where(c =>
+                    c.ParentId != null &&
+                    ids.Contains(c.ParentId.Value))
+                .GroupBy(c => c.ParentId!.Value)
+                .Select(g => new { CommentId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.CommentId, x => x.Count);
+        }
+
+        public async Task<List<Guid>> GetAllReplyIdsRecursivelyAsync(Guid commentId)
+        {
+            var allReplyIds = new List<Guid>();
+            var toProcess = new Queue<Guid>();
+            toProcess.Enqueue(commentId);
+
+            while (toProcess.Count > 0)
+            {
+                var currentId = toProcess.Dequeue();
+
+                var directReplyIds = await _context.Comments
+                    .AsNoTracking()
+                    .Where(c => c.ParentId == currentId)
+                    .Select(c => c.Id)
+                    .ToListAsync();
+
+                foreach (var replyId in directReplyIds)
+                {
+                    allReplyIds.Add(replyId);
+                    toProcess.Enqueue(replyId);
+                }
+            }
+
+            return allReplyIds;
         }
 
         public async Task AddCommentAsync(Comment comment)
@@ -90,7 +132,7 @@ namespace Waggle.CommentService.Data
 
         public async Task DeleteCommentsAsync(
             Guid? postId = null,
-            Guid? parentCommentId = null,
+            Guid? parentId = null,
             Guid? userId = null)
         {
             var query = _context.Comments.AsQueryable();
@@ -98,13 +140,20 @@ namespace Waggle.CommentService.Data
             if (postId.HasValue)
                 query = query.Where(c => c.PostId == postId.Value);
 
-            if (parentCommentId.HasValue)
-                query = query.Where(c => c.ParentCommentId == parentCommentId.Value);
+            if (parentId.HasValue)
+                query = query.Where(c => c.ParentId == parentId.Value);
 
             if (userId.HasValue)
                 query = query.Where(c => c.UserId == userId.Value);
 
             await query.ExecuteDeleteAsync();
+        }
+
+        public async Task DeleteCommentsByIdsAsync(IEnumerable<Guid> commentIds)
+        {
+            await _context.Comments
+                .Where(c => commentIds.Contains(c.Id))
+                .ExecuteDeleteAsync();
         }
     }
 }

@@ -17,6 +17,18 @@ dependencies:
   - name: userservice
     version: 0.1.0
     repository: 'file://charts/userservice'
+  - name: likeservice
+    version: 0.1.0
+    repository: 'file://charts/likeservice'
+  - name: followservice
+    version: 0.1.0
+    repository: 'file://charts/followservice'
+  - name: favoriteservice
+    version: 0.1.0
+    repository: 'file://charts/favoriteservice'
+  - name: commentservice
+    version: 0.1.0
+    repository: 'file://charts/commentservice'
   - name: web
     version: 0.1.0
     repository: 'file://charts/web'

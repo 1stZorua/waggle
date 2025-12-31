@@ -5,5 +5,6 @@ export const UserClient = {
   getById: userApi.getApiUsersId,
   getByIds: userApi.postApiUsersBatch,
   create: userApi.postApiUsers,
+  update: userApi.putApiUsersId,
   delete: userApi.deleteApiUsersId
 };

@@ -72,3 +72,103 @@ postservice-db:
           memory: 512Mi
   metrics:
     enabled: true
+
+likeservice-db:
+  primary:
+    persistence:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    replica:
+      persistence:
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+
+followservice-db:
+  primary:
+    persistence:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    replica:
+      persistence:
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+
+favoriteservice-db:
+  primary:
+    persistence:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    replica:
+      persistence:
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+
+commentservice-db:
+  primary:
+    persistence:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    replica:
+      persistence:
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true

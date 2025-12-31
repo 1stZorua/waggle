@@ -8,7 +8,6 @@
 
         // Payload
         public Guid Id { get; set; }
-
         public IEnumerable<Guid> MediaIds { get; set; } = [];
     }
 }

@@ -15,7 +15,7 @@ namespace Waggle.CommentService.Models
         [Required]
         public Guid PostId { get; set; }
         
-        public Guid? ParentCommentId { get; set; }
+        public Guid? ParentId { get; set; }
 
         [Required]
         [MaxLength(500)]

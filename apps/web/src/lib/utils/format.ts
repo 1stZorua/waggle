@@ -3,6 +3,7 @@ export function timeAgo(dateString: string): string {
 	if (isNaN(then)) return '';
 
 	let value = Math.floor((Date.now() - then) / 1000);
+	value = Math.max(0, value);
 
 	const units: [number, string][] = [
 		[60, 's'],
@@ -19,6 +20,38 @@ export function timeAgo(dateString: string): string {
 	}
 
 	return `${value}y`;
+}
+
+export function formatTimestamp(dateString: string): string {
+	const date = new Date(dateString);
+	if (isNaN(date.getTime())) return '';
+
+	const now = new Date();
+	const diffMs = now.getTime() - date.getTime();
+	const diffHours = diffMs / (1000 * 60 * 60);
+
+	const isToday = date.toDateString() === now.toDateString();
+	const yesterday = new Date(now);
+	yesterday.setDate(yesterday.getDate() - 1);
+	const isYesterday = date.toDateString() === yesterday.toDateString();
+
+	if (isToday || isYesterday || diffHours < 168) {
+		const hours = date.getHours();
+		const minutes = date.getMinutes();
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		const displayHours = hours % 12 || 12;
+		const displayMinutes = minutes.toString().padStart(2, '0');
+		return `${displayHours}:${displayMinutes} ${ampm}`;
+	}
+
+	const month = date.toLocaleDateString('en-US', { month: 'short' });
+	const day = date.getDate();
+
+	if (date.getFullYear() !== now.getFullYear()) {
+		return `${month} ${day}, ${date.getFullYear()}`;
+	}
+
+	return `${month} ${day}`;
 }
 
 export function formatNumber(count: number | undefined): string {
@@ -40,4 +73,16 @@ export function formatNumber(count: number | undefined): string {
 	}
 
 	return count.toString();
+}
+
+export function formatText(
+	count: number | undefined,
+	displayValue: string,
+	singular: string,
+	plural?: string
+): string {
+	const value = count ?? 0;
+	const word = value === 1 ? singular : (plural ?? `${singular}s`);
+
+	return `${displayValue} ${word}`;
 }

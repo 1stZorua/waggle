@@ -5,8 +5,6 @@ export const FollowClient = {
   getById: followApi.getApiFollowId,
   getFollowing: followApi.getApiFollowFollowingUserId,
   getFollowers: followApi.getApiFollowFollowersUserId,
-  getFollowingCount: followApi.getApiFollowFollowingUserIdCount,
-  getFollowersCount: followApi.getApiFollowFollowersUserIdCount,
   isFollowing: followApi.getApiFollowCheckFollowerIdFollowingId,
   create: followApi.postApiFollow,
   delete: followApi.deleteApiFollowId

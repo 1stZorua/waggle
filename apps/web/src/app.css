@@ -133,7 +133,6 @@
 		font-family: var(--font-primary);
 		background: var(--color-background);
 		color: var(--color-primary);
-		scrollbar-gutter: stable;
 	}
 
 	main {
@@ -167,6 +166,15 @@
 
 	.main-content:has(.action-bar) {
 		@apply pr-0;
+	}
+
+	.scrollbar-hidden::-webkit-scrollbar {
+		display: none;
+	}
+
+	.scrollbar-hidden {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
 	}
 }
 

@@ -9,19 +9,12 @@ namespace Waggle.FollowService.Data
             Guid? followerId = null,
             Guid? followingId = null,
             PaginationRequest request = null!);
-
         Task<Follow?> GetFollowByIdAsync(Guid id);
-
         Task<Follow?> GetFollowByFollowerAndFollowingAsync(Guid followerId, Guid followingId);
-
-        Task<int> GetFollowerCountAsync(Guid userId);
-
-        Task<int> GetFollowingCountAsync(Guid userId);
-
+        Task<Dictionary<Guid, int>> GetFollowerCountsAsync(IEnumerable<Guid> userIds);
+        Task<Dictionary<Guid, int>> GetFollowingCountsAsync(IEnumerable<Guid> userIds);
         Task AddFollowAsync(Follow follow);
-
         Task DeleteFollowAsync(Follow follow);
-
         Task DeleteFollowsAsync(Guid? followerId = null, Guid? followingId = null);
     }
 }

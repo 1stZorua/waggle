@@ -323,6 +323,7 @@ services:
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcPost=${GrpcPost}
+      - GrpcComment=${GrpcComment}
     depends_on:
       likeservice-db:
         condition: service_healthy
@@ -516,6 +517,7 @@ services:
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
       - GrpcPost=${GrpcPost}
+      - GrpcLike=${GrpcLike}
     depends_on:
       commentservice-db:
         condition: service_healthy
@@ -579,7 +581,9 @@ services:
 
       - Kestrel__Endpoints__webApi__Url=${Kestrel__Endpoints__webApi__Url}
       - Kestrel__Endpoints__Grpc__Url=${Kestrel__Endpoints__Grpc__Url}
-      - GrpcAuth=${GrpcAuth}
+      - GrpcMedia=${GrpcMedia}
+      - GrpcPost=${GrpcPost}
+      - GrpcFollow=${GrpcFollow}
     depends_on:
       userservice-db:
         condition: service_healthy

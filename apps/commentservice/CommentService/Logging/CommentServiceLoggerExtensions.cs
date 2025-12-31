@@ -67,18 +67,18 @@
         [LoggerMessage(
             EventId = 2003,
             Level = LogLevel.Warning,
-            Message = "Parent comment not found: {ParentCommentId}")]
+            Message = "Parent not found: {ParentId}")]
         public static partial void LogCommentParentNotFound(
             this ILogger logger,
-            Guid parentCommentId);
+            Guid parentId);
 
         [LoggerMessage(
             EventId = 2004,
             Level = LogLevel.Warning,
-            Message = "Parent comment {ParentCommentId} does not belong to post {PostId}")]
+            Message = "Parent {ParentId} does not belong to post {PostId}")]
         public static partial void LogCommentParentPostMismatch(
             this ILogger logger,
-            Guid parentCommentId,
+            Guid parentId,
             Guid postId);
 
         [LoggerMessage(
@@ -170,6 +170,15 @@
         public static partial void LogUnauthorizedDeleteAttempt(
             this ILogger logger,
             Guid userId,
+            Guid commentId);
+
+        [LoggerMessage(
+            EventId = 4005,
+            Level = LogLevel.Error,
+            Message = "Failed to publish CommentDeletedEvent for comment: {CommentId}")]
+        public static partial void LogDeletedEventPublishFailed(
+            this ILogger logger,
+            Exception exception,
             Guid commentId);
 
         // Event-Based Comment Deletion Events

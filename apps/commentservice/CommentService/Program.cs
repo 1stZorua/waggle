@@ -1,13 +1,21 @@
 
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Waggle.CommentService.Consumers;
 using Waggle.CommentService.Data;
 using Waggle.CommentService.Grpc;
+using Waggle.CommentService.Saga.Context;
+using Waggle.CommentService.Saga.Steps;
 using Waggle.CommentService.Services;
 using Waggle.Common.Extensions;
 using Waggle.Common.Grpc;
 using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
+using Waggle.Common.Saga;
+using Waggle.Contracts.Like.Clients;
+using Waggle.Contracts.Like.Grpc;
+using Waggle.Contracts.Like.Interfaces;
+using Waggle.Contracts.Post.Clients;
 using Waggle.Contracts.Post.Grpc;
 using Waggle.Contracts.Post.Interfaces;
 
@@ -27,11 +35,20 @@ builder.Services.AddCommonValidation();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddMessaging(builder.Configuration, "comment-service");
+    builder.Services.AddMessaging(builder.Configuration, "comment-service", opt =>
+    {
+        opt.AddConsumer<PostDeletedEventConsumer>();
+        opt.AddConsumer<UserDeletedEventConsumer>();
+    });
 
     builder.Services.AddGrpcClient<GrpcPost.GrpcPostClient>(opt =>
     {
         opt.Address = new Uri(builder.Configuration["GrpcPost"]!);
+    });
+
+    builder.Services.AddGrpcClient<GrpcLike.GrpcLikeClient>(opt =>
+    {
+        opt.Address = new Uri(builder.Configuration["GrpcLike"]!);
     });
 
     var connectionString =
@@ -52,6 +69,18 @@ if (!builder.Environment.IsEnvironment("Testing"))
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IPostDataClient, PostDataClient>();
+builder.Services.AddScoped<ILikeDataClient, LikeDataClient>();
+
+builder.Services.AddScoped<DeleteCommentStep>();
+builder.Services.AddScoped<CleanupStep>();
+
+builder.Services.AddScoped<ISagaCoordinator<DeletionSagaContext>>(sp =>
+{
+    var coordinator = new SagaCoordinator<DeletionSagaContext>();
+    coordinator.AddStep(sp.GetRequiredService<DeleteCommentStep>());
+    coordinator.AddStep(sp.GetRequiredService<CleanupStep>());
+    return coordinator;
+});
 
 builder.Services.AddHealthChecks();
 builder.Services.AddCommonAuthentication(builder.Environment);

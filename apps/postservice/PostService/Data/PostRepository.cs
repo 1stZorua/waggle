@@ -48,11 +48,33 @@ namespace Waggle.PostService.Data
             return await query.ToPagedAsync(sortFields, request);
         }
 
+        public async Task<Dictionary<Guid, int>> GetPostCountsAsync(IEnumerable<Guid> userIds)
+        {
+            var ids = userIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return [];
+
+            return await _context.Posts
+                .AsNoTracking()
+                .Where(p => ids.Contains(p.UserId))
+                .GroupBy(p => p.UserId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.UserId, x => x.Count);
+        }
+
         public async Task AddPostAsync(Post post)
         {
             ArgumentNullException.ThrowIfNull(post);
 
             await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdatePostAsync(Post post)
+        {
+            ArgumentNullException.ThrowIfNull(post);
+
+            _context.Posts.Update(post);
             await _context.SaveChangesAsync();
         }
 

@@ -1,57 +1,32 @@
 <script lang="ts">
-	import { ButtonPrimary, ButtonText } from '$components/shared/buttons';
 	import { Modal } from '$components/shared/other';
-	import { superForm } from 'sveltekit-superforms';
+	import { CreatePost, EditPost, DeletePost, ActionsPost } from './steps';
 	import type { LayoutData } from '../../../../routes/(authenticated)/$types';
-	import { UploadFiles, AssignPets, PostDetails } from './steps';
-
-	const steps = [{ component: UploadFiles }, { component: AssignPets }, { component: PostDetails }];
+	import { usePostModal } from '$lib/hooks/usePostModal.svelte';
+	import { cn } from '$lib/utils';
 
 	interface Props {
-		isOpen: boolean;
 		data: LayoutData;
 	}
 
-	let { isOpen = $bindable(), data }: Props = $props();
-	const { form, errors, enhance, reset } = superForm(data.createPostForm, {
-		onResult: ({ result }) => {
-			if (result.type === 'redirect') close();
-		}
-	});
+	let { data }: Props = $props();
 
-	let currentStep = $state(0);
+	const modal = usePostModal;
 
-	function nextStep() {
-		if (currentStep < steps.length - 1) currentStep += 1;
-	}
+	const steps = {
+		actions: { component: ActionsPost },
+		create: { component: CreatePost },
+		edit: { component: EditPost },
+		delete: { component: DeletePost }
+	};
 
-	function prevStep() {
-		if (currentStep > 0) currentStep -= 1;
-	}
+	const currentStep = $derived(steps[modal.mode]);
 
 	function close() {
-		isOpen = false;
-		currentStep = 0;
-		reset();
+		modal.close();
 	}
 </script>
 
-<Modal bind:isOpen>
-	<form
-		class="flex h-full flex-col"
-		action="/posts?/create"
-		method="POST"
-		enctype="multipart/form-data"
-		use:enhance
-	>
-		{#each steps as step, i}
-			<div class="h-full" hidden={currentStep !== i}>
-				<step.component {form} {errors} onNext={nextStep} onPrev={prevStep} onClose={close} />
-			</div>
-		{/each}
-
-		{#if currentStep === steps.length - 1}
-			<ButtonPrimary type="submit">Submit</ButtonPrimary>
-		{/if}
-	</form>
+<Modal className={cn(currentStep === steps.actions ? 'p-0!' : '')} bind:isOpen={modal.isOpen}>
+	<currentStep.component {data} post={modal.post!} onClose={close} />
 </Modal>

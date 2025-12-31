@@ -85,9 +85,34 @@ namespace Waggle.PostService.Grpc
             return response;
         }
 
+        public override async Task<GetPostCountsResponse> GetPostCounts(GetPostCountsRequest request, ServerCallContext context)
+        {
+            var userIds = request.UserIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+
+            if (userIds.Count != request.UserIds.Count)
+                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, PostErrors.Post.InvalidId);
+
+            var result = await _service.GetPostCountsAsync(userIds);
+
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+
+            var response = new GetPostCountsResponse();
+            response.Counts.AddRange(result.Data!.Select(kvp => new PostCount
+            {
+                UserId = kvp.Key.ToString(),
+                Count = kvp.Value
+            }));
+
+            return response;
+        }
+
         public override async Task<CreatePostResponse> CreatePost(CreatePostRequest request, ServerCallContext context)
         {
-
             var dto = _mapper.Map<PostCreateDto>(request);
 
             var currentUser = GetCurrentUser();
@@ -97,6 +122,22 @@ namespace Waggle.PostService.Grpc
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
             return _mapper.Map<CreatePostResponse>(result.Data);
+        }
+
+        public override async Task<UpdatePostResponse> UpdatePost(UpdatePostRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.Id, out var postId))
+                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, PostErrors.Post.InvalidId);
+
+            var dto = _mapper.Map<PostUpdateDto>(request);
+
+            var currentUser = GetCurrentUser();
+            var result = await _service.UpdatePostAsync(postId, dto, currentUser);
+
+            if (!result.Success)
+                throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
+
+            return _mapper.Map<UpdatePostResponse>(result.Data);
         }
 
         public override async Task<Empty> DeletePost(DeletePostRequest request, ServerCallContext context)

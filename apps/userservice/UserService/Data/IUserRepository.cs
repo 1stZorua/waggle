@@ -10,6 +10,7 @@ namespace Waggle.UserService.Data
         Task<User?> GetUserByIdAsync(Guid id);
         Task<List<User>> GetUsersByIdAsync(UserBatchRequest request);
         Task AddUserAsync(User user);
+        Task UpdateUserAsync(User user);
         Task DeleteUserAsync(User user);
     }   
 }

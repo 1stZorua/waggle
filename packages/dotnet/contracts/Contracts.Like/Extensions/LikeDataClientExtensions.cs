@@ -20,11 +20,13 @@ namespace Waggle.Contracts.Like.Extensions
             return await client.DeleteLikeAsync(new DeleteLikeRequest { Id = id.ToString() });
         }
 
-        public static async Task<Result<GetLikeCountResponse>> GetLikeCountAsync(
+        public static async Task<Result<GetLikeCountsResponse>> GetLikeCountsAsync(
             this ILikeDataClient client,
-            Guid targetId)
+            IEnumerable<Guid> targetIds)
         {
-            return await client.GetLikeCountAsync(new GetLikeCountRequest { TargetId = targetId.ToString() });
+            var request = new GetLikeCountsRequest();
+            request.TargetIds.AddRange(targetIds.Select(id => id.ToString()));
+            return await client.GetLikeCountsAsync(request);
         }
     }
 }

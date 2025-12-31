@@ -111,20 +111,33 @@ namespace Waggle.FavoriteService.Grpc
             return response;
         }
 
-        public override async Task<GetFavoriteCountResponse> GetFavoriteCount(GetFavoriteCountRequest request, ServerCallContext context)
+        public override async Task<GetFavoriteCountsResponse> GetFavoriteCounts(GetFavoriteCountsRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.TargetId, out var targetId))
-                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, FavoriteErrors.Favorite.InvalidId);
+            var targetIds = request.TargetIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
 
-            var result = await _service.GetFavoriteCountAsync(targetId);
+            if (targetIds.Count == 0)
+                return new GetFavoriteCountsResponse();
+
+            var result = await _service.GetFavoriteCountsAsync(targetIds);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetFavoriteCountResponse
+            var response = new GetFavoriteCountsResponse();
+            foreach (var kvp in result.Data!)
             {
-                Count = result.Data
-            };
+                response.Counts.Add(new FavoriteCountEntry
+                {
+                    TargetId = kvp.Key.ToString(),
+                    Count = kvp.Value
+                });
+            }
+
+            return response;
         }
 
         public override async Task<HasFavoritedResponse> HasFavorited(HasFavoritedRequest request, ServerCallContext context)

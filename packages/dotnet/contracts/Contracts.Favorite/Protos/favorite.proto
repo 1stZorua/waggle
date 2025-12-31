@@ -1,10 +1,7 @@
 ﻿syntax = "proto3";
-
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-
 option csharp_namespace = "Waggle.Contracts.Favorite.Grpc";
-
 package favorite;
 
 service GrpcFavorite {
@@ -12,7 +9,7 @@ service GrpcFavorite {
     rpc GetFavoriteById(GetFavoriteByIdRequest) returns (GetFavoriteByIdResponse);
     rpc GetFavoritesByUserId(GetFavoritesByUserIdRequest) returns (GetFavoritesByUserIdResponse);
     rpc GetFavoritesByTarget(GetFavoritesByTargetRequest) returns (GetFavoritesByTargetResponse);
-    rpc GetFavoriteCount(GetFavoriteCountRequest) returns (GetFavoriteCountResponse);
+    rpc GetFavoriteCounts(GetFavoriteCountsRequest) returns (GetFavoriteCountsResponse);
     rpc HasFavorited(HasFavoritedRequest) returns (HasFavoritedResponse);
     rpc CreateFavorite(CreateFavoriteRequest) returns (CreateFavoriteResponse);
     rpc DeleteFavorite(DeleteFavoriteRequest) returns (google.protobuf.Empty);
@@ -79,12 +76,17 @@ message GetFavoritesByTargetResponse {
     PageInfo page_info = 2;
 }
 
-message GetFavoriteCountRequest {
-    string target_id = 1;
+message GetFavoriteCountsRequest {
+    repeated string target_ids = 1;
 }
 
-message GetFavoriteCountResponse {
-    int32 count = 1;
+message FavoriteCountEntry {
+    string target_id = 1;
+    int32 count = 2;
+}
+
+message GetFavoriteCountsResponse {
+    repeated FavoriteCountEntry counts = 1;
 }
 
 message HasFavoritedRequest {

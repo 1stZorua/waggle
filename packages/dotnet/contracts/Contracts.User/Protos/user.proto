@@ -12,6 +12,7 @@ service GrpcUser {
 	rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
 	rpc GetUsersById(GetUsersByIdRequest) returns (GetUsersByIdResponse);
 	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+	rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
 	rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
@@ -67,13 +68,32 @@ message CreateUserResponse {
 	User user = 1;
 }
 
+message UpdateUserRequest {
+	string id = 1;
+	string avatar_id = 2;
+}
+
+message UpdateUserResponse {
+	User user = 1;
+}
+
+message UrlResponse {
+	string url = 1;
+	google.protobuf.Timestamp expires_at = 2;
+}
+
 message User {
 	string id = 1;
 	string username = 2;
 	string email = 3;
 	string first_name = 4;
 	string last_name = 5;
-	google.protobuf.Timestamp created_at = 6;
+	string avatar_id = 6;
+	google.protobuf.Timestamp created_at = 7;
+	UrlResponse avatar_url = 8;
+	int32 post_count = 9;
+	int32 follower_count = 10;
+	int32 following_count = 11;
 }
 
 message DeleteUserRequest {

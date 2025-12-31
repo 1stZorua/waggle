@@ -111,36 +111,56 @@ namespace Waggle.FollowService.Grpc
             return response;
         }
 
-        public override async Task<GetFollowerCountResponse> GetFollowerCount(GetFollowerCountRequest request, ServerCallContext context)
+        public override async Task<GetFollowerCountsResponse> GetFollowerCounts(GetFollowerCountsRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.UserId, out var userId))
+            var userIds = request.UserIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+
+            if (userIds.Count != request.UserIds.Count)
                 throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, FollowErrors.Follow.InvalidId);
 
-            var result = await _service.GetFollowerCountAsync(userId);
+            var result = await _service.GetFollowerCountsAsync(userIds);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetFollowerCountResponse
+            var response = new GetFollowerCountsResponse();
+            response.Counts.AddRange(result.Data!.Select(kvp => new FollowerCount
             {
-                Count = result.Data
-            };
+                UserId = kvp.Key.ToString(),
+                Count = kvp.Value
+            }));
+
+            return response;
         }
 
-        public override async Task<GetFollowingCountResponse> GetFollowingCount(GetFollowingCountRequest request, ServerCallContext context)
+        public override async Task<GetFollowingCountsResponse> GetFollowingCounts(GetFollowingCountsRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.UserId, out var userId))
+            var userIds = request.UserIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+
+            if (userIds.Count != request.UserIds.Count)
                 throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, FollowErrors.Follow.InvalidId);
 
-            var result = await _service.GetFollowingCountAsync(userId);
+            var result = await _service.GetFollowingCountsAsync(userIds);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetFollowingCountResponse
+            var response = new GetFollowingCountsResponse();
+            response.Counts.AddRange(result.Data!.Select(kvp => new FollowingCount
             {
-                Count = result.Data
-            };
+                UserId = kvp.Key.ToString(),
+                Count = kvp.Value
+            }));
+
+            return response;
         }
 
         public override async Task<IsFollowingResponse> IsFollowing(IsFollowingRequest request, ServerCallContext context)

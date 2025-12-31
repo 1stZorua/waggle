@@ -1,12 +1,13 @@
-import type { PostMediaUrls } from '@waggle/api-client/post/model';
 import type { User as UserModel } from '@waggle/api-client/user/model';
+import type { Comment as CommentModel } from '@waggle/api-client/comment/model';
+import type { Post as PostModel } from '@waggle/api-client/post/model';
 
 export interface Auth {
 	accessToken: string;
 	refreshToken: string;
 }
 
-export interface User {
+export interface AuthUser {
 	id: string;
 	username: string;
 	email: string;
@@ -14,25 +15,14 @@ export interface User {
 	roles: string[];
 }
 
-export interface Comment {
-	id?: string;
-	user?: User | null;
-	content?: string;
-	createdAt?: string;
-	commentIds?: number[];
-}
-
-export interface Post {
-	id?: string;
-	userId?: string;
-	caption?: string | null;
-	thumbnailId: string;
-	mediaIds?: string[] | null;
-	mediaUrls?: PostMediaUrls;
-	likeCount?: number;
-	commentCount?: number;
-	createdAt?: string;
+export type Comment = CommentModel & {
 	user?: UserModel | null;
-}
+};
+
+export type Post = PostModel & {
+	user?: UserModel | null;
+	comments?: Comment[] | null;
+	commentsNextCursor?: string | null;
+};
 
 export type FlashType = 'success' | 'info' | 'warning' | 'error';

@@ -1,7 +1,10 @@
 export { default as Avatar } from './Avatar.svelte';
+export { default as Carousel } from './Carousel.svelte';
 export { default as Comment } from './Comment.svelte';
+export { default as Dropdown } from './Dropdown.svelte';
 export { default as Ellipse } from './Ellipse.svelte';
 export { default as Icon } from './Icon.svelte';
+export { default as InfiniteScroll } from './InfiniteScroll.svelte';
 export { default as Input } from './Input.svelte';
 export { default as Logo } from './Logo.svelte';
 export { default as Modal } from './Modal.svelte';

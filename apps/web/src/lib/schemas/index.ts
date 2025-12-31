@@ -1,4 +1,10 @@
+export { createCommentSchema, type CreateCommentSchema } from './createComment';
 export { createPostSchema, type CreatePostSchema } from './createPost';
+export { deleteCommentSchema, type DeleteCommentSchema } from './deleteComment';
+export { deletePostSchema, type DeletePostSchema } from './deletePost';
 export { deleteUserSchema, type DeleteUserSchema } from './deleteUser';
 export { loginSchema, type LoginSchema } from './login';
 export { registerSchema, type RegisterSchema } from './register';
+export { updateCommentSchema, type UpdateCommentSchema } from './updateComment';
+export { updatePostSchema, type UpdatePostSchema } from './updatePost';
+export { updateUserSchema, type UpdateUserSchema } from './updateUser';

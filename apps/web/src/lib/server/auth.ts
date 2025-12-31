@@ -1,7 +1,7 @@
 import { deleteAuthCookies, getAuthCookies, setAuthCookies } from '$lib/server';
 import { AuthClient } from '@waggle/api-client/auth';
 import type { Cookies } from '@sveltejs/kit';
-import type { User } from '$lib/types/types';
+import type { AuthUser } from '$lib/types/types';
 
 export function authHeaders(accessToken: string) {
 	return { Authorization: `Bearer ${accessToken}` };
@@ -26,7 +26,7 @@ export async function refreshTokenClient(cookies: Cookies, refreshToken?: string
 	}
 }
 
-export async function validateUser(accessToken: string): Promise<User | null> {
+export async function validateUser(accessToken: string): Promise<AuthUser | null> {
 	try {
 		const { data } = await AuthClient.validate({
 			headers: authHeaders(accessToken)

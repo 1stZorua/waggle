@@ -18,7 +18,7 @@ namespace Waggle.CommentService.Data
                 .HasIndex(c => c.PostId);
 
             builder.Entity<Comment>()
-                .HasIndex(c => c.ParentCommentId);
+                .HasIndex(c => c.ParentId);
 
             builder.Entity<Comment>()
                 .HasIndex(c => c.UserId);
@@ -27,7 +27,7 @@ namespace Waggle.CommentService.Data
                 .HasIndex(c => c.CreatedAt);
 
             builder.Entity<Comment>()
-                .HasIndex(c => new { c.PostId, c.ParentCommentId });
+                .HasIndex(c => new { c.PostId, c.ParentId });
         }
     }
 }

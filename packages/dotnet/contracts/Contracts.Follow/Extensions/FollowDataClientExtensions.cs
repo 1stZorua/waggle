@@ -13,6 +13,24 @@ namespace Waggle.Contracts.Follow.Extensions
             return await client.GetFollowByIdAsync(new GetFollowByIdRequest { Id = id.ToString() });
         }
 
+        public static async Task<Result<GetFollowerCountsResponse>> GetFollowerCountsAsync(
+            this IFollowDataClient client,
+            IEnumerable<Guid> userIds)
+        {
+            var request = new GetFollowerCountsRequest();
+            request.UserIds.AddRange(userIds.Select(id => id.ToString()));
+            return await client.GetFollowerCountsAsync(request);
+        }
+
+        public static async Task<Result<GetFollowingCountsResponse>> GetFollowingCountsAsync(
+            this IFollowDataClient client,
+            IEnumerable<Guid> userIds)
+        {
+            var request = new GetFollowingCountsRequest();
+            request.UserIds.AddRange(userIds.Select(id => id.ToString()));
+            return await client.GetFollowingCountsAsync(request);
+        }
+
         public static async Task<Result> DeleteFollowAsync(
             this IFollowDataClient client,
             Guid id)

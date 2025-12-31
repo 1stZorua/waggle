@@ -1,7 +1,7 @@
 import { tv, type VariantProps } from 'tailwind-variants';
 
 const cardVariants = tv({
-	base: 'flex gap-sm w-full h-max rounded-lg outline-none transition-colors duration-500 focus-visible:ring-2 focus-visible:ring-accent',
+	base: 'flex gap-sm w-full h-max rounded-lg bg-background outline-none transition-colors duration-500 focus-visible:ring-2 focus-visible:ring-accent',
 	variants: {
 		variant: {
 			primary: 'shadow-ui',

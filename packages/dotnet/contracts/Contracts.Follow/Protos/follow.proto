@@ -12,8 +12,8 @@ service GrpcFollow {
     rpc GetFollowById(GetFollowByIdRequest) returns (GetFollowByIdResponse);
     rpc GetFollowers(GetFollowersRequest) returns (GetFollowersResponse);
     rpc GetFollowing(GetFollowingRequest) returns (GetFollowingResponse);
-    rpc GetFollowerCount(GetFollowerCountRequest) returns (GetFollowerCountResponse);
-    rpc GetFollowingCount(GetFollowingCountRequest) returns (GetFollowingCountResponse);
+    rpc GetFollowerCounts(GetFollowerCountsRequest) returns (GetFollowerCountsResponse);
+    rpc GetFollowingCounts(GetFollowingCountsRequest) returns (GetFollowingCountsResponse);
     rpc IsFollowing(IsFollowingRequest) returns (IsFollowingResponse);
     rpc CreateFollow(CreateFollowRequest) returns (CreateFollowResponse);
     rpc DeleteFollow(DeleteFollowRequest) returns (google.protobuf.Empty);
@@ -75,20 +75,30 @@ message GetFollowingResponse {
     PageInfo page_info = 2;
 }
 
-message GetFollowerCountRequest {
+message GetFollowerCountsRequest {
+    repeated string user_ids = 1;
+}
+
+message FollowerCount {
     string user_id = 1;
+    int32 count = 2;
 }
 
-message GetFollowerCountResponse {
-    int32 count = 1;
+message GetFollowerCountsResponse {
+    repeated FollowerCount counts = 1;
 }
 
-message GetFollowingCountRequest {
+message GetFollowingCountsRequest {
+    repeated string user_ids = 1;
+}
+
+message FollowingCount {
     string user_id = 1;
+    int32 count = 2;
 }
 
-message GetFollowingCountResponse {
-    int32 count = 1;
+message GetFollowingCountsResponse {
+    repeated FollowingCount counts = 1;
 }
 
 message IsFollowingRequest {

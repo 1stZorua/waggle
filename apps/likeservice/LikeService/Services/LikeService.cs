@@ -7,9 +7,12 @@ using Waggle.Common.Models;
 using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
 using Waggle.Common.Validation;
+using Waggle.Contracts.Auth.Events;
+using Waggle.Contracts.Comment.Events;
 using Waggle.Contracts.Comment.Extensions;
 using Waggle.Contracts.Comment.Interfaces;
 using Waggle.Contracts.Like.Events;
+using Waggle.Contracts.Post.Events;
 using Waggle.Contracts.Post.Extensions;
 using Waggle.Contracts.Post.Interfaces;
 using Waggle.LikeService.Constants;
@@ -139,18 +142,16 @@ namespace Waggle.LikeService.Services
             }
         }
 
-        public async Task<Result<int>> GetLikeCountAsync(Guid targetId)
+        public async Task<Result<Dictionary<Guid, int>>> GetLikeCountsAsync(IEnumerable<Guid> targetIds)
         {
             try
             {
-                var count = await _repo.GetLikeCountAsync(targetId);
-                _logger.LogLikesRetrieved(count);
-                return Result<int>.Ok(count);
+                var counts = await _repo.GetLikeCountsAsync(targetIds);
+                return Result<Dictionary<Guid,int>>.Ok(counts);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogLikesRetrievalFailed(ex);
-                return Result<int>.Fail(LikeErrors.Service.Failed, ErrorCodes.ServiceFailed);
+                return Result<Dictionary<Guid,int>>.Fail(LikeErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }
 
@@ -277,6 +278,54 @@ namespace Waggle.LikeService.Services
             catch (Exception ex)
             {
                 _logger.LogLikeDeletionFailed(ex, id);
+                return Result.Fail(LikeErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandleCommentDeletedEventAsync(CommentDeletedEvent @event)
+        {
+            try
+            {
+                await _repo.DeleteLikesAsync(targetId: @event.Id);
+
+                _logger.LogLikeDeletedFromEvent(@event.Id);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogLikeDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(LikeErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandlePostDeletedEventAsync(PostDeletedEvent @event)
+        {
+            try
+            {
+                await _repo.DeleteLikesAsync(targetId: @event.Id);
+
+                _logger.LogLikeDeletedFromEvent(@event.Id);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogLikeDeletionFromEventFailed(ex, @event.Id);
+                return Result.Fail(LikeErrors.Service.Failed, ErrorCodes.ServiceFailed);
+            }
+        }
+
+        public async Task<Result> HandleUserDeletedEventAsync(UserDeletedEvent @event)
+        {
+            try
+            {
+                await _repo.DeleteLikesAsync(userId: @event.Id);
+
+                _logger.LogLikeDeletedFromEvent(@event.Id);
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogLikeDeletionFromEventFailed(ex, @event.Id);
                 return Result.Fail(LikeErrors.Service.Failed, ErrorCodes.ServiceFailed);
             }
         }

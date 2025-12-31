@@ -65,24 +65,6 @@ namespace Waggle.CommentService.Controllers
         }
 
         [Authorize]
-        [HttpGet("posts/{postId}/count")]
-        [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCommentCount(Guid postId)
-        {
-            var result = await _service.GetCommentCountAsync(postId);
-            return result.ToActionResult();
-        }
-
-        [Authorize]
-        [HttpGet("{commentId}/replies/count")]
-        [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetReplyCount(Guid commentId)
-        {
-            var result = await _service.GetReplyCountAsync(commentId);
-            return result.ToActionResult();
-        }
-
-        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<CommentDto>), StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateComment([FromBody] CommentCreateDto request)

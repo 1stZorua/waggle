@@ -1,0 +1,11 @@
+name: favoriteservice
+replicaCount: 1
+image: waggle-favoriteservice:latest
+
+ports:
+  http: 8080
+  grpc: 8081
+
+ingress:
+  enabled: true
+  host: favoriteservice.localhost

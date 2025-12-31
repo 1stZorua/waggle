@@ -1,0 +1,11 @@
+name: likeservice
+replicaCount: 1
+image: waggle-likeservice:latest
+
+ports:
+  http: 8080
+  grpc: 8081
+
+ingress:
+  enabled: true
+  host: likeservice.localhost

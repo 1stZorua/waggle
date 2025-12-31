@@ -13,6 +13,15 @@ namespace Waggle.Contracts.Post.Extensions
             return await client.GetPostByIdAsync(new GetPostByIdRequest { Id = id.ToString() });
         }
 
+        public static async Task<Result<GetPostCountsResponse>> GetPostCountsAsync(
+            this IPostDataClient client,
+            IEnumerable<Guid> userIds)
+        {
+            var request = new GetPostCountsRequest();
+            request.UserIds.AddRange(userIds.Select(id => id.ToString()));
+            return await client.GetPostCountsAsync(request);
+        }
+
         public static async Task<Result> DeletePostAsync(
             this IPostDataClient client,
             Guid id)

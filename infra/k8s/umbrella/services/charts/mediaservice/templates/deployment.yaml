@@ -71,6 +71,4 @@ spec:
               value: "posts"
             - name: Media__Buckets__Users
               value: "users"
-            - name: GrpcMedia
-              value: "http://mediaservice-svc.app.svc.cluster.local:8081"
               

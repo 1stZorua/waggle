@@ -82,10 +82,40 @@
             this ILogger logger,
             Guid userId);
 
-        // Post Deletion Events
+        // Post Update Events
 
         [LoggerMessage(
             EventId = 3001,
+            Level = LogLevel.Information,
+            Message = "Post updated: {PostId} by user {UserId}")]
+        public static partial void LogPostUpdated(
+            this ILogger logger,
+            Guid postId,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 3002,
+            Level = LogLevel.Warning,
+            Message = "Unauthorized update attempt on post {PostId} by user {UserId}")]
+        public static partial void LogUnauthorizedPostAccess(
+            this ILogger logger,
+            Guid postId,
+            Guid userId);
+
+        [LoggerMessage(
+            EventId = 3003,
+            Level = LogLevel.Error,
+            Message = "Post update failed: {PostId} by user {UserId}")]
+        public static partial void LogPostUpdateFailed(
+            this ILogger logger,
+            Exception exception,
+            Guid postId,
+            Guid userId);
+
+        // Post Deletion Events
+
+        [LoggerMessage(
+            EventId = 4001,
             Level = LogLevel.Information,
             Message = "Post deleted: {PostId}")]
         public static partial void LogPostDeleted(
@@ -93,7 +123,7 @@
             Guid postId);
 
         [LoggerMessage(
-            EventId = 3002,
+            EventId = 4002,
             Level = LogLevel.Warning,
             Message = "Post not found for deletion: {PostId}")]
         public static partial void LogPostDeleteNotFound(
@@ -101,7 +131,7 @@
             Guid postId);
 
         [LoggerMessage(
-            EventId = 3003,
+            EventId = 4003,
             Level = LogLevel.Error,
             Message = "Post deletion failed: {PostId}")]
         public static partial void LogPostDeletionFailed(
@@ -110,7 +140,7 @@
             Guid postId);
 
         [LoggerMessage(
-            EventId = 3004,
+            EventId = 4004,
             Level = LogLevel.Warning,
             Message = "Unauthorized deletion attempt on post {PostId} by user {UserId}")]
         public static partial void LogUnauthorizedDeleteAttempt(
@@ -119,7 +149,7 @@
             Guid postId);
 
         [LoggerMessage(
-            EventId = 1008,
+            EventId = 4008,
             Level = LogLevel.Error,
             Message = "Deleted event publication failed: {PostId}")]
         public static partial void LogDeletedEventPublishFailed(
@@ -130,7 +160,7 @@
         // Event-Based Post Deletion Events
 
         [LoggerMessage(
-            EventId = 4001,
+            EventId = 5001,
             Level = LogLevel.Information,
             Message = "Post deleted from event: {PostId}")]
         public static partial void LogPostDeletedFromEvent(
@@ -138,7 +168,7 @@
             Guid postId);
 
         [LoggerMessage(
-            EventId = 4002,
+            EventId = 5002,
             Level = LogLevel.Information,
             Message = "Post not found for deletion from event: {PostId}")]
         public static partial void LogPostDeleteNotFoundFromEvent(
@@ -146,7 +176,7 @@
             Guid postId);
 
         [LoggerMessage(
-            EventId = 4003,
+            EventId = 5003,
             Level = LogLevel.Error,
             Message = "Post deletion from event failed: {PostId}")]
         public static partial void LogPostDeletionFromEventFailed(

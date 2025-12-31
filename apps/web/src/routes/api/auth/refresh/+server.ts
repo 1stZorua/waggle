@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { getAuthCookies } from '$lib/server';
-import { refreshTokenClient } from '$lib/server/auth';
+import { refreshTokenClient } from '$lib/server';
 import { redirect } from 'sveltekit-flash-message/server';
 
 export const POST = async ({ cookies }) => {

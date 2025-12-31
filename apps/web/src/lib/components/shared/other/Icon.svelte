@@ -6,6 +6,9 @@
 </script>
 
 <iconify-icon
-	class={cn('inline-block h-[1em] w-[1em] text-xl transition-colors duration-300', className)}
+	class={cn(
+		'inline-block h-[1em] w-[1em] p-[0.125px] text-xl transition-colors duration-300',
+		className
+	)}
 	{icon}
 ></iconify-icon>

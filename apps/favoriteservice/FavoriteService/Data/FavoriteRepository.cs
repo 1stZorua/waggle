@@ -62,11 +62,18 @@ namespace Waggle.FavoriteService.Data
                     f.TargetId == targetId);
         }
 
-        public async Task<int> GetFavoriteCountAsync(Guid targetId)
+        public async Task<Dictionary<Guid, int>> GetFavoriteCountsAsync(IEnumerable<Guid> targetIds)
         {
+            var ids = targetIds.Distinct().ToList();
+            if (ids.Count == 0)
+                return new Dictionary<Guid, int>();
+
             return await _context.Favorites
                 .AsNoTracking()
-                .CountAsync(f => f.TargetId == targetId);
+                .Where(f => ids.Contains(f.TargetId))
+                .GroupBy(f => f.TargetId)
+                .Select(g => new { TargetId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.TargetId, x => x.Count);
         }
 
         public async Task AddFavoriteAsync(Favorite favorite)

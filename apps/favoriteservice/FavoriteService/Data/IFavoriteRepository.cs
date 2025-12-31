@@ -13,7 +13,7 @@ namespace Waggle.FollowService.Data
             PaginationRequest request = null!);
         Task<Favorite?> GetFavoriteByIdAsync(Guid id);
         Task<Favorite?> GetFavoriteByUserAndTargetAsync(Guid userId, Guid targetId);
-        Task<int> GetFavoriteCountAsync(Guid targetId);
+        Task<Dictionary<Guid, int>> GetFavoriteCountsAsync(IEnumerable<Guid> targetIds);
         Task AddFavoriteAsync(Favorite favorite);
         Task DeleteFavoriteAsync(Favorite favorite);
         Task DeleteFavoritesAsync(Guid? targetId = null, InteractionType? targetType = null, Guid? userId = null);

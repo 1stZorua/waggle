@@ -5,10 +5,13 @@ using Waggle.Common.Extensions;
 using Waggle.Common.Grpc;
 using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
+using Waggle.Contracts.Comment.Clients;
 using Waggle.Contracts.Comment.Grpc;
 using Waggle.Contracts.Comment.Interfaces;
+using Waggle.Contracts.Post.Clients;
 using Waggle.Contracts.Post.Grpc;
 using Waggle.Contracts.Post.Interfaces;
+using Waggle.LikeService.Consumers;
 using Waggle.LikeService.Data;
 using Waggle.LikeService.Grpc;
 using Waggle.LikeService.Services;
@@ -29,7 +32,12 @@ builder.Services.AddCommonValidation();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddMessaging(builder.Configuration, "like-service");
+    builder.Services.AddMessaging(builder.Configuration, "like-service", opt =>
+    {
+        opt.AddConsumer<CommentDeletedEventConsumer>();
+        opt.AddConsumer<PostDeletedEventConsumer>();
+        opt.AddConsumer<UserDeletedEventConsumer>();
+    });
 
     builder.Services.AddGrpcClient<GrpcPost.GrpcPostClient>(opt =>
     {

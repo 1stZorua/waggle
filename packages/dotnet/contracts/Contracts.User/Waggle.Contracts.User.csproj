@@ -20,8 +20,4 @@
 		<Protobuf Include="Protos/user.proto" GrpcServices="both" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Events\" />
-	</ItemGroup>
-
 </Project>

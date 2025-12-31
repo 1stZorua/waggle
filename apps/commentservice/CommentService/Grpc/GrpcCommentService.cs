@@ -137,36 +137,62 @@ namespace Waggle.CommentService.Grpc
             return response;
         }
 
-        public override async Task<GetCommentCountResponse> GetCommentCount(GetCommentCountRequest request, ServerCallContext context)
+        public override async Task<GetCommentCountsResponse> GetCommentCounts(GetCommentCountsRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.PostId, out var postId))
-                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, CommentErrors.Comment.InvalidId);
+            var postIds = request.PostIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
 
-            var result = await _service.GetCommentCountAsync(postId);
+            if (postIds.Count == 0)
+                return new GetCommentCountsResponse();
+
+            var result = await _service.GetCommentCountsAsync(postIds);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetCommentCountResponse
+            var response = new GetCommentCountsResponse();
+            foreach (var kvp in result.Data!)
             {
-                Count = result.Data
-            };
+                response.Counts.Add(new CommentCountEntry
+                {
+                    PostId = kvp.Key.ToString(),
+                    Count = kvp.Value
+                });
+            }
+
+            return response;
         }
 
-        public override async Task<GetReplyCountResponse> GetReplyCount(GetReplyCountRequest request, ServerCallContext context)
+        public override async Task<GetReplyCountsResponse> GetReplyCounts(GetReplyCountsRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.CommentId, out var commentId))
-                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, CommentErrors.Comment.InvalidId);
+            var commentIds = request.CommentIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
 
-            var result = await _service.GetReplyCountAsync(commentId);
+            if (commentIds.Count == 0)
+                return new GetReplyCountsResponse();
+
+            var result = await _service.GetReplyCountsAsync(commentIds);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetReplyCountResponse
+            var response = new GetReplyCountsResponse();
+            foreach (var kvp in result.Data!)
             {
-                Count = result.Data
-            };
+                response.Counts.Add(new ReplyCountEntry
+                {
+                    CommentId = kvp.Key.ToString(),
+                    Count = kvp.Value
+                });
+            }
+
+            return response;
         }
 
         public override async Task<CreateCommentResponse> CreateComment(CreateCommentRequest request, ServerCallContext context)

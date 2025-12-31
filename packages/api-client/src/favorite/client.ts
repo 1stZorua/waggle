@@ -5,7 +5,6 @@ export const FavoriteClient = {
   getById: favoriteApi.getApiFavoriteId,
   getAllByUserId: favoriteApi.getApiFavoriteUserUserId,
   getAllByTargetId: favoriteApi.getApiFavoriteTargetTargetId,
-  getTargetCount: favoriteApi.getApiFavoriteTargetTargetIdCount,
   hasFavorited: favoriteApi.getApiFavoriteCheckUserIdTargetId,
   create: favoriteApi.postApiFavorite,
   delete: favoriteApi.deleteApiFavoriteId

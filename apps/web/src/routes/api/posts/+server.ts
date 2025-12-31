@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { getPostsWithUsers } from '$lib/server/posts';
+import { getPostsWithUsers } from '$lib/server';
 import { redirect } from 'sveltekit-flash-message/server';
 
 export const POST: RequestHandler = async ({ locals, request }) => {

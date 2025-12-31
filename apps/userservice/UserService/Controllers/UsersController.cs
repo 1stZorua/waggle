@@ -54,6 +54,15 @@ namespace Waggle.UserService.Controllers
         }
 
         [Authorize]
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto request)
+        {
+            var result = await _service.UpdateUserAsync(id, request, CurrentUser);
+            return result.ToActionResult();
+        }
+
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteUser(Guid id)

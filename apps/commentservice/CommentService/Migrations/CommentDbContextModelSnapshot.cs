@@ -36,7 +36,7 @@ namespace Waggle.CommentService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("ParentCommentId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("PostId")
@@ -52,15 +52,15 @@ namespace Waggle.CommentService.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("ParentCommentId");
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("PostId");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("PostId", "ParentCommentId");
+                    b.HasIndex("PostId", "ParentId");
 
-                    b.ToTable("comments");
+                    b.ToTable("comments", (string)null);
                 });
 #pragma warning restore 612, 618
         }

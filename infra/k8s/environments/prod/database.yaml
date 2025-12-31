@@ -78,3 +78,111 @@ postservice-db:
           memory: 1Gi
   metrics:
     enabled: true
+
+likeservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  replication:
+    replica:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  metrics:
+    enabled: true
+
+followservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  replication:
+    replica:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  metrics:
+    enabled: true
+
+favoriteservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  replication:
+    replica:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  metrics:
+    enabled: true
+
+commentservice-db:
+  auth:
+    password: waggle
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  replication:
+    replica:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  metrics:
+    enabled: true

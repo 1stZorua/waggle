@@ -3,8 +3,9 @@
 	import { ButtonText } from '$components/shared/buttons';
 	import { Avatar, Icon, Logo } from '$components/shared/other';
 	import { cn } from 'tailwind-variants';
+	import type { LayoutData } from '../../../../routes/(authenticated)/$types';
 
-	let { className }: { className: ClassType } = $props();
+	let { className, data }: { className: ClassType; data: LayoutData } = $props();
 </script>
 
 <header
@@ -25,7 +26,7 @@
 			</ButtonText>
 		</div>
 		<ButtonText href="/profile" class="pointer-events-auto">
-			<Avatar src="/images/avatar.png" alt="avatar"></Avatar>
+			<Avatar src={data.profile?.avatarUrl?.url ?? '/images/anonymous.png'} alt="avatar"></Avatar>
 		</ButtonText>
 	</div>
 </header>

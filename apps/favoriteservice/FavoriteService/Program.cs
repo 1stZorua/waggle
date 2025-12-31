@@ -7,8 +7,10 @@ using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
 using Waggle.Contracts.Comment.Grpc;
 using Waggle.Contracts.Comment.Interfaces;
+using Waggle.Contracts.Post.Clients;
 using Waggle.Contracts.Post.Grpc;
 using Waggle.Contracts.Post.Interfaces;
+using Waggle.FavoriteService.Consumers;
 using Waggle.FavoriteService.Data;
 using Waggle.FavoriteService.Grpc;
 using Waggle.FavoriteService.Services;
@@ -30,7 +32,11 @@ builder.Services.AddCommonValidation();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddMessaging(builder.Configuration, "favorite-service");
+    builder.Services.AddMessaging(builder.Configuration, "favorite-service", opt =>
+    {
+        opt.AddConsumer<PostDeletedEventConsumer>();
+        opt.AddConsumer<UserDeletedEventConsumer>();
+    });
 
     builder.Services.AddGrpcClient<GrpcPost.GrpcPostClient>(opt =>
     {

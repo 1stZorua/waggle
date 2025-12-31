@@ -1,4 +1,4 @@
-import { getPostsByUserId } from '$lib/server/posts';
+import { getPostsByUserId } from '$lib/server';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals, url, params }) => {

@@ -43,15 +43,20 @@ namespace Waggle.UserService.Data
         public async Task AddUserAsync(User user)
         {
             ArgumentNullException.ThrowIfNull(user);
-
             await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            ArgumentNullException.ThrowIfNull(user);
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteUserAsync(User user)
         {
             ArgumentNullException.ThrowIfNull(user);
-
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }

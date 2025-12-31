@@ -20,6 +20,8 @@
 		"@tailwindcss/vite": "^4.1.14",
 		"@waggle/api-client": "^1.0.0",
 		"dotenv": "^17.2.3",
+		"embla-carousel": "^8.6.0",
+		"embla-carousel-svelte": "^8.6.0",
 		"iconify-icon": "^3.0.1",
 		"svelte-sonner": "^1.0.6",
 		"sveltekit-superforms": "^2.27.2",

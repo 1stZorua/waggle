@@ -1,0 +1,5 @@
+apiVersion: v2
+name: followservice
+version: 0.1.0
+description: Helm chart for the followservice service
+type: application

@@ -9,7 +9,7 @@ namespace Waggle.Contracts.Like.Interfaces
         Task<Result<GetLikeByIdResponse>> GetLikeByIdAsync(GetLikeByIdRequest request);
         Task<Result<GetLikesByUserIdResponse>> GetLikesByUserIdAsync(GetLikesByUserIdRequest request);
         Task<Result<GetLikesByTargetIdResponse>> GetLikesByTargetIdAsync(GetLikesByTargetIdRequest request);
-        Task<Result<GetLikeCountResponse>> GetLikeCountAsync(GetLikeCountRequest request);
+        Task<Result<GetLikeCountsResponse>> GetLikeCountsAsync(GetLikeCountsRequest request);
         Task<Result<HasLikedResponse>> HasLikedAsync(HasLikedRequest request);
         Task<Result<CreateLikeResponse>> CreateLikeAsync(CreateLikeRequest request);
         Task<Result> DeleteLikeAsync(DeleteLikeRequest request);

@@ -1,4 +1,5 @@
-﻿using Waggle.Common.Pagination.Models;
+﻿using Waggle.Common.Auth;
+using Waggle.Common.Pagination.Models;
 using Waggle.Common.Results.Core;
 using Waggle.UserService.Dtos;
 
@@ -10,6 +11,7 @@ namespace Waggle.UserService.Services
         Task<Result<UserDto>> GetUserByIdAsync(Guid id);
         Task<Result<List<UserDto>>> GetUsersByIdAsync(UserBatchRequest request);
         Task<Result<UserDto>> CreateUserAsync(UserCreateDto request);
+        Task<Result<UserDto>> UpdateUserAsync(Guid id, UserUpdateDto request, UserInfoDto currentUser);
         Task<Result> DeleteUserAsync(Guid id);
     }
 }

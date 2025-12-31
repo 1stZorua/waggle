@@ -7,15 +7,17 @@ namespace Waggle.CommentService.Data
     {
         Task<PagedResult<Comment>> GetCommentsAsync(
             Guid? postId = null,
-            Guid? parentCommentId = null,
+            Guid? parentId = null,
             Guid? userId = null,
             PaginationRequest request = null!);
         Task<Comment?> GetCommentByIdAsync(Guid id);
-        Task<int> GetCommentCountAsync(Guid postId);
-        Task<int> GetReplyCountAsync(Guid commentId);
+        Task<Dictionary<Guid, int>> GetCommentCountsAsync(IEnumerable<Guid> postIds);
+        Task<Dictionary<Guid, int>> GetReplyCountsAsync(IEnumerable<Guid> commentIds);
+        Task<List<Guid>> GetAllReplyIdsRecursivelyAsync(Guid commentId);
         Task AddCommentAsync(Comment comment);
         Task UpdateCommentAsync(Comment comment);
         Task DeleteCommentAsync(Comment comment);
-        Task DeleteCommentsAsync(Guid? postId = null, Guid? parentCommentId = null, Guid? userId = null);
+        Task DeleteCommentsAsync(Guid? postId = null, Guid? parentId = null, Guid? userId = null);
+        Task DeleteCommentsByIdsAsync(IEnumerable<Guid> commentIds);
     }
 }

@@ -20,6 +20,8 @@ namespace Waggle.UserService.Models
 
         [Required]
         public required string LastName { get; set; }
+        
+        public Guid AvatarId { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

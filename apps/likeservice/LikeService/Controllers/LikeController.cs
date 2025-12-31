@@ -56,17 +56,8 @@ namespace Waggle.LikeService.Controllers
         }
 
         [Authorize]
-        [HttpGet("target/{targetId}/count")]
-        [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetLikeCount(Guid targetId)
-        {
-            var result = await _service.GetLikeCountAsync(targetId);
-            return result.ToActionResult();
-        }
-
-        [Authorize]
         [HttpGet("check/{userId}/{targetId}")]
-        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<LikeDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> HasLiked(Guid userId, Guid targetId)
         {
             var result = await _service.HasLikedAsync(userId, targetId);

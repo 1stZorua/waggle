@@ -5,10 +5,13 @@ using Waggle.Common.Extensions;
 using Waggle.Common.Grpc;
 using Waggle.Common.Messaging;
 using Waggle.Common.Observability;
+using Waggle.Contracts.Post.Clients;
 using Waggle.Contracts.Post.Grpc;
 using Waggle.Contracts.Post.Interfaces;
+using Waggle.Contracts.User.Clients;
 using Waggle.Contracts.User.Grpc;
 using Waggle.Contracts.User.Interfaces;
+using Waggle.FollowService.Consumers;
 using Waggle.FollowService.Data;
 using Waggle.FollowService.Grpc;
 using Waggle.FollowService.Services;
@@ -29,7 +32,10 @@ builder.Services.AddCommonValidation();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddMessaging(builder.Configuration, "follow-service");
+    builder.Services.AddMessaging(builder.Configuration, "follow-service", opt =>
+    {
+        opt.AddConsumer<UserDeletedEventConsumer>();
+    });
 
     builder.Services.AddGrpcClient<GrpcPost.GrpcPostClient>(opt =>
     {

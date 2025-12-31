@@ -1,6 +1,7 @@
 import { PostClient } from '@waggle/api-client/post';
-import { UserClient } from '@waggle/api-client/user';
 import { authHeaders } from './auth';
+import { getCommentsByPostId } from './comments';
+import { getUsersByIds } from './users';
 
 export async function getPostsWithUsers(accessToken: string, cursor?: string) {
 	try {
@@ -13,21 +14,8 @@ export async function getPostsWithUsers(accessToken: string, cursor?: string) {
 			return { items: [], nextCursor: null };
 		}
 
-		const userIds = [...new Set(data.items.map((post) => post.userId))];
-
-		if (userIds.length === 0) {
-			return {
-				items: data.items.map((post) => ({ ...post, user: null })),
-				nextCursor: data.pageInfo?.nextCursor ?? null
-			};
-		}
-
-		const usersResponse = await UserClient.getByIds(
-			{ ids: userIds as string[] },
-			{ headers: authHeaders(accessToken) }
-		);
-
-		const userMap = new Map((usersResponse.data.data || []).map((user) => [user.id, user]));
+		const userIds = data.items.map((post) => post.userId) as string[];
+		const userMap = await getUsersByIds(accessToken, userIds);
 
 		return {
 			items: data.items.map((post) => ({
@@ -68,21 +56,33 @@ export async function getPostsByUserId(accessToken: string, userId: string, curs
 
 export async function getPostById(accessToken: string, postId: string) {
 	try {
-		const { data: post } = await PostClient.getById(postId, {
-			headers: authHeaders(accessToken)
-		}).then((res) => res.data);
-		if (!post) return null;
+		const [postResponse, commentsResponse] = await Promise.allSettled([
+			PostClient.getById(postId, { headers: authHeaders(accessToken) }).then((res) => res.data),
+			getCommentsByPostId(accessToken, postId)
+		]);
 
-		let user = null;
-		if (post.userId) {
-			const { data } = await UserClient.getById(post.userId, {
-				headers: authHeaders(accessToken)
-			}).then((res) => res.data);
-
-			user = data;
+		if (postResponse.status === 'rejected' || !postResponse.value.data) {
+			return null;
 		}
 
-		return { ...post, user };
+		const post = postResponse.value.data;
+
+		const comments =
+			commentsResponse.status === 'fulfilled' && commentsResponse.value.items
+				? commentsResponse.value.items
+				: [];
+
+		const commentsNextCursor =
+			commentsResponse.status === 'fulfilled' ? commentsResponse.value.nextCursor : null;
+
+		const userMap = await getUsersByIds(accessToken, [post.userId as string]);
+
+		return {
+			...post,
+			user: userMap.get(post.userId as string) ?? null,
+			comments,
+			commentsNextCursor
+		};
 	} catch (err) {
 		console.error(err);
 		return null;

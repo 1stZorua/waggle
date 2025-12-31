@@ -12,7 +12,7 @@ service GrpcLike {
     rpc GetLikeById(GetLikeByIdRequest) returns (GetLikeByIdResponse);
     rpc GetLikesByUserId(GetLikesByUserIdRequest) returns (GetLikesByUserIdResponse);
     rpc GetLikesByTargetId(GetLikesByTargetIdRequest) returns (GetLikesByTargetIdResponse);
-    rpc GetLikeCount(GetLikeCountRequest) returns (GetLikeCountResponse);
+    rpc GetLikeCounts(GetLikeCountsRequest) returns (GetLikeCountsResponse);
     rpc HasLiked(HasLikedRequest) returns (HasLikedResponse);
     rpc CreateLike(CreateLikeRequest) returns (CreateLikeResponse);
     rpc DeleteLike(DeleteLikeRequest) returns (google.protobuf.Empty);
@@ -79,12 +79,17 @@ message GetLikesByTargetIdResponse {
     PageInfo page_info = 2;
 }
 
-message GetLikeCountRequest {
-    string target_id = 1;
+message GetLikeCountsRequest {
+    repeated string target_ids = 1;
 }
 
-message GetLikeCountResponse {
-    int32 count = 1;
+message LikeCountEntry {
+    string target_id = 1;
+    int32 count = 2;
+}
+
+message GetLikeCountsResponse {
+    repeated LikeCountEntry counts = 1;
 }
 
 message HasLikedRequest {

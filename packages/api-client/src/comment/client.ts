@@ -6,8 +6,6 @@ export const CommentClient = {
   getAllByUserId: commentApi.getApiCommentUsersUserId,
   getAllByPostId: commentApi.getApiCommentPostsPostId,
   getReplies: commentApi.getApiCommentCommentIdReplies,
-  getPostCount: commentApi.getApiCommentPostsPostIdCount,
-  getReplyCount: commentApi.getApiCommentCommentIdRepliesCount,
   create: commentApi.postApiComment,
   update: commentApi.putApiCommentId,
   delete: commentApi.deleteApiCommentId

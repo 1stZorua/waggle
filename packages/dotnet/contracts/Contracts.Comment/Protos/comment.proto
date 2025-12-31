@@ -1,10 +1,7 @@
 syntax = "proto3";
-
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-
 option csharp_namespace = "Waggle.Contracts.Comment.Grpc";
-
 package comment;
 
 service GrpcComment {
@@ -13,8 +10,8 @@ service GrpcComment {
     rpc GetCommentsByPost(GetCommentsByPostRequest) returns (GetCommentsByPostResponse);
     rpc GetReplies(GetRepliesRequest) returns (GetRepliesResponse);
     rpc GetCommentsByUser(GetCommentsByUserRequest) returns (GetCommentsByUserResponse);
-    rpc GetCommentCount(GetCommentCountRequest) returns (GetCommentCountResponse);
-    rpc GetReplyCount(GetReplyCountRequest) returns (GetReplyCountResponse);
+    rpc GetCommentCounts(GetCommentCountsRequest) returns (GetCommentCountsResponse);
+    rpc GetReplyCounts(GetReplyCountsRequest) returns (GetReplyCountsResponse);
     rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
     rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
     rpc DeleteComment(DeleteCommentRequest) returns (google.protobuf.Empty);
@@ -88,25 +85,35 @@ message GetCommentsByUserResponse {
     PageInfo page_info = 2;
 }
 
-message GetCommentCountRequest {
+message GetCommentCountsRequest {
+    repeated string post_ids = 1;
+}
+
+message CommentCountEntry {
     string post_id = 1;
+    int32 count = 2;
 }
 
-message GetCommentCountResponse {
-    int32 count = 1;
+message GetCommentCountsResponse {
+    repeated CommentCountEntry counts = 1;
 }
 
-message GetReplyCountRequest {
+message GetReplyCountsRequest {
+    repeated string comment_ids = 1;
+}
+
+message ReplyCountEntry {
     string comment_id = 1;
+    int32 count = 2;
 }
 
-message GetReplyCountResponse {
-    int32 count = 1;
+message GetReplyCountsResponse {
+    repeated ReplyCountEntry counts = 1;
 }
 
 message CreateCommentRequest {
     string post_id = 1;
-    optional string parent_comment_id = 2;
+    optional string parent_id = 2;
     string content = 3;
 }
 
@@ -132,7 +139,7 @@ message Comment {
     string id = 1;
     string user_id = 2;
     string post_id = 3;
-    optional string parent_comment_id = 4;
+    optional string parent_id = 4;
     string content = 5;
     google.protobuf.Timestamp created_at = 6;
     optional google.protobuf.Timestamp updated_at = 7;

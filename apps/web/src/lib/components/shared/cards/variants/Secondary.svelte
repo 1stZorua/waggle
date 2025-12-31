@@ -5,11 +5,10 @@
 
 	interface Props {
 		className?: ClassType;
-		href?: string;
 		children?: Snippet;
 	}
 
-	let { className, href, children, ...rest }: Props = $props();
+	let { className, children, ...rest }: Props = $props();
 </script>
 
 <Card {className} props={{ variant: 'secondary' }} {...rest}>

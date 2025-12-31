@@ -111,20 +111,33 @@ namespace Waggle.LikeService.Grpc
             return response;
         }
 
-        public override async Task<GetLikeCountResponse> GetLikeCount(GetLikeCountRequest request, ServerCallContext context)
+        public override async Task<GetLikeCountsResponse> GetLikeCounts(GetLikeCountsRequest request, ServerCallContext context)
         {
-            if (!Guid.TryParse(request.TargetId, out var targetId))
-                throw GrpcExceptionHelper.CreateRpcException(ErrorCodes.InvalidInput, LikeErrors.Like.InvalidId);
+            var targetIds = request.TargetIds
+                .Select(id => Guid.TryParse(id, out var guid) ? guid : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
 
-            var result = await _service.GetLikeCountAsync(targetId);
+            if (targetIds.Count == 0)
+                return new GetLikeCountsResponse();
+
+            var result = await _service.GetLikeCountsAsync(targetIds);
 
             if (!result.Success)
                 throw GrpcExceptionHelper.CreateRpcException(result.Message, result.ErrorCode);
 
-            return new GetLikeCountResponse
+            var response = new GetLikeCountsResponse();
+            foreach (var kvp in result.Data!)
             {
-                Count = result.Data
-            };
+                response.Counts.Add(new LikeCountEntry
+                {
+                    TargetId = kvp.Key.ToString(),
+                    Count = kvp.Value
+                });
+            }
+
+            return response;
         }
 
         public override async Task<HasLikedResponse> HasLiked(HasLikedRequest request, ServerCallContext context)

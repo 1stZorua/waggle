@@ -106,6 +106,150 @@ postservice-db:
       enabled: true
   fullnameOverride: postservice-db
 
+likeservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: likeservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    enabled: true
+    replicaCount: 2
+    replica:
+      persistence:
+        enabled: true
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: likeservice-db
+
+followservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: followservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    enabled: true
+    replicaCount: 2
+    replica:
+      persistence:
+        enabled: true
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: followservice-db
+
+favoriteservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: favoriteservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    enabled: true
+    replicaCount: 2
+    replica:
+      persistence:
+        enabled: true
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: favoriteservice-db
+
+commentservice-db:
+  auth:
+    username: waggle
+    password: waggle
+    database: commentservice
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  replication:
+    enabled: true
+    replicaCount: 2
+    replica:
+      persistence:
+        enabled: true
+        size: 1Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  fullnameOverride: commentservice-db
+
 mediastore:
   mode: standalone
 

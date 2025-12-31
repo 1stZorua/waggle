@@ -28,6 +28,38 @@ userservice:
     enabled: true
     host: userservice.localhost
 
+likeservice:
+  replicaCount: 1
+  image: waggle-likeservice:latest
+
+  ingress:
+    enabled: true
+    host: likeservice.localhost
+
+followservice:
+  replicaCount: 1
+  image: waggle-followservice:latest
+
+  ingress:
+    enabled: true
+    host: followservice.localhost
+
+favoriteservice:
+  replicaCount: 1
+  image: waggle-favoriteservice:latest
+
+  ingress:
+    enabled: true
+    host: favoriteservice.localhost
+
+commentservice:
+  replicaCount: 1
+  image: waggle-commentservice:latest
+
+  ingress:
+    enabled: true
+    host: commentservice.localhost
+
 web:
   replicaCount: 1
   image: waggle-web:latest

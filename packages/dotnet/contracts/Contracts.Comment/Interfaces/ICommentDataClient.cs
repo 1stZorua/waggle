@@ -10,10 +10,10 @@ namespace Waggle.Contracts.Comment.Interfaces
         Task<Result<GetCommentsByPostResponse>> GetCommentsByPostAsync(GetCommentsByPostRequest request);
         Task<Result<GetRepliesResponse>> GetRepliesAsync(GetRepliesRequest request);
         Task<Result<GetCommentsByUserResponse>> GetCommentsByUserAsync(GetCommentsByUserRequest request);
-        Task<Result<GetCommentCountResponse>> GetCommentCountAsync(GetCommentCountRequest request);
-        Task<Result<GetReplyCountResponse>> GetReplyCountAsync(GetReplyCountRequest request);
+        Task<Result<GetCommentCountsResponse>> GetCommentCountsAsync(GetCommentCountsRequest request);
+        Task<Result<GetReplyCountsResponse>> GetReplyCountsAsync(GetReplyCountsRequest request);
         Task<Result<CreateCommentResponse>> CreateCommentAsync(CreateCommentRequest request);
-        Task<Result<UpdateCommentResponse>> UpdateCommentAsync(UpdateCommentRequest request);
+        Task<Result<UpdateCommentResponse>> UpdateCommentAsync(UpdateCommentRequest request); // Changed from UpdateCommentResponse
         Task<Result> DeleteCommentAsync(DeleteCommentRequest request);
     }
 }

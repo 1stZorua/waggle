@@ -12,9 +12,9 @@
 		children?: Snippet;
 	}
 
-	let { tag = 'div', className, props, children, ...rest }: Props = $props();
+	let { tag = 'div', className, href, props, children, ...rest }: Props = $props();
 </script>
 
-<svelte:element this={tag} class={cn(cardVariants(props), className)} {...rest}>
+<svelte:element this={tag} {href} class={cn(cardVariants(props), className)} {...rest}>
 	{@render children?.()}
 </svelte:element>

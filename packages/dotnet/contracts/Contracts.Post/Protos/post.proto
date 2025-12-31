@@ -11,7 +11,9 @@ service GrpcPost {
 	rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
 	rpc GetPostById(GetPostByIdRequest) returns (GetPostByIdResponse);
 	rpc GetPostsByUserId(GetPostsByUserIdRequest) returns (GetPostsByUserIdResponse);
+	rpc GetPostCounts(GetPostCountsRequest) returns (GetPostCountsResponse);
 	rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+	rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
 	rpc DeletePost(DeletePostRequest) returns (google.protobuf.Empty);
 }
 
@@ -59,12 +61,34 @@ message GetPostsByUserIdResponse {
 	PageInfo page_info = 2;
 }
 
+message GetPostCountsRequest {
+	repeated string user_ids = 1;
+}
+
+message PostCount {
+	string user_id = 1;
+	int32 count = 2;
+}
+
+message GetPostCountsResponse {
+	repeated PostCount counts = 1;
+}
+
 message CreatePostRequest {
 	string caption = 1;
 	repeated string media_ids = 2;
 }
 
 message CreatePostResponse {
+	Post post = 1;
+}
+
+message UpdatePostRequest {
+	string id = 1;
+	string caption = 2;
+}
+
+message UpdatePostResponse {
 	Post post = 1;
 }
 

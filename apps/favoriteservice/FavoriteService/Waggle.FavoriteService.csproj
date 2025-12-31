@@ -32,7 +32,6 @@
 
 	<ItemGroup>
 		<Folder Include="Saga\" />
-		<Folder Include="Consumers\" />
 	</ItemGroup>
 
 </Project>

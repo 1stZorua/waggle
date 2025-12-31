@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TextBase, TextSmall } from '$components/shared/text';
 	import { ButtonText } from '$components/shared/buttons';
-	import { Card, CardPrimary } from '$components/shared/cards';
+	import { Card } from '$components/shared/cards';
 	import { Avatar, Icon } from '$components/shared/other';
 	import { Tag } from '$components/shared/tags';
 	import { sidebarConfig } from './config';
@@ -9,17 +9,17 @@
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
 	import type { LayoutData } from '../../../../routes/(authenticated)/$types';
-	import { PostForm } from '$components/forms';
+	import { AvatarForm, CommentForm, PostForm, UserForm } from '$components/forms';
+	import { usePostModal } from '$lib/hooks/usePostModal.svelte';
 	import type { ClassType } from '$components/_types';
 
-	let showPostModal = $state(false);
 	let currentPage = $derived(page.url.pathname);
 
 	const items = sidebarConfig.map((item) => {
 		if (item.title === 'Create') {
 			return {
 				...item,
-				onClick: () => (showPostModal = true)
+				onClick: () => usePostModal.openCreate()
 			};
 		}
 		return item;
@@ -40,13 +40,13 @@
 
 <aside class={cn('sidebar fixed z-10 flex flex-col justify-between max-md:hidden', className)}>
 	<div class="gap-md flex flex-col">
-		<CardPrimary className="items-center max-xl:hidden">
-			<Avatar src="/images/avatar.png" alt="Avatar" />
+		<Card tag="a" href="/profile" className="items-center max-xl:hidden">
+			<Avatar src={data.profile?.avatarUrl?.url ?? '/images/anonymous.png'} alt="Avatar" />
 			<div class="flex flex-col">
 				<TextBase>{data.user.name}</TextBase>
 				<TextSmall className="text-secondary font-normal -mt-1">@{data.user.username}</TextSmall>
 			</div>
-		</CardPrimary>
+		</Card>
 		<Card tag="nav" props={{ variant: 'primary' }} className="flex-col overflow-hidden">
 			{#each items as item, index}
 				{@const isActive =
@@ -82,4 +82,7 @@
 	</form>
 </aside>
 
-<PostForm bind:isOpen={showPostModal} {data}></PostForm>
+<PostForm {data}></PostForm>
+<CommentForm {data}></CommentForm>
+<UserForm {data}></UserForm>
+<AvatarForm {data}></AvatarForm>

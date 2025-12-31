@@ -63,10 +63,94 @@ postservice:
 
 userservice:
   replicaCount: 3
+  image: 1stzorua/waggle-userservice:latest
 
   ingress:
     host: userservice.waggle.local
-    image: 1stzorua/waggle-userservice:latest
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+likeservice:
+  replicaCount: 3
+  image: 1stzorua/waggle-likeservice:latest
+
+  ingress:
+    host: likeservice.waggle.local
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+followservice:
+  replicaCount: 3
+  image: 1stzorua/waggle-followservice:latest
+
+  ingress:
+    host: followservice.waggle.local
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+favoriteservice:
+  replicaCount: 3
+  image: 1stzorua/waggle-favoriteservice:latest
+
+  ingress:
+    host: favoriteservice.waggle.local
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+commentservice:
+  replicaCount: 3
+  image: 1stzorua/waggle-commentservice:latest
+
+  ingress:
+    host: commentservice.waggle.local
 
   resources:
     limits:
@@ -84,10 +168,10 @@ userservice:
 
 web:
   replicaCount: 3
+  image: 1stzorua/waggle-web:latest
 
   ingress:
     host: web.waggle.local
-    image: 1stzorua/waggle-web:latest
 
   resources:
     limits:
