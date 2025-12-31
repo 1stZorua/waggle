@@ -56,7 +56,7 @@ commentservice:
 
 web:
   replicaCount: 1
-  image: 1stzorua/waggle-web:main-0db301a
+  image: 1stzorua/waggle-web:main-a8d27ca
 
   ingress:
     host: web.waggle.local
