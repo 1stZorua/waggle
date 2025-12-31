@@ -63,6 +63,11 @@ spec:
               value: "http://+:8081"
             - name: Kestrel__Endpoints__Grpc__Protocols
               value: "Http2"
+            - name: ServiceBusConnection
+              valueFrom:
+                secretKeyRef:
+                  name: azure-servicebus-secret
+                  key: connection-string
             - name: GrpcUser
               value: "http://userservice-svc.app.svc.cluster.local:8081"
             - name: AUTH_MIN_USERNAME_LENGTH
