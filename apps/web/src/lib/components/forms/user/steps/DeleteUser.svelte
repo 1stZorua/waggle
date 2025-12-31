@@ -16,7 +16,7 @@
 
 	const { form, enhance } = superForm(data.deleteUserForm, {
 		onResult: ({ result }) => {
-			if (result.type === 'success') onClose();
+			if (result.type === 'redirect') onClose();
 		}
 	});
 
