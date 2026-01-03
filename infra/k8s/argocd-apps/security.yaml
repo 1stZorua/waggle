@@ -1,22 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: database
+  name: security
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   project: default
   source:
     repoURL: git@github.com:1stzorua/waggle.git
     targetRevision: main
-    path: infra/k8s/umbrella/database
+    path: infra/k8s/umbrella/security
     helm:
       valueFiles:
-        - ../../environments/dev/database.yaml
+        - ../../environments/dev/security.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: database
+    namespace: security
   syncPolicy:
     automated:
       prune: true

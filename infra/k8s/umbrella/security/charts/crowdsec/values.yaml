@@ -1,0 +1,6 @@
+image:
+  repository: crowdsecurity/crowdsec
+  tag: 'v1.7.4'
+
+service:
+  port: 8080

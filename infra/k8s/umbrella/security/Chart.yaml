@@ -1,0 +1,12 @@
+apiVersion: v2
+name: security
+description: Umbrella chart for security
+version: 0.1.0
+
+dependencies:
+  - name: crowdsec
+    version: 0.1.0
+    repository: 'file://charts/crowdsec'
+  - name: crowdsec-traefik-bouncer
+    version: 0.1.0
+    repository: 'file://charts/crowdsec-traefik-bouncer'

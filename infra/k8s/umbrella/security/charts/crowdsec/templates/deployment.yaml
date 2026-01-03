@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crowdsec
+  namespace: security
+  labels:
+    app: crowdsec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crowdsec
+  template:
+    metadata:
+      labels:
+        app: crowdsec
+    spec:
+      containers:
+        - name: crowdsec
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          ports:
+            - containerPort: { { .Values.service.port } }
+              name: lapi
+          env:
+            - name: COLLECTIONS
+              value: 'crowdsecurity/traefik'
+          volumeMounts:
+            - name: config
+              mountPath: /etc/crowdsec/acquis.yaml
+              subPath: acquis.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: crowdsec-config

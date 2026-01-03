@@ -1,0 +1,9 @@
+dependencies:
+- name: crowdsec
+  repository: file://charts/crowdsec
+  version: 0.1.0
+- name: crowdsec-traefik-bouncer
+  repository: file://charts/crowdsec-traefik-bouncer
+  version: 0.1.0
+digest: sha256:22ad6041192c4a67d0a01440760102d5d53bec4cbe39b2f7c29f201482f7567c
+generated: "2026-01-04T00:07:47.6996991+01:00"

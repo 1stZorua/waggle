@@ -1,0 +1,8 @@
+crowdsec:
+  mode: stream
+  lapiHost: crowdsec-service.security
+  lapiPort: 8080
+  lapiKey: ''
+
+traefik:
+  namespace: gateway

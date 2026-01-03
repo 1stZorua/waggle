@@ -1,0 +1,13 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: crowdsec
+  namespace: {{ .Values.traefik.namespace }}
+spec:
+  plugin:
+    crowdsec-bouncer:
+      enabled: true
+      crowdsecMode: {{ .Values.crowdsec.mode }}
+      crowdsecLapiHost: {{ .Values.crowdsec.lapiHost }}:{{ .Values.crowdsec.lapiPort }}
+      crowdsecLapiScheme: http
+      crowdsecLapiKey: {{ .Values.crowdsec.lapiKey | quote }}

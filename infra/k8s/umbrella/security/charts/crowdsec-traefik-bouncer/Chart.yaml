@@ -1,0 +1,5 @@
+apiVersion: v2
+name: crowdsec-traefik-bouncer
+version: 0.1.0
+description: Helm chart for the traefik plugin middleware for crowdsec
+type: application

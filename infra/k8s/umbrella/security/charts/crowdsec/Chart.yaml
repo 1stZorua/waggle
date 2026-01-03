@@ -1,0 +1,5 @@
+apiVersion: v2
+name: crowdsec
+version: 0.1.0
+description: Helm chart for the crowdsec agent and LAPI
+type: application

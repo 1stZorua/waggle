@@ -1,0 +1,27 @@
+crowdsec:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  persistence:
+    enabled: true
+    size: 5Gi
+
+  metrics:
+    enabled: true
+
+crowdsecTraefikBouncer:
+  banPage:
+    enabled: true
+    html: |
+      <html>
+      <head><title>Access Denied</title></head>
+      <body>
+        <h1>Access Temporarily Restricted</h1>
+        <p>Your request has been blocked by our security system.</p>
+      </body>
+      </html>

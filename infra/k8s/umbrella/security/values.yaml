@@ -1,0 +1,18 @@
+crowdsec:
+  image:
+    repository: crowdsecurity/crowdsec
+    tag: 'v1.7.4'
+
+  service:
+    port: 8080
+
+# Traefik bouncer configuration
+crowdsecTraefikBouncer:
+  crowdsec:
+    mode: stream
+    lapiHost: crowdsec-service.security
+    lapiPort: 8080
+    lapiKey: '' # Generate this: kubectl exec crowdsec-pod -- cscli bouncers add traefik-bouncer
+
+  traefik:
+    namespace: gateway
