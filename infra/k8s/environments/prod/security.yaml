@@ -8,7 +8,6 @@ crowdsec:
       memory: 1Gi
 
   persistence:
-    enabled: true
     size: 5Gi
 
   metrics:

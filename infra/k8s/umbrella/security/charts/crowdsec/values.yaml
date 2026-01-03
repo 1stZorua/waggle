@@ -4,3 +4,6 @@ image:
 
 service:
   port: 8080
+
+persistence:
+  size: 1Gi
