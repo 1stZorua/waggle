@@ -12,3 +12,7 @@ crowdsec:
 
   metrics:
     enabled: true
+
+crowdsecTraefikBouncer:
+  crowdsec:
+    lapiKey: 'FALdA/ZMMMFloDNQ18TTWQs4vHSQF+9aBr/sdImAQqk'
