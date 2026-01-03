@@ -19,7 +19,7 @@ spec:
         - name: crowdsec
           image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
           ports:
-            - containerPort: { { .Values.service.port } }
+            - containerPort: {{ .Values.service.port }}
               name: lapi
           env:
             - name: COLLECTIONS
