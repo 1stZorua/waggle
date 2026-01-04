@@ -6,7 +6,7 @@ crowdsec:
   service:
     port: 8080
 
-crowdsecTraefikBouncer:
+crowdsec-traefik-bouncer:
   crowdsec:
     mode: stream
     lapiHost: crowdsec-service.security

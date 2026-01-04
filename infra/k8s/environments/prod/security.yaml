@@ -13,7 +13,7 @@ crowdsec:
   metrics:
     enabled: true
 
-crowdsecTraefikBouncer:
+crowdsec-traefik-bouncer:
   banPage:
     enabled: true
     html: |
