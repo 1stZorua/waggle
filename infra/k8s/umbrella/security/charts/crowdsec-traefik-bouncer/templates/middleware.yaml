@@ -11,4 +11,12 @@ spec:
       crowdsecLapiHost: {{ .Values.crowdsec.lapiHost }}:{{ .Values.crowdsec.lapiPort }}
       crowdsecLapiScheme: http
       crowdsecLapiKey: {{ .Values.crowdsec.lapiKey | quote }}
-      logLevel: debug
+      {{- if .Values.crowdsec.logLevel }}
+      logLevel: {{ .Values.crowdsec.logLevel }}
+      {{- end }}
+      {{- if .Values.crowdsec.updateIntervalSeconds }}
+      updateIntervalSeconds: {{ .Values.crowdsec.updateIntervalSeconds }}
+      {{- end }}
+      {{- if .Values.crowdsec.defaultDecisionSeconds }}
+      defaultDecisionSeconds: {{ .Values.crowdsec.defaultDecisionSeconds }}
+      {{- end }}
