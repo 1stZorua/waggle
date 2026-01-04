@@ -16,6 +16,10 @@ traefik:
       enabled: true
       allowCrossNamespace: true
 
+  service:
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+
   ports:
     web:
       redirections:
