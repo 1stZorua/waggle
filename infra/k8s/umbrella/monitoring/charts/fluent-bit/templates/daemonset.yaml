@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "fluent-bit.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "fluent-bit.name" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "fluent-bit.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "fluent-bit.name" . }}
+    spec:
+      serviceAccountName: {{ include "fluent-bit.serviceAccountName" . }}
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:4.1.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - /fluent-bit/bin/fluent-bit
+            - -c
+            - /fluent-bit/etc/fluent-bit.conf
+          volumeMounts:
+{{- toYaml .Values.fluent-bit.daemonSetVolumeMounts | nindent 12 }}
+      volumes:
+{{- toYaml .Values.fluent-bit.daemonSetVolumes | nindent 8 }}
