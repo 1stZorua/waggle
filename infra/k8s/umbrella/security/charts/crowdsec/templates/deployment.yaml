@@ -20,10 +20,10 @@ spec:
           image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
           ports:
             - name: lapi
-              containerPort: { { .Values.service.port | int } }
+              containerPort: {{ .Values.service.port | int }}
           env:
             - name: COLLECTIONS
-              value: { { join " " .Values.collections | quote } }
+              value: {{ join " " .Values.collections | quote }}
           volumeMounts:
             - name: config
               mountPath: /etc/crowdsec/acquis.yaml
