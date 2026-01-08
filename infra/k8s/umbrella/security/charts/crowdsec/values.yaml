@@ -18,3 +18,24 @@ profiles:
   sqli:
     enabled: true
     banDuration: 2h
+    filters:
+      - Alert.Scenario == "crowdsecurity/http-sqli-probing"
+
+  path_traversal:
+    enabled: true
+    banDuration: 4h
+    filters:
+      - Alert.Scenario == "crowdsecurity/http-path-traversal-probing"
+
+  sensitive_files:
+    enabled: true
+    banDuration: 4h
+    filters:
+      - Alert.Scenario == "crowdsecurity/http-sensitive-files"
+
+  cve_exploits:
+    enabled: true
+    banDuration: 24h
+    filters:
+      - Alert.Scenario startsWith "crowdsecurity/CVE-"
+      - Alert.Scenario startsWith "crowdsecurity/apache_log4j2"

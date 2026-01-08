@@ -30,11 +30,8 @@ spec:
               subPath: acquis.yaml
             - name: data
               mountPath: /var/lib/crowdsec/data
-{{- if .Values.profiles.sqli.enabled }}
-            - name: profiles
-              mountPath: /etc/crowdsec/profiles.d/sqli-profile.yaml
-              subPath: sqli-profile.yaml
-{{- end }}
+            - name: config
+              mountPath: /etc/crowdsec/profiles.d/
       volumes:
         - name: config
           configMap:
@@ -42,8 +39,3 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: crowdsec-data
-{{- if .Values.profiles.sqli.enabled }}
-        - name: profiles
-          configMap:
-            name: crowdsec-config
-{{- end }}
