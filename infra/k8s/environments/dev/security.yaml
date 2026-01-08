@@ -15,7 +15,7 @@ crowdsec:
 
 crowdsec-traefik-bouncer:
   crowdsec:
-    lapiKey: 'VXZrUvj9VTsEymTA4RjpCQdTl6it1dorbkkPfe1rpA4'
+    lapiKey: 'jxUpj5KZ3sYMdGpFZhYWTrrYjD+uJtkpOQWJN2LVLhA'
     logLevel: debug
     updateIntervalSeconds: 10
     defaultDecisionSeconds: 10
