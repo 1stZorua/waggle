@@ -20,3 +20,9 @@ spec:
       {{- if .Values.crowdsec.defaultDecisionSeconds }}
       defaultDecisionSeconds: {{ .Values.crowdsec.defaultDecisionSeconds }}
       {{- end }}
+      {{- if .Values.crowdsec.appsec.enabled }}
+      crowdsecAppsecEnabled: true
+      crowdsecAppsecHost: {{ .Values.crowdsec.appsec.host }}:{{ .Values.crowdsec.appsec.port }}
+      crowdsecAppsecFailureBlock: {{ .Values.crowdsec.appsec.failureBlock }}
+      crowdsecAppsecUnreachableBlock: {{ .Values.crowdsec.appsec.unreachableBlock }}
+      {{- end }}

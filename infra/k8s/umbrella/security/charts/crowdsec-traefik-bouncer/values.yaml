@@ -4,5 +4,16 @@ crowdsec:
   lapiPort: 8080
   lapiKey: ''
 
+  appsec:
+    enabled: true
+    host: crowdsec-service.security
+    port: 7422
+    failureBlock: true
+    unreachableBlock: false
+
+  logLevel: INFO
+  updateIntervalSeconds: 60
+  defaultDecisionSeconds: 60
+
 traefik:
   namespace: gateway
