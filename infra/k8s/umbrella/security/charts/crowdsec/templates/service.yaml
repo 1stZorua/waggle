@@ -17,4 +17,4 @@ spec:
     - name: syslog
       port: 5140
       targetPort: 5140
-      protocol: TCP
+      protocol: UDP

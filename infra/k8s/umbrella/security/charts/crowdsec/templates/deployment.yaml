@@ -23,7 +23,7 @@ spec:
               containerPort: {{ .Values.service.port | int }}
             - name: syslog
               containerPort: 5140
-              protocol: TCP
+              protocol: UDP
           env:
             - name: COLLECTIONS
               value: {{ join " " .Values.collections | quote }}
