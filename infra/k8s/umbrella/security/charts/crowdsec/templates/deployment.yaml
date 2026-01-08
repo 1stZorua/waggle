@@ -20,13 +20,13 @@ spec:
           image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
           ports:
             - name: lapi
-              containerPort: {{ .Values.service.port | int }}
+              containerPort: { { .Values.service.port | int } }
             - name: syslog
               containerPort: 5140
               protocol: UDP
           env:
             - name: COLLECTIONS
-              value: {{ join " " .Values.collections | quote }}
+              value: { { join " " .Values.collections | quote } }
           volumeMounts:
             - name: config
               mountPath: /etc/crowdsec/acquis.yaml
@@ -35,6 +35,8 @@ spec:
               mountPath: /var/lib/crowdsec/data
             - name: config
               mountPath: /etc/crowdsec/profiles.d/
+            - name: crowdsec-logs
+              mountPath: /var/log/crowdsec
       volumes:
         - name: config
           configMap:
@@ -42,3 +44,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: crowdsec-data
+        - name: crowdsec-logs
+          hostPath:
+            path: /var/log/crowdsec
+            type: DirectoryOrCreate
