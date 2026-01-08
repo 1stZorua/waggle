@@ -5,10 +5,9 @@ metadata:
   namespace: security
 data:
   acquis.yaml: |
-    source: k8s
-    pod_name: gateway-traefik
-    namespace: gateway
-    container_name: traefik
+    source: file
+    filenames:
+      - /var/log/traefik/access.log
     labels:
       type: traefik
 

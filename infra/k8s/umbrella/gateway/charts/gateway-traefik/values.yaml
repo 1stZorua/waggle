@@ -48,3 +48,5 @@ traefik:
   logs:
     access:
       enabled: true
+      filePath: /var/log/traefik/access.log
+      format: json
