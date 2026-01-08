@@ -45,6 +45,8 @@ fluent-bit:
           Port 5140
           Mode udp
           Syslog_Format rfc3164
+          Syslog_Hostname_key hostname
+          Syslog_Appname_key source
           Syslog_Message_key log
 
   daemonSetVolumes:
