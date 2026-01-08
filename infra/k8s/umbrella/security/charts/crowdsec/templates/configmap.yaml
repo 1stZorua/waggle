@@ -5,10 +5,19 @@ metadata:
   namespace: security
 data:
   acquis.yaml: |
+    ---
     source: syslog
     listen_addr: 0.0.0.0
     listen_port: 5140
     protocol: udp
+    labels:
+      type: syslog
+    transform: |
+      evt.Parsed.message != nil ? evt.Parsed.message : evt.Line.Raw
+    ---
+    source: http
+    listen_addr: 0.0.0.0:8080
+    path: /v1/alerts
     labels:
       type: traefik
 
