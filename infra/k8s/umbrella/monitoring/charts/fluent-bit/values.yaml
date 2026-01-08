@@ -23,13 +23,6 @@ fluent-bit:
 
     filters: |
       [FILTER]
-          Name parser
-          Match traefik
-          Key_Name log
-          Parser json
-          Reserve_Data On
-
-      [FILTER]
           Name grep
           Match traefik
           Regex log ClientAddr
@@ -41,27 +34,16 @@ fluent-bit:
           Host crowdsec-service.security.svc.cluster.local
           Port 514
           Mode tcp
-          Syslog_Format rfc3164
-          Syslog_Hostname_key hostname
-          Syslog_Appname_key app
-          Syslog_Procid_key procid
+          Syslog_Format rfc5424
           Syslog_Message_key log
 
-    customParsers: |
-      [PARSER]
-          Name json
-          Format json
-          Time_Key time
-          Time_Format %Y-%m-%dT%H:%M:%SZ
-          Time_Keep On
-
-  daemonSetVolumes:
-    - name: varlog
-      hostPath:
-        path: /var/log
-    - name: varlibdockercontainers
-      hostPath:
-        path: /var/lib/docker/containers
+    daemonSetVolumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
 
   daemonSetVolumeMounts:
     - name: varlog
