@@ -6,11 +6,10 @@ metadata:
 data:
   acquis.yaml: |
     source: syslog
+    listen_addr: 0.0.0.0
+    listen_port: 5140
     labels:
       type: traefik
-    tcp:
-      listen_addr: 0.0.0.0
-      listen_port: 5140
 
 {{- if .Values.profiles.sqli.enabled }}
   sqli-profile.yaml: |
