@@ -5,11 +5,11 @@ metadata:
   namespace: security
 data:
   acquis.yaml: |
-    - source: syslog
-      listen_addr: 0.0.0.0
-      listen_port: 514
-      labels:
-        type: traefik
+    source: syslog
+    listen_addr: 0.0.0.0
+    listen_port: 514
+    labels:
+      type: traefik
 
 {{- if .Values.profiles.sqli.enabled }}
   sqli-profile.yaml: |
