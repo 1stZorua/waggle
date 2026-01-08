@@ -1,4 +1,6 @@
 fluent-bit:
+  enabled: true
+
   config:
     service: |
       [SERVICE]
@@ -26,7 +28,7 @@ fluent-bit:
           Name parser
           Match traefik
           Key_Name log
-          Parser traefik-json
+          Parser json
           Reserve_Data On
 
       [FILTER]
@@ -43,13 +45,6 @@ fluent-bit:
           Mode udp
           Syslog_Format rfc5424
           Syslog_Message_key log
-
-    customParsers: |
-      [PARSER]
-          Name traefik-json
-          Format json
-          Time_Key time
-          Time_Format %Y-%m-%dT%H:%M:%S.%LZ
 
   daemonSetVolumes:
     - name: varlog
