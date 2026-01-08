@@ -7,3 +7,12 @@ service:
 
 persistence:
   size: 1Gi
+
+collections:
+  - crowdsecurity/traefik
+  - crowdsecurity/http-sqli
+
+profiles:
+  sqli:
+    enabled: true
+    banDuration: 2h
