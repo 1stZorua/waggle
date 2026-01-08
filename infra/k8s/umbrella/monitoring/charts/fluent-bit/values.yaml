@@ -32,13 +32,20 @@ fluent-bit:
           Reserve_Data On
           Preserve_Key On
 
+      [FILTER]
+          Name modify
+          Match traefik
+          Add source traefik
+
     outputs: |
       [OUTPUT]
-          Name file
+          Name syslog
           Match traefik
-          Path /var/log/crowdsec/
-          File traefik.log
-          Format plain
+          Host crowdsec-service.security
+          Port 5140
+          Mode udp
+          Syslog_Format rfc5424
+          Syslog_Message_key log
 
   daemonSetVolumes:
     - name: varlog
@@ -47,10 +54,6 @@ fluent-bit:
     - name: varlibdockercontainers
       hostPath:
         path: /var/lib/docker/containers
-    - name: crowdsec-logs
-      hostPath:
-        path: /var/log/crowdsec
-        type: DirectoryOrCreate
 
   daemonSetVolumeMounts:
     - name: varlog
@@ -59,8 +62,6 @@ fluent-bit:
     - name: varlibdockercontainers
       mountPath: /var/lib/docker/containers
       readOnly: true
-    - name: crowdsec-logs
-      mountPath: /var/log/crowdsec
 
   serviceAccount:
     create: true

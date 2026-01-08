@@ -56,3 +56,24 @@ traefik:
     access:
       enabled: true
       format: json
+      filePath: /var/log/traefik/access.log
+      bufferingSize: 100
+
+  volumes:
+    - name: traefik-logs
+      mountPath: /var/log/traefik
+      type: hostPath
+
+  additionalVolumeMounts:
+    - name: traefik-logs
+      mountPath: /var/log/traefik
+
+  persistence:
+    enabled: false
+
+  deployment:
+    additionalVolumes:
+      - name: traefik-logs
+        hostPath:
+          path: /var/log/traefik
+          type: DirectoryOrCreate
