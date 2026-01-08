@@ -48,13 +48,13 @@ fluent-bit:
         path: /var/lib/docker/containers
     - name: crowdsec-lua
       configMap:
-        name: {{ include "fluent-bit.fullname" . }}-crowdsec-lua
+        name: monitoring-fluent-bit-crowdsec-lua
     - name: parsers
       configMap:
-        name: {{ include "fluent-bit.fullname" . }}-parsers
+        name: monitoring-fluent-bit-parsers
     - name: custom-parsers
       configMap:
-        name: {{ include "fluent-bit.fullname" . }}-custom-parsers
+        name: monitoring-fluent-bit-custom-parsers
 
   daemonSetVolumeMounts:
     - name: varlog
