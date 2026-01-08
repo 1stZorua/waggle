@@ -21,6 +21,9 @@ spec:
           ports:
             - name: lapi
               containerPort: {{ .Values.service.port | int }}
+            - name: syslog
+              containerPort: 5140
+              protocol: UDP
           env:
             - name: COLLECTIONS
               value: {{ join " " .Values.collections | quote }}
@@ -32,9 +35,6 @@ spec:
               mountPath: /var/lib/crowdsec/data
             - name: config
               mountPath: /etc/crowdsec/profiles.d/
-            - name: traefik-logs
-              mountPath: /var/log/traefik
-              readOnly: true
       volumes:
         - name: config
           configMap:
@@ -42,17 +42,3 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: crowdsec-data
-        - name: traefik-logs
-          hostPath:
-            path: /var/log/traefik
-            type: DirectoryOrCreate
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app.kubernetes.io/name
-                    operator: In
-                    values:
-                      - traefik
-              topologyKey: kubernetes.io/hostname

@@ -5,10 +5,12 @@ metadata:
   namespace: security
 data:
   acquis.yaml: |
-    filenames:
-      - /var/log/traefik/access.log
+    source: syslog
+    listen_addr: 0.0.0.0
+    listen_port: 5140
+    protocol: udp
     labels:
-      type: traefik
+      type: syslog
 
 {{- if .Values.profiles.sqli.enabled }}
   sqli-profile.yaml: |
