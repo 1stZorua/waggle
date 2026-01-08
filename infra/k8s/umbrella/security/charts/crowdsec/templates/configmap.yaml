@@ -8,6 +8,7 @@ data:
     source: syslog
     listen_addr: 0.0.0.0
     listen_port: 5140
+    mode: tcp
     labels:
       type: traefik
 
