@@ -50,7 +50,7 @@ traefik:
       secret:
         secretName: crowdsec-lapi-key
 
-  volumeMounts:
+  additionalVolumeMounts:
     - name: crowdsec-api-key
       mountPath: /etc/traefik/crowdsec
       readOnly: true
