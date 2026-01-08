@@ -47,6 +47,14 @@ fluent-bit:
           Format json
           Json_date_key time
           Json_date_format iso8601
+          Header X-Crowdsec-Appsec-Api-Key ${APPSEC_API_KEY}
+
+  env:
+    - name: APPSEC_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: fluent-bit-appsec-key
+          key: api-key
 
   daemonSetVolumes:
     - name: varlog
