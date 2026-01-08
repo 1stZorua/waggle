@@ -13,3 +13,6 @@ dependencies:
   - name: promtail
     version: 0.1.0
     repository: 'file://charts/promtail'
+  - name: fluent-bit
+    version: 0.1.0
+    repository: 'file://charts/fluent-bit'

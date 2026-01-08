@@ -8,5 +8,8 @@ dependencies:
 - name: promtail
   repository: file://charts/promtail
   version: 0.1.0
-digest: sha256:06d1b352d82708a51f9f2ff9c2278865d53188235beb0fbf1637fa33ef7edf13
-generated: "2025-10-28T13:48:37.5266796+01:00"
+- name: fluent-bit
+  repository: file://charts/fluent-bit
+  version: 0.1.0
+digest: sha256:c76a1d6e91df0a89143ceaa1611ee6e2699802544e57945e6b8125298cf75dfd
+generated: "2026-01-08T18:18:14.9507463+01:00"

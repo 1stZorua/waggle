@@ -1,0 +1,10 @@
+apiVersion: v2
+name: fluent-bit
+description: Helm chart for Fluent Bit log forwarding to CrowdSec
+version: 0.1.0
+type: application
+
+dependencies:
+  - name: fluent-bit
+    version: 0.54.1
+    repository: https://fluent.github.io/helm-charts

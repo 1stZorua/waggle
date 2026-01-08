@@ -48,31 +48,4 @@ traefik:
   logs:
     access:
       enabled: true
-      filePath: /var/log/traefik/access.log
       format: json
-
-  additionalVolumeMounts:
-    - name: traefik-logs
-      mountPath: /var/log/traefik
-
-  volumes:
-    - name: traefik-logs
-      emptyDir: {}
-
-  deployment:
-    additionalContainers:
-      - name: log-forwarder
-        image: busybox:latest
-        command:
-          - sh
-          - -c
-          - |
-            while true; do
-              if [ -f /var/log/traefik/access.log ]; then
-                tail -F /var/log/traefik/access.log | nc crowdsec-service.security 514
-              fi
-              sleep 5
-            done
-        volumeMounts:
-          - name: traefik-logs
-            mountPath: /var/log/traefik
