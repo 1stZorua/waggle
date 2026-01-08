@@ -48,4 +48,4 @@ traefik:
   logs:
     access:
       enabled: true
-      format: json
+      format: common
