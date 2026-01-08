@@ -45,6 +45,23 @@ traefik:
         moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
         version: v1.4.6
 
+  volumes:
+    - name: crowdsec-api-key
+      secret:
+        secretName: crowdsec-lapi-key
+
+  volumeMounts:
+    - name: crowdsec-api-key
+      mountPath: /etc/traefik/crowdsec
+      readOnly: true
+
+  env:
+    - name: CROWDSEC_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-lapi-key
+          key: crowdsec-api-key
+
   logs:
     access:
       enabled: true
