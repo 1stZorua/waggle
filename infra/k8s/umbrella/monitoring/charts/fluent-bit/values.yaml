@@ -39,15 +39,14 @@ fluent-bit:
 
     outputs: |
       [OUTPUT]
-          Name syslog
+          Name http
           Match traefik
           Host crowdsec-service.security
-          Port 5140
-          Mode tcp
-          Syslog_Format rfc3164
-          Syslog_Hostname_key hostname
-          Syslog_Appname_key source
-          Syslog_Message_key log
+          Port 7422
+          URI /
+          Format json
+          Json_date_key time
+          Json_date_format iso8601
 
   daemonSetVolumes:
     - name: varlog

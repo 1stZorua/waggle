@@ -14,7 +14,7 @@ spec:
       port: {{ .Values.service.port }}
       targetPort: lapi
       protocol: TCP
-    - name: syslog
-      port: 5140
-      targetPort: 5140
+    - name: appsec
+      port: 7422
+      targetPort: 7422
       protocol: TCP

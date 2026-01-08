@@ -6,11 +6,12 @@ metadata:
 data:
   acquis.yaml: |
     ---
-    source: syslog
-    listen_addr: 0.0.0.0:5140
-    protocol: tcp
+    source: appsec
+    listen_addr: 0.0.0.0
+    listen_port: 7422
+    appsec_config: crowdsecurity/virtual-patching
     labels:
-      type: syslog
+      type: appsec
 
 {{- if .Values.profiles.sqli.enabled }}
   sqli-profile.yaml: |
