@@ -11,8 +11,6 @@ data:
     protocol: udp
     labels:
       type: syslog
-    transform: |
-      evt.Parsed.message != nil ? evt.Parsed.message : evt.Line.Raw
 
 {{- if .Values.profiles.sqli.enabled }}
   sqli-profile.yaml: |
