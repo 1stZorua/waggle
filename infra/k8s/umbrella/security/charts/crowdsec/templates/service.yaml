@@ -13,3 +13,7 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: lapi
       name: lapi
+    - port: 514
+      targetPort: syslog
+      name: syslog
+      protocol: TCP
