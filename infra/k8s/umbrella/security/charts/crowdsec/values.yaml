@@ -13,7 +13,7 @@ collections:
   - crowdsecurity/base-http-scenarios
   - crowdsecurity/http-cve
   - crowdsecurity/whitelist-good-actors
-  - crowdsecurity/appsec-virtual-patching
+  - crowdsecurity/appsec-default
   - crowdsecurity/appsec-generic-rules
 
 profiles:
