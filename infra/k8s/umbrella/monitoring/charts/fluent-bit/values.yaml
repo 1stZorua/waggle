@@ -34,7 +34,7 @@ fluent-bit:
           Host crowdsec-service.security.svc.cluster.local
           Port 5140
           Mode udp
-          Syslog_Format rfc5424
+          Syslog_Format rfc3164
           Syslog_Message_key log
 
     daemonSetVolumes:
