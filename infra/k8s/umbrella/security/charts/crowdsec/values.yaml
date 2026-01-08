@@ -10,8 +10,9 @@ persistence:
 
 collections:
   - crowdsecurity/traefik
-  - crowdsecurity/http-scan
   - crowdsecurity/base-http-scenarios
+  - crowdsecurity/http-cve
+  - crowdsecurity/whitelist-good-actors
 
 profiles:
   sqli:
