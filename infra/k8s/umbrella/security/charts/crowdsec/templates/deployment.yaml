@@ -23,7 +23,7 @@ spec:
               containerPort: {{ .Values.service.port }}
           env:
             - name: COLLECTIONS
-              value: {{ .Values.collections | join " " | quote }}
+              value: {{ join " " .Values.collections | quote }}
           volumeMounts:
             - name: config
               mountPath: /etc/crowdsec/acquis.yaml
