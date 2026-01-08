@@ -30,6 +30,7 @@ fluent-bit:
           Key_Name log
           Parser json
           Reserve_Data On
+          Preserve_Key On
 
       [FILTER]
           Name modify
