@@ -43,7 +43,7 @@ fluent-bit:
           Match traefik
           Host crowdsec-service.security
           Port 5140
-          Mode udp
+          Mode tcp
           Syslog_Format rfc3164
           Syslog_Hostname_key hostname
           Syslog_Appname_key source

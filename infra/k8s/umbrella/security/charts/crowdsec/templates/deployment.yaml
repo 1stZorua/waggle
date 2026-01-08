@@ -21,9 +21,10 @@ spec:
           ports:
             - name: lapi
               containerPort: {{ .Values.service.port | int }}
+              protocol: TCP
             - name: syslog
               containerPort: 5140
-              protocol: UDP
+              protocol: TCP
           env:
             - name: COLLECTIONS
               value: {{ join " " .Values.collections | quote }}
