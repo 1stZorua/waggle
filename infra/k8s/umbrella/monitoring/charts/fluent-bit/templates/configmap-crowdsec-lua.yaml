@@ -6,7 +6,6 @@ metadata:
 data:
   crowdsec.lua: |
     function process(tag, timestamp, record)
-        -- Example: add a source field
         record["source"] = "traefik"
         return 1, timestamp, record
     end
