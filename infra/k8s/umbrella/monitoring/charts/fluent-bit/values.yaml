@@ -32,7 +32,7 @@ fluent-bit:
           Name syslog
           Match traefik
           Host crowdsec-service.security.svc.cluster.local
-          Port 514
+          Port 5140
           Mode tcp
           Syslog_Format rfc5424
           Syslog_Message_key log

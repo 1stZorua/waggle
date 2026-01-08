@@ -22,7 +22,7 @@ spec:
             - name: lapi
               containerPort: {{ .Values.service.port | int }}
             - name: syslog
-              containerPort: 514
+              containerPort: 5140
               protocol: TCP
           env:
             - name: COLLECTIONS

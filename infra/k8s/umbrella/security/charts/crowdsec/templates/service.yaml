@@ -10,10 +10,11 @@ spec:
   selector:
     app: crowdsec
   ports:
-    - port: {{ .Values.service.port }}
+    - name: lapi
+      port: {{ .Values.service.port }}
       targetPort: lapi
-      name: lapi
-    - port: 514
-      targetPort: syslog
-      name: syslog
+
+    - name: syslog
+      port: 5140
+      targetPort: 5140
       protocol: TCP
