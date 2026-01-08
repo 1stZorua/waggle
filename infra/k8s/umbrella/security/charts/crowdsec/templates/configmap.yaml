@@ -5,9 +5,10 @@ metadata:
   namespace: security
 data:
   acquis.yaml: |
-    source: file
-    filenames:
-      - /var/log/traefik/access.log
+    source: k8s
+    pod_name: gateway-traefik
+    namespace: gateway
+    container_name: traefik
     labels:
       type: traefik
 
@@ -15,7 +16,7 @@ data:
   sqli-profile.yaml: |
     name: sqli-ban
     filters:
-      - Alert.Scenario == "crowdsecurity/http-sqli"
+      - Alert.Scenario == "crowdsecurity/http-sqli-probing"
     decisions:
       - type: ban
         duration: {{ .Values.profiles.sqli.banDuration }}
