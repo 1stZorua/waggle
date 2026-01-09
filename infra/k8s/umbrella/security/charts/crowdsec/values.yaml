@@ -1,48 +1,50 @@
-container_runtime: containerd
+crowdsec:
+  container_runtime: containerd
 
-agent:
-  enabled: true
-  acquisition:
-    - namespace: gateway
-      podName: traefik-*
-      program: traefik
-  metrics:
+  agent:
     enabled: true
+    acquisition:
+      - namespace: gateway
+        podName: traefik-*
+        program: traefik
+    metrics:
+      enabled: true
 
-lapi:
-  enabled: true
-  replicas: 1
-  metrics:
+  lapi:
     enabled: true
-  persistentVolume:
-    data:
+    replicas: 1
+    metrics:
       enabled: true
-      size: 1Gi
-    config:
-      enabled: true
-      size: 100Mi
+    persistentVolume:
+      data:
+        enabled: true
+        size: 1Gi
+      config:
+        enabled: true
+        size: 100Mi
 
-appsec:
-  enabled: true
-  acquisitions:
-    - source: appsec
-      listen_addr: '0.0.0.0:7422'
-      path: /
-      appsec_config: crowdsecurity/appsec-default
-      labels:
-        type: appsec
-  env:
-    - name: COLLECTIONS
-      value: 'crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules'
+  # AppSec configuration
+  appsec:
+    enabled: true
+    acquisitions:
+      - source: appsec
+        listen_addr: '0.0.0.0:7422'
+        path: /
+        appsec_config: crowdsecurity/appsec-default
+        labels:
+          type: appsec
+    env:
+      - name: COLLECTIONS
+        value: 'crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules'
 
-config:
-  config.yaml.local: |
-    api:
-      server:
-        auto_registration:
-          enabled: true
-          token: "your-random-token-here"
-          allowed_ranges:
-            - "10.0.0.0/8"
-            - "172.16.0.0/12"
-            - "192.168.0.0/16"
+  config:
+    config.yaml.local: |
+      api:
+        server:
+          auto_registration:
+            enabled: true
+            token: "your-random-token-here"
+            allowed_ranges:
+              - "10.0.0.0/8"
+              - "172.16.0.0/12"
+              - "192.168.0.0/16"
