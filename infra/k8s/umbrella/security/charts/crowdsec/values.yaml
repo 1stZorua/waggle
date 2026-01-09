@@ -57,3 +57,17 @@ crowdsec:
       requests:
         memory: 100Mi
         cpu: 100m
+
+  # Re-enable auto-registration
+  config:
+    config.yaml.local: |
+      api:
+        server:
+          auto_registration:
+            enabled: true
+            token: "dK8vN2pQ7xR4mF9tL3wY6hB5jC1sA8zE"
+            allowed_ranges:
+              - "10.0.0.0/8"
+              - "172.16.0.0/12"
+              - "192.168.0.0/16"
+              - "127.0.0.1/32"

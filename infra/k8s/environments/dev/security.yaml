@@ -1,5 +1,4 @@
-Yes! Absolutely! That's where the actual values are being set for ArgoCD. Update it with the correct settings:
-yamlcrowdsec:
+crowdsec:
   resources:
     requests:
       cpu: 250m
