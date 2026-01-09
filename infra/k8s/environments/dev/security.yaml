@@ -1,4 +1,5 @@
-crowdsec:
+Yes! Absolutely! That's where the actual values are being set for ArgoCD. Update it with the correct settings:
+yamlcrowdsec:
   resources:
     requests:
       cpu: 250m
@@ -15,7 +16,21 @@ crowdsec:
 
 crowdsec-traefik-bouncer:
   crowdsec:
-    lapiKey: '+NDyhazWjTZr+EX+FuEyfswI37CTg3gokVvVAk6tF/E'
+    mode: stream
+    lapiHost: security-service.security
+    lapiPort: 8080
+    lapiKey: 'GTpbsoaXnMZfLNPMuctC5P5r9zd7NtnKzi4db8EhEYI'
+
+    appsec:
+      enabled: true
+      host: security-appsec-service.security
+      port: 7422
+      failureBlock: true
+      unreachableBlock: false
+
     logLevel: debug
     updateIntervalSeconds: 10
     defaultDecisionSeconds: 10
+
+  traefik:
+    namespace: gateway
