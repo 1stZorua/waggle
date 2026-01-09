@@ -8,7 +8,8 @@ data:
     ---
     source: appsec
     listen_addr: "0.0.0.0:7422"
-    appsec_config: crowdsecurity/appsec-default
+    path: /
+    appsec_config: crowdsecurity/crs-vpatch
     labels:
       type: appsec
 

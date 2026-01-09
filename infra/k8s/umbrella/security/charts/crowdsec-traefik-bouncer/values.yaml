@@ -12,8 +12,8 @@ crowdsec:
     unreachableBlock: false
 
   logLevel: INFO
-  updateIntervalSeconds: 60
-  defaultDecisionSeconds: 60
+  updateIntervalSeconds: 10
+  defaultDecisionSeconds: 10
 
 traefik:
   namespace: gateway

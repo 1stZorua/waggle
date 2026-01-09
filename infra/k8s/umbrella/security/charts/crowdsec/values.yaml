@@ -1,43 +1,49 @@
-image:
-  repository: crowdsecurity/crowdsec
-  tag: 'v1.7.4'
+container_runtime: containerd
 
-service:
-  port: 8080
-
-persistence:
-  size: 1Gi
-
-collections:
-  - crowdsecurity/traefik
-  - crowdsecurity/base-http-scenarios
-  - crowdsecurity/http-cve
-  - crowdsecurity/whitelist-good-actors
-  - crowdsecurity/appsec-virtual-patching
-  - crowdsecurity/appsec-generic-rules
-
-profiles:
-  sqli:
+agent:
+  enabled: true
+  acquisition:
+    - namespace: gateway
+      podName: traefik-*
+      program: traefik
+  metrics:
     enabled: true
-    banDuration: 2h
-    filters:
-      - Alert.Scenario == "crowdsecurity/http-sqli-probing"
 
-  path_traversal:
+lapi:
+  enabled: true
+  replicas: 1
+  metrics:
     enabled: true
-    banDuration: 4h
-    filters:
-      - Alert.Scenario == "crowdsecurity/http-path-traversal-probing"
+  persistentVolume:
+    data:
+      enabled: true
+      size: 1Gi
+    config:
+      enabled: true
+      size: 100Mi
 
-  sensitive_files:
-    enabled: true
-    banDuration: 4h
-    filters:
-      - Alert.Scenario == "crowdsecurity/http-sensitive-files"
+# AppSec configuration
+appsec:
+  enabled: true
+  acquisitions:
+    - source: appsec
+      listen_addr: '0.0.0.0:7422'
+      path: /
+      appsec_config: crowdsecurity/appsec-default
+      labels:
+        type: appsec
+  env:
+    - name: COLLECTIONS
+      value: 'crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules'
 
-  cve_exploits:
-    enabled: true
-    banDuration: 24h
-    filters:
-      - Alert.Scenario startsWith "crowdsecurity/CVE-"
-      - Alert.Scenario startsWith "crowdsecurity/apache_log4j2"
+config:
+  config.yaml.local: |
+    api:
+      server:
+        auto_registration:
+          enabled: true
+          token: "your-random-token-here"
+          allowed_ranges:
+            - "10.0.0.0/8"
+            - "172.16.0.0/12"
+            - "192.168.0.0/16"
