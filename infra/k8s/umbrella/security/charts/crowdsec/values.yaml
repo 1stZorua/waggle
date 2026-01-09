@@ -7,8 +7,6 @@ crowdsec:
       - namespace: gateway
         podName: gateway-traefik-*
         program: traefik
-    config:
-      poll_without_inotify: true
     metrics:
       enabled: true
     env:
@@ -77,3 +75,13 @@ crowdsec:
               - "172.16.0.0/12"
               - "192.168.0.0/16"
               - "127.0.0.1/32"
+      crowdsec_service:
+        acquisition_path: /etc/crowdsec/acquis.d
+        acquisition_dir: /etc/crowdsec/acquis.d
+      common:
+        log_media: stdout
+        log_level: info
+
+    # Add acquisition config with poll_without_inotify
+    acquis.yaml: |
+      poll_without_inotify: true
