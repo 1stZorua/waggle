@@ -5,7 +5,7 @@ crowdsec:
     enabled: true
     acquisition:
       - namespace: gateway
-        podName: traefik-*
+        podName: gateway-traefik-*
         program: traefik
     metrics:
       enabled: true
