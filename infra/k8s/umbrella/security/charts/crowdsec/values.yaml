@@ -82,5 +82,9 @@ crowdsec:
       s02-enrich:
         whitelists.yaml: |
           name: crowdsecurity/whitelists
-          description: "Whitelist disabled for demo"
-          # No whitelist rules - everything allowed through
+          description: "Whitelist disabled for demo - only localhost whitelisted"
+          whitelist:
+            reason: "localhost only"
+            ip:
+              - "127.0.0.1"
+              - "::1"
