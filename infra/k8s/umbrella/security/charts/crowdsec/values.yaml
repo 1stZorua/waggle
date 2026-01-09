@@ -22,7 +22,6 @@ lapi:
       enabled: true
       size: 100Mi
 
-# AppSec configuration
 appsec:
   enabled: true
   acquisitions:

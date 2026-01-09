@@ -3,3 +3,8 @@ name: crowdsec
 version: 0.1.0
 description: Helm chart for the crowdsec agent and LAPI
 type: application
+
+dependencies:
+  - name: crowdsec
+    version: '0.21.1'
+    repository: https://crowdsecurity.github.io/helm-charts
