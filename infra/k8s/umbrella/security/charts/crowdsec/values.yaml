@@ -9,6 +9,9 @@ crowdsec:
         program: traefik
     metrics:
       enabled: true
+    env:
+      - name: COLLECTIONS
+        value: 'crowdsecurity/traefik crowdsecurity/base-http-scenarios crowdsecuri
     resources:
       limits:
         memory: 200Mi
@@ -29,6 +32,9 @@ crowdsec:
       config:
         enabled: true
         size: 100Mi
+    env:
+      - name: COLLECTIONS
+        value: 'crowdsecurity/traefik crowdsecurity/base-http-scenarios crowdsecurity/http-cve'
     resources:
       limits:
         memory: 300Mi
