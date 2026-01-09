@@ -15,7 +15,7 @@ crowdsec:
 
 crowdsec-traefik-bouncer:
   crowdsec:
-    mode: appsec
+    mode: live
     lapiHost: security-service.security
     lapiPort: 8080
     lapiKey: '6wgMS0NXDnl4BFSJEbFOG06TF+Ba9fowmhYEZHhAgLc'
