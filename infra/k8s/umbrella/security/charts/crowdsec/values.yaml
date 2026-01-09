@@ -7,7 +7,8 @@ crowdsec:
       - namespace: gateway
         podName: gateway-traefik-*
         program: traefik
-        poll_without_inotify: true # Add it here directly
+        poll_without_inotify: true
+        force_inotify: false
     metrics:
       enabled: true
     env:
