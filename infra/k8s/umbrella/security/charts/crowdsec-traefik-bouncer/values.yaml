@@ -1,17 +1,17 @@
 crowdsec:
   mode: stream
-  lapiHost: crowdsec-service.security
+  lapiHost: security-service.security
   lapiPort: 8080
   lapiKey: ''
 
   appsec:
     enabled: true
-    host: crowdsec-service.security
+    host: security-appsec-service.security
     port: 7422
     failureBlock: true
     unreachableBlock: false
 
-  logLevel: INFO
+  logLevel: DEBUG
   updateIntervalSeconds: 10
   defaultDecisionSeconds: 10
 
