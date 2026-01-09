@@ -63,7 +63,7 @@ crowdsec:
         server:
           auto_registration:
             enabled: true
-            token: "dK8vN2pQ7xR4mF9tL3wY6hB5jC1sA8zE"
+            token: "StHDVnzyvu3Zkl3Ce706GG6sQTyGmIM5orru8FqCJYFPwrIv"
             allowed_ranges:
               - "10.0.0.0/8"
               - "172.16.0.0/12"
