@@ -13,6 +13,14 @@ crowdsec:
     env:
       - name: COLLECTIONS
         value: 'crowdsecurity/traefik crowdsecurity/base-http-scenarios crowdsecurity/http-cve'
+    additionalFiles:
+      whitelists.yaml:
+        type: parser
+        stage: s02-enrich
+        content: |
+          name: crowdsecurity/whitelists
+          description: "Whitelist disabled for demo"
+          # Whitelist completely disabled - no IPs whitelisted
     resources:
       limits:
         memory: 200Mi
