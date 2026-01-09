@@ -13,17 +13,8 @@ crowdsec:
     env:
       - name: COLLECTIONS
         value: 'crowdsecurity/traefik crowdsecurity/base-http-scenarios crowdsecurity/http-cve'
-    # Remove DISABLE_PARSERS if it's causing issues
-    # Add lifecycle hook to remove whitelist after pod starts
-    lifecycle:
-      postStart:
-        exec:
-          command:
-            - /bin/sh
-            - -c
-            - |
-              sleep 5
-              cscli parsers remove crowdsecurity/whitelists || true
+      - name: DISABLE_PARSERS
+        value: 'crowdsecurity/whitelists'
     resources:
       limits:
         memory: 200Mi
@@ -87,3 +78,9 @@ crowdsec:
               - "172.16.0.0/12"
               - "192.168.0.0/16"
               - "127.0.0.1/32"
+    parsers:
+      s02-enrich:
+        whitelists.yaml: |
+          name: crowdsecurity/whitelists
+          description: "Whitelist disabled for demo"
+          # No whitelist rules - everything allowed through
