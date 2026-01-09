@@ -78,6 +78,7 @@ crowdsec:
               - "172.16.0.0/12"
               - "192.168.0.0/16"
               - "127.0.0.1/32"
+
     parsers:
       s02-enrich:
         whitelists.yaml: |
@@ -88,3 +89,21 @@ crowdsec:
             ip:
               - "127.0.0.1"
               - "::1"
+
+    scenarios:
+      http-sensitive-files.yaml.local: |
+        type: leaky
+        format: 2.0
+        name: crowdsecurity/http-sensitive-files
+        description: "Lowered threshold for lab testing"
+        filter: >
+          evt.Meta.log_type in ["http_access-log", "http_error-log"]
+          and any(File("sensitive_data.txt"), { evt.Parsed.request endsWith # })
+        groupby: evt.Meta.source_ip
+        distinct: evt.Parsed.request
+        capacity: 1
+        leakspeed: 1m
+        blackhole: 5m
+        labels:
+          remediation: true
+          service: http
