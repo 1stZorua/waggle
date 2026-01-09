@@ -16,7 +16,7 @@ yamlcrowdsec:
 
 crowdsec-traefik-bouncer:
   crowdsec:
-    mode: stream
+    mode: appsec
     lapiHost: security-service.security
     lapiPort: 8080
     lapiKey: 'GTpbsoaXnMZfLNPMuctC5P5r9zd7NtnKzi4db8EhEYI'
