@@ -19,7 +19,7 @@ export const sidebarConfig: SidebarItem[] = [
 	},
 	{
 		title: 'Explore',
-		href: '/explore',
+		href: '#explore',
 		icon: 'mingcute:grid-line'
 	},
 	{

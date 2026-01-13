@@ -15,11 +15,13 @@
 		children?: Snippet;
 	}
 
-	let { className, inputClassName, errors, children, ...rest }: Props = $props();
+	let input: HTMLInputElement;
+
+	let { className, inputClassName, errors, children, id, ...rest }: Props = $props();
 </script>
 
 <div class="gap-sm max-sm:gap-xs flex flex-col">
-	<div
+	<label
 		class={cn(
 			'shadow-ui focus-within:ring-accent relative flex items-center rounded-md px-8 py-3 focus-within:ring-2',
 			errors?.length && 'border-pink-light border-3',
@@ -27,6 +29,7 @@
 		)}
 	>
 		<input
+			{id}
 			class={cn(
 				'placeholder:text-secondary w-full py-2 pr-5 pl-3 text-base transition-opacity outline-none',
 				inputClassName
@@ -37,7 +40,7 @@
 		{#if errors?.length}
 			<Icon className="absolute right-6 text-md text-pink" icon="material-symbols:error-rounded" />
 		{/if}
-	</div>
+	</label>
 	{#if errors?.length}
 		<ul transition:slide={{ duration: 300, easing: quintOut }}>
 			{#each errors as err (err)}

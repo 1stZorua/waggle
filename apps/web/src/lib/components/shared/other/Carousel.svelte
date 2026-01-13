@@ -2,6 +2,7 @@
 	import { Icon } from '$components/shared/other';
 	import { cn } from '$lib/utils';
 	import emblaCarouselSvelte from 'embla-carousel-svelte';
+	import EmblaCarouselFade from 'embla-carousel-fade';
 	import { TextSmall } from '../text';
 
 	interface Props {
@@ -51,10 +52,9 @@
 			options: {
 				loop: true,
 				align: 'start',
-				duration: 0,
 				skipSnaps: false
 			},
-			plugins: []
+			plugins: [EmblaCarouselFade()]
 		}}
 		onemblaInit={onInit}
 	>
