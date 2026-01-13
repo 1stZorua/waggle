@@ -1,6 +1,6 @@
 gateway-traefik:
   traefik:
-    replicaCount: 1
+    replicaCount: 2
 
     api:
       dashboard: true

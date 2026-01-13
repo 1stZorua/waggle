@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/umbrella/identity
     helm:
       valueFiles:
-        - ../../environments/prod/identity.yaml
+        - ../../environments/dev/identity.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: identity

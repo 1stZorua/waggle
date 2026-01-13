@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/umbrella/database
     helm:
       valueFiles:
-        - ../../environments/prod/database.yaml
+        - ../../environments/dev/database.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: database

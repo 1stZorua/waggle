@@ -1,6 +1,6 @@
 keycloak:
   keycloak:
-    replicaCount: 1
+    replicaCount: 2
 
     auth:
       adminUser: admin

@@ -1,6 +1,6 @@
 rabbitmq:
   rabbitmq:
-    replicaCount: 1
+    replicaCount: 2
 
     auth:
       username: admin

@@ -1,6 +1,6 @@
 loki:
   singleBinary:
-    replicas: 1
+    replicas: 2
     persistence:
       enabled: false
 
