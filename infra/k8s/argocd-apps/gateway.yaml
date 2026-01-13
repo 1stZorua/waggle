@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/umbrella/gateway
     helm:
       valueFiles:
-        - ../../environments/dev/gateway.yaml
+        - ../../environments/prod/gateway.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: gateway

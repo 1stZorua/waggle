@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/umbrella/services
     helm:
       valueFiles:
-        - ../../environments/dev/services.yaml
+        - ../../environments/prod/services.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: app

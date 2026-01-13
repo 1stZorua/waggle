@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/umbrella/monitoring
     helm:
       valueFiles:
-        - ../../environments/dev/monitoring.yaml
+        - ../../environments/prod/monitoring.yaml
       skipCrds: true
   destination:
     server: https://kubernetes.default.svc

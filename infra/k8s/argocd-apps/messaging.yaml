@@ -13,7 +13,7 @@ spec:
     path: infra/k8s/umbrella/messaging
     helm:
       valueFiles:
-        - ../../environments/dev/messaging.yaml
+        - ../../environments/prod/messaging.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: messaging
