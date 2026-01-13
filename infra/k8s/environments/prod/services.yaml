@@ -1,6 +1,6 @@
 authservice:
   replicaCount: 3
-  image: 1stzorua/waggle-authservice:latest
+  image: 1stzorua/waggle-authservice:main-2fd00f8
 
   ingress:
     host: authservice.waggle.local
@@ -21,7 +21,7 @@ authservice:
 
 mediaservice:
   replicaCount: 3
-  image: 1stzorua/waggle-mediaservice:latest
+  image: 1stzorua/waggle-mediaservice:main-2fd00f8
 
   ingress:
     host: mediaservice.waggle.local
@@ -42,7 +42,7 @@ mediaservice:
 
 postservice:
   replicaCount: 3
-  image: 1stzorua/waggle-postservice:latest
+  image: 1stzorua/waggle-postservice:main-2fd00f8
 
   ingress:
     host: postservice.waggle.local
@@ -63,7 +63,7 @@ postservice:
 
 userservice:
   replicaCount: 3
-  image: 1stzorua/waggle-userservice:latest
+  image: 1stzorua/waggle-userservice:main-2fd00f8
 
   ingress:
     host: userservice.waggle.local
@@ -84,7 +84,7 @@ userservice:
 
 likeservice:
   replicaCount: 3
-  image: 1stzorua/waggle-likeservice:latest
+  image: 1stzorua/waggle-likeservice:main-2fd00f8
 
   ingress:
     host: likeservice.waggle.local
@@ -105,7 +105,7 @@ likeservice:
 
 followservice:
   replicaCount: 3
-  image: 1stzorua/waggle-followservice:latest
+  image: 1stzorua/waggle-followservice:main-2fd00f8
 
   ingress:
     host: followservice.waggle.local
@@ -126,7 +126,7 @@ followservice:
 
 favoriteservice:
   replicaCount: 3
-  image: 1stzorua/waggle-favoriteservice:latest
+  image: 1stzorua/waggle-favoriteservice:main-2fd00f8
 
   ingress:
     host: favoriteservice.waggle.local
@@ -147,7 +147,7 @@ favoriteservice:
 
 commentservice:
   replicaCount: 3
-  image: 1stzorua/waggle-commentservice:latest
+  image: 1stzorua/waggle-commentservice:main-2fd00f8
 
   ingress:
     host: commentservice.waggle.local
@@ -168,7 +168,8 @@ commentservice:
 
 web:
   replicaCount: 3
-  image: 1stzorua/waggle-web:latest
+  image: 1stzorua/waggle-web:main-8745e3b
+
 
   ingress:
     host: web.waggle.local
