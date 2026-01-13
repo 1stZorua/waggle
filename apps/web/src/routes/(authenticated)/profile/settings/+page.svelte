@@ -24,7 +24,9 @@
 				<Avatar src={data.profile?.avatarUrl?.url ?? '/images/anonymous.png'} alt="Avatar" />
 				<div class="flex flex-col">
 					<TextBase>{data.user.name}</TextBase>
-					<TextSmall className="text-secondary">@{data.user.username}</TextSmall>
+					<TextSmall className="text-secondary font-secondary font-normal"
+						>@{data.user.username}</TextSmall
+					>
 				</div>
 			</div>
 			<ButtonAction className="rounded-lg" onclick={openAvatarModal}>

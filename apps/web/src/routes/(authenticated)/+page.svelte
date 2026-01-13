@@ -66,7 +66,7 @@
 <section
 	class="gap-md relative grid h-full grid-cols-[minmax(0,1fr)_30rem] [grid-template-areas:'feed_action'] max-2xl:grid-cols-[1fr] max-2xl:[grid-template-areas:'feed']"
 >
-	<div class="gap-md flex w-full min-w-0 flex-col">
+	<div class="gap-md flex h-full w-full min-w-0 flex-col">
 		<div class="gap-md flex flex-col">
 			<div class="flex justify-between">
 				<TabControl items={['For you', 'Following']} changeTab={() => {}}></TabControl>
@@ -85,7 +85,7 @@
 					<ButtonAction
 						className={cn(
 							'w-max rounded-md p-1 border-6 border-transparent',
-							selectedIndex === stories.length - 2
+							selectedIndex === stories.length / 2
 								? 'w-max'
 								: 'border-pink-light bg-btn-primary-bg text-btn-primary-fg hover:bg-btn-primary-hover-bg hover:border-btn-primary-hover-border'
 						)}
@@ -111,7 +111,7 @@
 					onemblaInit={onInit}
 				>
 					<div class="embla__container gap-md flex w-full">
-						<div class="embla__slide min-w-0 flex-[0_0_11rem]">
+						<div class="embla__slide min-w-0 flex-[0_0_10.5rem]">
 							<Card
 								tag="a"
 								href="#"
@@ -129,7 +129,7 @@
 						</div>
 						{#each stories as story, i}
 							{@const pet = story.toLowerCase()}
-							<div class="embla__slide min-w-0 flex-[0_0_11rem]">
+							<div class="embla__slide min-w-0 flex-[0_0_10.5rem]">
 								<Card
 									tag="a"
 									href="#"
@@ -185,7 +185,10 @@
 				{/if}
 			</div>
 		{:else}
-			<p>No posts yet.</p>
+			<div class="gap-xs font-secondary flex h-full w-full flex-col items-center p-4">
+				<Logo className="w-20 text-secondary"></Logo>
+				<TextBase>Nothing fetched yet.</TextBase>
+			</div>
 		{/if}
 	</div>
 

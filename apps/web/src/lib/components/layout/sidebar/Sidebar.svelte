@@ -44,7 +44,9 @@
 			<Avatar src={data.profile?.avatarUrl?.url ?? '/images/anonymous.png'} alt="Avatar" />
 			<div class="flex flex-col">
 				<TextBase>{data.user.name}</TextBase>
-				<TextSmall className="text-secondary font-normal -mt-1">@{data.user.username}</TextSmall>
+				<TextSmall className="text-secondary font-normal -mt-1 font-secondary"
+					>@{data.user.username}</TextSmall
+				>
 			</div>
 		</Card>
 		<Card tag="nav" props={{ variant: 'primary' }} className="flex-col overflow-hidden">

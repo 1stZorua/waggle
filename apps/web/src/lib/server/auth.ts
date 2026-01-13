@@ -2,6 +2,7 @@ import { deleteAuthCookies, getAuthCookies, setAuthCookies } from '$lib/server';
 import { AuthClient } from '@waggle/api-client/auth';
 import type { Cookies } from '@sveltejs/kit';
 import type { AuthUser } from '$lib/types/types';
+import { setFlash } from 'sveltekit-flash-message/server';
 
 export function authHeaders(accessToken: string) {
 	return { Authorization: `Bearer ${accessToken}` };
@@ -22,6 +23,7 @@ export async function refreshTokenClient(cookies: Cookies, refreshToken?: string
 	} catch (err) {
 		console.error('Token refresh failed:', err);
 		deleteAuthCookies(cookies);
+		setFlash({ type: 'success', message: 'Successfully logged out' }, cookies);
 		return null;
 	}
 }

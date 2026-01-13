@@ -9,6 +9,7 @@
 
 		/* Fonts */
 		--font-primary: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		--font-secondary: 'Fredoka', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 		/* General */
 		--color-background: #ffffff;
@@ -76,7 +77,7 @@
 		--text-xl: clamp(1.3rem, 4.5vw, 1.75rem); /* 21px → 28px */
 	}
 
-	Poppins
+	/* Poppins */
 	/* Bold */
 	@font-face {
 		font-family: 'Poppins';
@@ -113,6 +114,47 @@
 	@font-face {
 		font-family: 'Poppins';
 		src: url('/fonts/Poppins/Poppins-Light.ttf') format('truetype');
+		font-weight: 300;
+		font-style: normal;
+	}
+
+	/* Fredoka */
+	/* Bold */
+	@font-face {
+		font-family: 'Fredoka';
+		src: url('/fonts/Fredoka/Fredoka-Bold.ttf') format('truetype');
+		font-weight: 700;
+		font-style: normal;
+	}
+
+	/* SemiBold */
+	@font-face {
+		font-family: 'Fredoka';
+		src: url('/fonts/Fredoka/Fredoka-SemiBold.ttf') format('truetype');
+		font-weight: 600;
+		font-style: normal;
+	}
+
+	/* Medium */
+	@font-face {
+		font-family: 'Fredoka';
+		src: url('/fonts/Fredoka/Fredoka-Medium.ttf') format('truetype');
+		font-weight: 500;
+		font-style: normal;
+	}
+
+	/* Regular */
+	@font-face {
+		font-family: 'Fredoka';
+		src: url('/fonts/Fredoka/Fredoka-Regular.ttf') format('truetype');
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	/* Light */
+	@font-face {
+		font-family: 'Fredoka';
+		src: url('/fonts/Fredoka/Fredoka-Light.ttf') format('truetype');
 		font-weight: 300;
 		font-style: normal;
 	}
@@ -181,6 +223,7 @@
 @theme {
 	/* Fonts */
 	--font-primary: var(--font-primary);
+	--font-secondary: var(--font-secondary);
 
 	/* General */
 	--color-background: var(--color-background);

@@ -121,7 +121,9 @@
 						<Avatar src={user?.avatarUrl?.url ?? '/images/anonymous.png'} alt="Avatar" />
 						<div class="flex min-w-0 flex-col">
 							<TextBase className="truncate">{user?.firstName} {user?.lastName}</TextBase>
-							<TextSmall className="text-secondary truncate">@{user?.username}</TextSmall>
+							<TextSmall className="text-secondary truncate font-secondary font-normal"
+								>@{user?.username}</TextSmall
+							>
 						</div>
 					</a>
 					<ButtonText onclick={openPostModal}>

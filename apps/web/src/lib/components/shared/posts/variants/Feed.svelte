@@ -65,7 +65,9 @@
 				<Avatar src={post.user?.avatarUrl?.url ?? '/images/anonymous.png'} alt="Avatar" />
 				<div class="flex flex-col">
 					<TextBase>{post.user?.firstName} {post.user?.lastName}</TextBase>
-					<TextSmall className="text-secondary">@{post.user?.username}</TextSmall>
+					<TextSmall className="text-secondary font-secondary font-normal"
+						>@{post.user?.username}</TextSmall
+					>
 				</div>
 				<Ellipse></Ellipse>
 				<TextSmall className="text-secondary">{timeAgo(post.createdAt as string)}</TextSmall>

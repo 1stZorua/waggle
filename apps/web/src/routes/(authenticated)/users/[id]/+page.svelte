@@ -87,7 +87,9 @@
 								</ButtonText>
 							{/if}
 						</div>
-						<TextBase className="text-secondary">@{data.profile?.username}</TextBase>
+						<TextBase className="text-secondary font-secondary font-normal"
+							>@{data.profile?.username}</TextBase
+						>
 					</div>
 					<div class="gap-xs flex items-center">
 						<div>

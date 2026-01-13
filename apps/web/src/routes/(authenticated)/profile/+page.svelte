@@ -70,7 +70,9 @@
 								<Icon className="text-secondary text-lg" icon="uis:ellipsis-h"></Icon>
 							</ButtonText>
 						</div>
-						<TextBase className="text-secondary">@{data.user.username}</TextBase>
+						<TextBase className="text-secondary font-secondary font-normal"
+							>@{data.user.username}</TextBase
+						>
 					</div>
 					<div class="gap-xs flex items-center">
 						<div>
@@ -103,10 +105,7 @@
 	</div>
 
 	<div class="gap-md flex flex-col">
-		<TabControl
-			items={['All', 'Dexter']}
-			changeTab={(activeIndex) => (activeTabIndex = activeIndex)}
-		></TabControl>
+		<TabControl items={['All', 'Dexter']} changeTab={(_) => () => {}}></TabControl>
 		{#if activeTabIndex === 0}
 			<InfiniteScroll
 				items={posts}
