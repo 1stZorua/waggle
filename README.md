@@ -1,32 +1,52 @@
-# Turborepo Svelte starter
+# Waggle
 
-This Turborepo starter is maintained by the Turborepo core team.
+Waggle is a social platform for pet owners to share content about their pets and connect with others.
 
-## Using this example
+## Figma Design
 
-Run the following command:
+The design of Waggle prioritizes a clean, intuitive interface for sharing and exploring pet-related content. For detailed design elements and prototypes, please refer to the [Figma design](https://www.figma.com/design/oOiIaAz9eU59ygzbiIfJSV/Waggle?node-id=0-1&t=OzkLrQz79xTLNbGu-1).
 
-```sh
-npx create-turbo@latest -e with-svelte
+## Architecture
+
+Waggle is built as a Turborepo monorepo, enabling multiple applications and shared packages to coexist in a single, organized codebase.
+
+## Tech Stack
+
+- **Svelte** – Frontend framework  
+- **Turborepo** – Monorepo architecture  
+- **C#** – Backend services  
+- **Docker** – Containerization  
+- **Kubernetes** – Container orchestration  
+- **Helmfile** – Kubernetes deployment management  
+
+## Folder Structure
+
+```bash
+.
+├── .github/workflows/   # CI/CD pipelines
+├── apps/                # Applications (frontend, backend)
+├── infra/               # Infrastructure (e.g., authentication setup)
+├── packages/            # Shared libraries and components
+├── tests/
+│   └── performance/     # Performance and load testing
+└── turbo.json           # Turborepo configuration
 ```
 
-## What's inside?
+## Features
 
-This Turborepo includes the following packages/apps:
+- **Pet-Centered Platform:** Share posts, images, and updates about pets  
 
-### Apps and Packages
+- **Community Interaction:** Engage with other users through likes and comments  
 
-- `docs`: a [svelte-kit](https://kit.svelte.dev/) app
-- `web`: another [svelte-kit](https://kit.svelte.dev/) app
-- `ui`: a stub Svelte component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-plugin-svelte` and `eslint-config-prettier`)
+- **Content Discovery:** Explore posts from other pet owners and discover new content  
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- **User Profiles:** Create and manage a personal profile for you and your pets
 
-### Utilities
+- **User-Friendly Interface:** Clean and intuitive design for an enjoyable experience  
 
-This Turborepo has some additional tools already setup for you:
+## Getting Started
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+```bash
+npm install
+npm run dev
+```
